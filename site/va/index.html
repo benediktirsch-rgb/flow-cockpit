@@ -285,6 +285,7 @@
   .pfl .b .v{font-size:19px;font-weight:800;margin-top:2px}
   .pokr{display:flex;gap:8px;align-items:baseline;padding:5px 0;border-bottom:1px dashed var(--line);font-size:12.5px}
   .pokr:last-child{border-bottom:0}
+  a.pokr:hover .id,a.pokr:focus-visible .id{text-decoration:underline}
   .pokr .id{font-weight:800;color:var(--brand-dark);flex:0 0 auto}
   .profov input[type=text]{width:100%;box-sizing:border-box;padding:7px 9px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13px;background:var(--card);color:var(--ink);margin-top:3px}
   .profov label{display:block;font-size:11.5px;color:var(--sub);margin-top:10px;font-weight:700}
@@ -300,6 +301,11 @@
   .pbars .pb{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:3px;font-size:9.5px;color:var(--sub)}
   .pbars .pb i{display:block;width:100%;background:var(--brand);border-radius:3px 3px 0 0;min-height:2px}
   .pbars .pb b{font-size:10.5px}
+  /* klickbare Säule: führt in die Liste dahinter (Jira bzw. Programm Board) */
+  .pbars a.pb{text-decoration:none;color:var(--sub);cursor:pointer;border-radius:4px}
+  .pbars a.pb:hover i,.pbars a.pb:focus-visible i{background:var(--brand-dark)}
+  .pbars a.pb:hover b,.pbars a.pb:focus-visible b{color:var(--brand-dark);text-decoration:underline}
+  .pbars a.pb:focus-visible{outline:2px solid var(--brand-dark);outline-offset:2px}
   .pgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
   .ptq .pans{display:block;width:100%;text-align:left;cursor:pointer;border:1px solid var(--line);border-radius:10px;background:var(--bg);padding:9px 12px;margin:6px 0;font-family:inherit;font-size:12.5px}
   .ptq .pans:hover{border-color:var(--brand)}
@@ -663,7 +669,7 @@ Alex Muster; Coach; gesamt</textarea></div>
 
 <script>
 // ═══ Version & Sprache ═══
-const VERSION='2.1.0-starter';
+const VERSION='2.2.0-starter';
 /* Sprache: EIN Schlüssel vsLang (Fallback beim Lesen: altes vaLang); Umschalter liegt im pb-ui-Menü (🌐 EN) */
 let LANG=(window.pbLang?pbLang():'de');
 /* Drei Sprachen. DE und EN stehen als Paar an jeder der ~330 Aufrufstellen; Kroatisch kommt als
@@ -1595,9 +1601,67 @@ function pCtas(name,pd){
     'Nothing finished this week yet — which of your '+pd.wip+' running tickets can you complete today?')]);
   return t;
 }
-function pBars(vals,labels){
+/* ══ Von der Säule in die Liste (01.09.2026) ═════════════════════════════════
+   Die persönlichen Diagramme zeigten Zahlen, aber keinen Weg zu den Tickets
+   dahinter. Der Team-Drilldown (drillShow) hilft hier nicht: der Assignee steht
+   in RAWDATA mit Absicht NICHT drin (Betriebsrat-Auflage), die Liste lässt sich
+   im Client also gar nicht bilden. Deshalb führt jede Säule per JQL nach Jira —
+   mit assignee = currentUser(). Jede Person sieht dort ihre eigenen Tickets,
+   die Berechtigung prüft Jira selbst, und im Cockpit landen weiterhin keine
+   Individualdaten. Blättert der Coach durch fremde Werte, bleiben die Säulen
+   bewusst stumm, denn currentUser() wäre dann er selbst.
+   Die Spalten-Bedingung kommt aus RAWDATA.meta.map (Status-ID → Board-Spalte,
+   aus dem Jira-Sync). Fehlt sie im Datenstand, entfällt der Link — lieber keine
+   Liste als eine, die nicht zur Zahl passt. */
+const PJQL='https://${CONFIG.jiraBase.replace(/^https?:\/\//,"")}/issues/?jql=';
+const pNrm=s=>String(s||'').toLowerCase().replace(/\(.*?\)/g,'').replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss')
+  .normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z ]/g,'').replace(/\s+/g,' ').trim();
+function pSelf(name){return !!(USER&&USER.name&&pNrm(USER.name)===pNrm(name));}
+/* Projekt-Rahmen aus den Ticket-Schlüsseln des Datenstands — nicht aus JQL[view]:
+   die persönlichen Werte (PDATA) rechnet der Sync über ALLE Tickets dieses Cockpits,
+   nicht je Tab. In den Team-Cockpits steht in JQL.gesamt ohnehin nur ein Platzhalter. */
+let _pScope;
+function pScopeJql(){
+  if(_pScope!==undefined)return _pScope;
+  _pScope='';
+  try{const s=new Set();RAWDATA.issues.forEach(i=>{const p=String(i[0]).split('-')[0];if(p)s.add(p);});
+    if(s.size)_pScope='project in ('+[...s].sort().join(', ')+')';}catch(e){}
+  return _pScope;
+}
+/* Status-IDs der Board-Spalten cols (1 = Discovery … 4 = Review) */
+function pColJql(cols){
+  let m=null;try{m=RAWDATA.meta&&RAWDATA.meta.map;}catch(e){}
+  if(!m)return '';
+  const ids=Object.keys(m).filter(id=>cols.indexOf(m[id])>=0);
+  return ids.length?'status in ('+ids.join(', ')+')':'';
+}
+function pJqlUrl(name,tail,order){
+  const sc=pScopeJql();
+  if(!pSelf(name)||!tail||!sc)return '';
+  return PJQL+encodeURIComponent(sc+' AND assignee = currentUser() AND '+tail+' ORDER BY '+(order||'created ASC'));
+}
+const POPEN=[1,2,3,4];                                   /* alle laufenden Spalten */
+const pWipUrl=(n,i)=>pJqlUrl(n,pColJql([i+1]));
+function pAgeUrl(n,i){
+  const c=pColJql(POPEN);if(!c)return '';
+  const r=['created >= -7d','created >= -30d AND created < -7d','created >= -90d AND created < -30d',
+           'created >= -180d AND created < -90d','created < -180d'][i];
+  return pJqlUrl(n,c+' AND '+r);
+}
+function pWkUrl(n,i){                                    /* Säule 7 = laufende Woche */
+  const w=7-i;
+  return pJqlUrl(n,'resolution = Done AND resolved >= -'+((w+1)*7)+'d'+(w?' AND resolved < -'+(w*7)+'d':''),'resolutiondate DESC');
+}
+/* links[i]: '' = stumm · URL · {u:URL,t:Titel} */
+function pBars(vals,labels,links){
   const mx=Math.max(1,...vals);
-  return '<div class="pbars">'+vals.map((v,i)=>'<div class="pb"><b>'+v+'</b><i style="height:'+Math.round(v/mx*52)+'px"></i><span>'+esc(labels[i]||'')+'</span></div>').join('')+'</div>';
+  return '<div class="pbars">'+vals.map((v,i)=>{
+    const inner='<b>'+v+'</b><i style="height:'+Math.round(v/mx*52)+'px"></i><span>'+esc(labels[i]||'')+'</span>';
+    const l=links&&links[i],u=l&&(l.u||l);
+    if(!u||!v)return '<div class="pb">'+inner+'</div>';
+    const t=(l&&l.t)||tr(v+' Ticket'+(v===1?'':'s')+' in Jira öffnen ↗',v+' ticket'+(v===1?'':'s')+' — open in Jira ↗');
+    return '<a class="pb" href="'+esc(u)+'" target="_blank" rel="noopener" title="'+esc(t)+'">'+inner+'</a>';
+  }).join('')+'</div>';
 }
 function personalHide(){
   const pv=document.getElementById('personalView');if(pv)pv.style.display='none';
@@ -1654,13 +1718,19 @@ function renderPersonal(name){
   s+='<div class="pgrid">';
   if(hasV2){
     if(lv.ix>=0){ /* VA: alle Coaches — keine Level-Sperre */
-      s+='<div class="pcard"><h3>📊 '+tr('Dein WIP nach Spalte','Your WIP by column')+'</h3>'+pBars(pd.wipCols,['Discovery','Ready','In Prog.','Review'])+'</div>';
-      s+='<div class="pcard"><h3>📈 '+tr('Dein Durchsatz (8 Wochen)','Your throughput (8 weeks)')+'</h3>'+pBars(pd.wk,['-7','-6','-5','-4','-3','-2','-1',tr('jetzt','now')])+'</div>';
+      s+='<div class="pcard"><h3>📊 '+tr('Dein WIP nach Spalte','Your WIP by column')+'</h3>'+pBars(pd.wipCols,['Discovery','Ready','In Prog.','Review'],pd.wipCols.map((v,i)=>pWipUrl(name,i)))+'</div>';
+      s+='<div class="pcard"><h3>📈 '+tr('Dein Durchsatz (8 Wochen)','Your throughput (8 weeks)')+'</h3>'+pBars(pd.wk,['-7','-6','-5','-4','-3','-2','-1',tr('jetzt','now')],pd.wk.map((v,i)=>pWkUrl(name,i)))+'</div>';
     } else s+=lock(2,tr('WIP & Durchsatz','WIP & throughput'));
     /* Aging ist der wichtigste Frühindikator — für ALLE sichtbar, ohne Level-Sperre. */
-    s+='<div class="pcard"><h3>⏳ '+tr('Alter deiner offenen Tickets','Age of your open tickets')+'</h3>'+pBars(pd.agingB,['0–7','8–30','31–90','91–180','>180'])+'</div>';
+    s+='<div class="pcard"><h3>⏳ '+tr('Alter deiner offenen Tickets','Age of your open tickets')+'</h3>'+pBars(pd.agingB,['0–7','8–30','31–90','91–180','>180'],pd.agingB.map((v,i)=>pAgeUrl(name,i)))+'</div>';
     if(lv.ix>=0){ /* VA: alle Coaches — keine Level-Sperre */
-      s+='<div class="pcard"><h3>⏱️ '+tr('Deine Lead Times (12 Wo.)','Your lead times (12 wks)')+'</h3>'+pBars(pd.leadH,['0–3','4–7','8–14','15–30','31–60','61–120','>120'])+'</div>';
+      /* Lead Time ist Resolution minus Created — danach kann JQL nicht filtern.
+         Deshalb hier keine Säulen-Links, sondern ein Link auf die Grundmenge. */
+      const ltUrl=pJqlUrl(name,'resolution = Done AND resolved >= -84d','resolutiondate DESC');
+      s+='<div class="pcard"><h3>⏱️ '+tr('Deine Lead Times (12 Wo.)','Your lead times (12 wks)')+'</h3>'+pBars(pd.leadH,['0–3','4–7','8–14','15–30','31–60','61–120','>120'])
+        +(ltUrl?'<div class="explain">🔗 <a href="'+ltUrl+'" target="_blank" rel="noopener" style="color:var(--brand-dark);font-weight:700">'+tr('Deine erledigten Tickets (12 Wo.) in Jira','Your finished tickets (12 wks) in Jira')+' ↗</a> — '
+          +tr('nach einzelnen Säulen kann Jira nicht filtern: Lead Time ist Abschluss minus Erstellung.','Jira cannot filter by single bars: lead time is resolution minus creation.')+'</div>':'')
+        +'</div>';
     } else s+=lock(3,tr('Lead Times','lead times'));
   }else if(pd){
     s+='<div class="pcard"><h3>📊 '+tr('Persönliche Auswertungen','Personal charts')+'</h3><div class="explain">○ '+tr('Deine persönlichen Diagramme (WIP, Durchsatz, Lead Times, Aging) kommen mit dem nächsten stündlichen Datenimport.','Your personal charts (WIP, throughput, lead times, aging) arrive with the next hourly data import.')+'</div></div>';
@@ -1709,11 +1779,19 @@ function flStufenHtml(){
   let st=null; try{ st=teamStats(id); }catch(e){ return ''; }
   if(!st||!st.t)return '';
   const kachel=(l,v)=>'<div class="b"><div class="l">'+l+'</div><div class="v">'+v+'</div></div>';
-  const fertig=st.by.D||0, arbeit=(st.by.I||0)+(st.by.F||0), offen=Math.max(0,st.inPI.length-fertig-arbeit);
+  /* Features je Zustand — aus st.inPI, nicht aus st.by: by zählt über ALLE Features des
+     Teams (inkl. der fürs nächste PI vorgemerkten), die Säule „offen" rechnete aber schon
+     immer gegen inPI. Aus einer Quelle gerechnet passen Zahl und verlinkte Liste zusammen. */
+  const feats=[[],[],[]];
+  st.inPI.forEach(k=>{const z=(FEAT[k]||[])[1];feats[z==='D'?0:(z==='I'||z==='F')?1:2].push(k);});
+  const fertig=feats[0].length, arbeit=feats[1].length, offen=feats[2].length;
+  const featUrl=ks=>(ks.length&&typeof JQLURL==='function')
+    ?{u:JQLURL('key in ('+ks.join(',')+') ORDER BY status ASC'),
+      t:tr(ks.length+' Feature'+(ks.length===1?'':'s')+' in Jira öffnen ↗',ks.length+' feature'+(ks.length===1?'':'s')+' — open in Jira ↗')}:'';
   let s='<div class="pcard"><h3>🎯 '+tr('FL2 · Dein Team im PI','FL2 · your team in the PI')
     +' <span style="font-weight:400;font-size:11.5px;color:var(--sub)">'+esc(st.t.n)+'</span></h3>'
     +'<div class="desc">'+tr('Worauf deine Tickets einzahlen: die Features deines Teams im laufenden PI.','What your tickets feed into: your team’s features in the running PI.')+'</div>'
-    +pBars([fertig,arbeit,offen],[tr('fertig','done'),tr('in Arbeit','running'),tr('offen','open')])
+    +pBars([fertig,arbeit,offen],[tr('fertig','done'),tr('in Arbeit','running'),tr('offen','open')],feats.map(featUrl))
     +'<div class="pfl">'
     +kachel(tr('Features im PI','Features in PI'),st.inPI.length)
     +kachel(tr('Vorhersagbarkeit','Predictability'),st.pred!=null?st.pred+' %':'–')
@@ -1729,8 +1807,11 @@ function flStufenHtml(){
     +'<div class="desc">'+tr('Eine Ebene höher: wozu die Features beitragen sollen.','One level up: what the features are meant to contribute to.')+'</div>';
   if(!sets.length) s+='<div class="explain">'+tr('Diesem Team ist derzeit kein Objective zugeordnet — das ist selbst ein Befund fürs nächste PI-Planning.','No objective is mapped to this team right now — which is itself a finding for the next PI planning.')+'</div>';
   else{
-    s+=pBars([st.krG,st.krY,st.krR],['🟢 On Track','🟡 At Risk','🔴 Off Track']);
-    s+='<div style="margin-top:8px">'+sets.slice(0,4).map(o=>'<div class="pokr"><span class="id">'+esc(o.id)+'</span><span>'+esc(o.t)+'</span></div>').join('')+'</div>';
+    /* Key Results stehen in keinem Jira-Ticket — die Ampel kommt aus den Check-ins.
+       Die Säulen führen deshalb dorthin, wo diese Check-ins gepflegt werden. */
+    const okrZiel={u:'programmboard.html#okr',t:tr('Key Results im Programm Board ansehen ↗','See the key results on the program board ↗')};
+    s+=pBars([st.krG,st.krY,st.krR],['🟢 On Track','🟡 At Risk','🔴 Off Track'],[okrZiel,okrZiel,okrZiel]);
+    s+='<div style="margin-top:8px">'+sets.slice(0,4).map(o=>'<a class="pokr" href="programmboard.html#okr" target="_blank" rel="noopener" style="text-decoration:none;color:inherit"><span class="id">'+esc(o.id)+'</span><span>'+esc(o.t)+'</span></a>').join('')+'</div>';
     s+='<div class="pfl">'+kachel(tr('OKR-Konfidenz','OKR confidence'),st.obj!=null?st.obj+' %':'–')
       +kachel(tr('Key Results','Key results'),st.krRated+'/'+st.krTotal)+'</div>';
     s+='<div class="explain">'+tr('Konfidenz = Anteil grüner KRs (gelbe zählen halb), gerechnet aus den Check-ins im Programm Board.','Confidence = share of green KRs (yellow counts half), from the check-ins on the program board.')+'</div>';

@@ -75,7 +75,11 @@ RepX '<div class="nrow"><strong>Snapshot[^<]*</strong> <span class="dim">[^<]*</
 RepX "if\(nr\[0\]\)nr\[0\]\.innerHTML=(?:S\()?'<strong>Snapshot[^\n]*" "if(nr[0])nr[0].innerHTML='<strong id=`"noteMode`">'+(RAWDATA.meta.demo?'Demo mode':'Your data')+'</strong> <span class=`"dim`">· own Jira data: ⚙️ Setup → data source (upload or import script).</span> &nbsp;<span class=`"chip live`">● LIVE</span> <span class=`"dim`">real imported value</span> · <span class=`"chip mock`">○ MOCK</span> <span class=`"dim`">placeholder</span>';" 'Note-EN'
 
 # ── 7. Version ─────────────────────────────────────────────────────────────────
-Rep "const VERSION='2.1.0';" "const VERSION='2.1.0-starter';" 'Version'
+# Versionsnummer nicht fest verdrahten (02.09.2026: die Quelle stand auf 2.1.0, der Anker brach beim
+# ersten Build aus dem eigenen Repo) — Nummer aus der Quelle lesen und nur das Suffix anhaengen.
+$verM = [regex]::Match($script:s, "const VERSION='([^']+)';")
+if (-not $verM.Success) { throw 'ANKER FEHLT (R): Version' }
+Rep $verM.Value ("const VERSION='" + $verM.Groups[1].Value + "-starter';") 'Version'
 
 # ── 7b. Stufenleiter: Fliegerei statt Motorsport ───────────────────────────────
 # Kart -> Formel 1 -> Weltmeister ist die Porsche-Sprache und bleibt dort. Die
