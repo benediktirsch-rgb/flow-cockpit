@@ -1,0 +1,23 @@
+# ── Flow Cockpit — was NICHT in die Versionsverwaltung gehört ────────────────
+desktop.ini
+Thumbs.db
+.DS_Store
+node_modules/
+
+# Sitzungsstand von Claude Code (Berechtigungen, lokale Overrides, Notizen)
+.claude/
+CLAUDE.local.md
+
+# Laufzeit-Protokolle
+*.log
+
+# Generierte Daten der Vishnu-Instanz: schreibt der GitHub-Workflow update-va-data.yml
+# stündlich aus Jira und lädt sie per FTPS hoch — nie lokal schreiben oder committen.
+site/va/va-data.json
+
+# Zugangsdateien (HTTP-Basic-Auth) entstehen im Workflow aus dem Secret VA_HTPASSWD
+.htpasswd*
+docs/va.htpasswd
+
+# Kundeninstanzen: Namen, Board-URLs, Zugangs-Hashes — bleiben lokal
+instanzen/

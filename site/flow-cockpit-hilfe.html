@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hilfe &amp; Methodik — Flow Cockpit</title>
+<!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js; Grundfarben vor dem ersten Paint -->
+<script>try{if(localStorage.getItem('fcTheme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
+<style>html[data-theme=dark]{background:#0e1013;color-scheme:dark}html[data-theme=dark]:root{--bg:#0e1013;--card:#16191d;--ink:#e8eaed;--sub:#9aa1a9;--line:#262b31}html[data-theme=dark] body{background:#0e1013;color:#e8eaed}</style>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c1013'/%3E%3Cpath d='M12 52L30 52L12 32Z' fill='%2389c527'/%3E%3Ccircle cx='44' cy='16' r='7' fill='%23ff5630'/%3E%3Ccircle cx='44' cy='33' r='7' fill='%23ffab00'/%3E%3Ccircle cx='44' cy='50' r='7' fill='%2336b37e'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="/fonts.css">
+<style>
+  :root{--bg:#f0f0f0;--card:#fff;--ink:#0f1010;--sub:#5f6668;--line:#e2e4e5;
+    --brand:#89c527;--brand2:#74b62e;--brand-dark:#5c9220;--accent:#0c1013}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,sans-serif;font-size:14.5px;line-height:1.65}
+  header{background:var(--accent);color:#fff;padding:14px 28px;display:flex;align-items:center;gap:14px;border-bottom:4px solid var(--brand)}
+  header .logo{font-weight:800;font-size:17px}
+  header .logo em{color:var(--brand);font-style:normal}
+  header a,header span.btn{margin-left:auto;color:#c1c7d0;font-size:13px;text-decoration:none;font-weight:600;cursor:pointer}
+  header a:hover{color:var(--brand)}
+  .wrap{max-width:900px;margin:0 auto;padding:30px 28px 60px}
+  h1{font-size:26px;margin:.4em 0}
+  h2{font-size:19px;margin:1.8em 0 .5em;border-bottom:2px solid var(--brand);display:inline-block;padding-bottom:2px}
+  h3{font-size:15px;margin:1.2em 0 .3em}
+  .card{background:var(--card);border-radius:12px;box-shadow:0 2px 8px rgba(15,16,16,.07);padding:20px 24px;margin:14px 0}
+  code{background:#eef2e8;border-radius:4px;padding:1px 6px;font-size:12.5px}
+  table{border-collapse:collapse;width:100%;font-size:13px;margin:10px 0}
+  th,td{border:1px solid var(--line);padding:7px 10px;text-align:left}
+  th{background:#f7f8f4}
+  .amp{font-weight:700}
+  .g{color:#006644}.y{color:#8a5a00}.r{color:#bf2600}
+  footer{border-top:1px solid var(--line);margin-top:40px;padding:18px 28px;font-size:12px;color:var(--sub);display:flex;gap:16px;flex-wrap:wrap;justify-content:space-between}
+  footer a{color:var(--brand-dark)}
+  .langbtn{background:#1c2226;border:1px solid #2c3338;color:#c1c7d0;padding:5px 12px;border-radius:20px;font-size:12px}
+  ul{padding-left:22px}
+  .dim{color:var(--sub);font-size:13px}
+  /* Praxisblock unter jeder Chart-Erklaerung: wo sie benutzt wird, was daraus folgt,
+     woran man sich taeuscht (21.08.2026 — Bene: "wie und wo sie genutzt wird"). */
+  .use{border-left:3px solid var(--brand,#1a44ea);background:rgba(26,68,234,.05);border-radius:0 8px 8px 0;
+       padding:9px 12px;margin:8px 0 18px;font-size:13.5px;line-height:1.62}
+  .use b{color:var(--brand-dark,#0f2ec2)}
+  html[data-theme=dark] .use{background:rgba(61,108,255,.10)}
+  html[data-theme=dark] .use b{color:#9db1ff}
+  .quick{counter-reset:q}
+  .quick li{margin:7px 0;line-height:1.6}
+  .quick li b{color:var(--brand-dark,#0f2ec2)}
+  html[data-theme=dark] .quick li b{color:#9db1ff}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo"><em>◢</em> <span id="hTitle">HILFE</span></span>
+  <a href="flow-cockpit-starter.html" id="backLink" onclick="return hilfeBack(event)">← Zurück zum Cockpit</a>
+</header>
+<script>
+/* Zurück-Link: eigenes Team-Cockpit aus der Portal-Anmeldung (sessionStorage.vsAuth), sonst Verlauf (history.back),
+   sonst Portal. Der Sprachumschalter (🌐 EN) liegt nur noch im pb-ui-Menü. */
+function hilfeBack(ev){
+  try{
+    var a=JSON.parse(sessionStorage.getItem('vsAuth')||'null');
+    var C={formular1:'cockpit-formular1.html',pawpatrol:'cockpit-pawpatrol.html',heisenberg:'cockpit-heisenberg.html',team42:'cockpit-team42.html',loansharks:'cockpit-loansharks.html',analytics:'cockpit.html'};
+    var ref=document.referrer||'', same=ref&&ref.indexOf(location.origin)===0&&!/hilfe\.html/.test(ref);
+    if(same&&history.length>1){ ev.preventDefault(); history.back(); return false; }
+    if(a&&a.team&&C[a.team]){ ev.preventDefault(); location.href=C[a.team]; return false; }
+    if(sessionStorage.getItem('vsDemo')==='1'){ ev.preventDefault(); location.href='cockpit-formular1.html?demo=1'; return false; }
+  }catch(e){}
+  return true; /* Fallback: href=index.html */
+}
+</script>
+
+<div class="wrap" id="de">
+  <h1>So liest du das Cockpit</h1>
+  <p>Dieses Dashboard macht den <b>Arbeitsfluss</b> eures Kanban-Systems sichtbar — nicht die Auslastung einzelner Personen, sondern wie gut Arbeit durch das System fließt. Alle Werte werden clientseitig aus den eingebetteten Jira-Rohdaten berechnet; <b>Epics sind als Container ausgeschlossen</b>.</p>
+
+  <h2 id="schnell">🚀 Schnelleinstieg — fünf Minuten</h2>
+  <div class="card">
+    <p>Wenn du das Cockpit zum ersten Mal öffnest oder wenig Zeit hast, lies in dieser Reihenfolge. Jeder Schritt beantwortet eine Frage, und jede Antwort führt zur nächsten.</p>
+    <ol class="quick">
+      <li><b>Wächst das System?</b> → <a href="#h-through">Created vs. Resolved</a>. Kommt dauerhaft mehr rein als raus, ist alles andere Symptom. Zuerst den Zufluss klären, nicht schneller arbeiten.</li>
+      <li><b>Wie viel läuft gleichzeitig?</b> → <a href="#h-wip">WIP nach Spalte</a>. Hoher Bestand erzwingt lange Durchlaufzeiten — das ist Mathematik, keine Haltung.</li>
+      <li><b>Was liegt zu lange?</b> → <a href="#h-aging">WIP Aging</a>. Die älteste laufende Karte ist fast immer das dringendste Gespräch des Tages.</li>
+      <li><b>Wie verlässlich sind wir?</b> → <a href="#h-lead">Lead Time p85</a>. Nicht der Durchschnitt zählt, sondern der Wert, den ihr in 85 % der Fälle haltet.</li>
+      <li><b>Wo staut es sich?</b> → <a href="#h-cfd">CFD</a>. Ein dicker werdendes Band zeigt die Engstelle, ohne dass jemand sie melden muss.</li>
+    </ol>
+    <p style="margin-bottom:0"><b>Die eine Regel dahinter:</b> erst den Fluss ansehen, dann die Menge. Ein Team, das weniger gleichzeitig anfängt, liefert messbar früher — auch ohne mehr zu arbeiten.</p>
+  </div>
+
+  <h2>Die Kacheln im Hintergrund</h2>
+  <div class="card">
+    <h3 id="h-cfd">📈 Cumulative Flow Diagram (CFD)</h3>
+    <p>Zeigt für jeden Zeitpunkt, wie viele Tickets in welcher Spalte liegen (kumulativ gestapelt: Done unten, Discovery oben). Rekonstruiert aus den Status-Changelogs jedes Tickets zu 8 Schnittzeitpunkten im gewählten Zeitraum. <b>Lesart:</b> Laufen die Bänder parallel, ist der Fluss stabil. Wird ein Band dicker, staut sich dort Arbeit. Die Steigung des Done-Bands ist eure Liefergeschwindigkeit.</p>
+    <p class="use"><b>Wo im Alltag:</b> Weekly Flow Review (Mo) als Einstieg — ein Blick, und die Engstelle der Woche liegt auf dem Tisch. Im PI-Review als Verlaufsbild über den ganzen Zeitraum.<br>
+    <b>Was du daraus machst:</b> Das dickste Band benennen und fragen „was hindert diese Arbeit am Weitergehen?". Wird das Done-Band flacher, obwohl oben gleich viel reinkommt, wächst euer Bestand — dann WIP-Limit senken statt Druck erhöhen.<br>
+    <b>Typische Fehldeutung:</b> Ein breites Band heißt nicht „viel geschafft", sondern „viel liegt hier". Breite ist Bestand, nur die <i>Steigung</i> unten ist Leistung.</p>
+
+    <h3 id="h-wip">📊 WIP nach Spalte</h3>
+    <p>Momentaufnahme zum Enddatum des Zeitraums: Wie viele Tickets stehen in Discovery, Ready, In Progress, In Review? Nach <b>Little's Law</b> gilt: Durchlaufzeit ≈ Bestand ÷ Durchsatz. Viel WIP bedeutet mathematisch zwingend lange Wartezeiten.</p>
+    <p class="use"><b>Wo im Alltag:</b> Im Daily, bevor jemand etwas Neues zieht. Im Weekly, wenn über Zusagen gesprochen wird.<br>
+    <b>Was du daraus machst:</b> Rechne es einmal laut vor: 20 Tickets in Arbeit bei 5 fertigen pro Woche sind vier Wochen Durchlaufzeit — egal wie fleißig alle sind. Danach diskutiert niemand mehr über Motivation, sondern über das WIP-Limit.<br>
+    <b>Typische Fehldeutung:</b> „In Review" wird gern übersehen, weil es sich nach „fast fertig" anfühlt. Ein volles Review-Feld ist aber ein Stau, kein Erfolg — dort wartet Arbeit auf <i>Menschen</i>, nicht auf Können.</p>
+
+    <h3 id="h-lead">⚫ Lead Time Scatterplot &amp; Histogramm</h3>
+    <p>Jeder Punkt ist ein abgeschlossenes Ticket; die Höhe zeigt die Tage von Erstellung bis Abschluss. Die Linien markieren <b>Perzentile</b>: p50 (Median), p85, p95 — „85 % unserer Tickets waren in X Tagen fertig". Das Verhältnis p85/p50 misst die <b>Vorhersagbarkeit</b>: je größer, desto unzuverlässiger sind Prognosen. Das Histogramm zeigt dieselben Daten als Verteilung.</p>
+    <p class="use"><b>Wo im Alltag:</b> Immer dann, wenn jemand „wann ist das fertig?" fragt — im Refinement, gegenüber Stakeholdern, in der Roadmap-Abstimmung.<br>
+    <b>Was du daraus machst:</b> Sag nicht „ungefähr zwei Wochen", sondern „in 85 % der Fälle innerhalb von X Tagen". Das ist ehrlicher, verhandelbar und lässt sich nachprüfen. Punkte weit oben einzeln ansehen: Was war bei diesen Tickets anders? Meist eine Abhängigkeit, keine Komplexität.<br>
+    <b>Typische Fehldeutung:</b> Den Median als Zusage benutzen. Der p50 trifft per Definition in der Hälfte der Fälle nicht zu — wer damit plant, ist jede zweite Woche zu spät.</p>
+
+    <h3 id="h-through">📉 Throughput &amp; Created vs. Resolved</h3>
+    <p>Throughput = erledigte Tickets pro Woche (eure echte Liefergeschwindigkeit — stabiler Takt schlägt Spitzenwochen). Created vs. Resolved vergleicht Zufluss und Abfluss: Kommt mehr rein als raus, wächst das System und alle Durchlaufzeiten steigen.</p>
+    <p class="use"><b>Wo im Alltag:</b> Weekly Flow Review als erste Zahl. In Kapazitätsgesprächen mit dem Management — Throughput ist die einzige Liefergröße, die nicht geschätzt ist.<br>
+    <b>Was du daraus machst:</b> Aus dem Throughput wird die Prognose: Zwölf offene Tickets bei fünf pro Woche sind gut zwei Wochen. Steht Created dauerhaft über Resolved, ist die richtige Maßnahme <i>Zufluss begrenzen</i> — Priorisierung an der Quelle, nicht Überstunden am Ende.<br>
+    <b>Typische Fehldeutung:</b> Eine Spitzenwoche als neue Normalgeschwindigkeit lesen. Der Takt zählt, nicht der Rekord; Schwankung ist selbst eine Kennzahl.</p>
+
+    <h3 id="h-aging">⏳ WIP Aging</h3>
+    <p>Alter der aktuell laufenden Tickets. Alte laufende Tickets sind das größte Risiko im System: Sie binden Kapazität, veralten fachlich und verstopfen den Fluss.</p>
+    <p class="use"><b>Wo im Alltag:</b> Das Herzstück des Dailys. Board von <i>rechts nach links</i> lesen, ältestes Ticket zuerst — nicht reihum berichten, wer was tut.<br>
+    <b>Was du daraus machst:</b> Für die älteste Karte genau eine Entscheidung treffen: zerlegen, jemanden dazuholen, bewusst zurücklegen. Alles davon ist besser, als sie noch eine Woche mitzuschleppen. Vergleiche das Alter mit eurem p85 — was älter ist als p85, wird mit hoher Wahrscheinlichkeit nicht mehr „normal" fertig.<br>
+    <b>Typische Fehldeutung:</b> Alter mit Aufwand verwechseln. Die meisten alten Tickets sind nicht schwer, sondern blockiert — die Frage lautet „worauf wartet es?", nicht „wer ist zu langsam?".</p>
+
+    <h3 id="h-fe">⚙️ Flow Efficiency (Schätzung)</h3>
+    <p>Anteil echter Arbeitszeit an der Gesamtdurchlaufzeit. Wir <b>schätzen</b> sie aus der Status-Historie: Zeit in „In Progress" + „In Review" ÷ Zeit von Erstellung bis Abschluss, summiert über alle im Zeitraum erledigten Tickets. Branchentypisch sind nur ~15 % — der Rest ist Warten. Exakte Werte bräuchten explizite Warte-Status. Schwellen: <span class="amp g">≥ 40 %</span> · <span class="amp y">≥ 15 %</span> · <span class="amp r">&lt; 15 %</span>.</p>
+    <p class="use"><b>Wo im Alltag:</b> In der Retro, wenn das Team das Gefühl hat, ständig zu arbeiten und trotzdem nichts fertig zu bekommen. Diese Kachel erklärt das Gefühl.<br>
+    <b>Was du daraus machst:</b> Bei 15 % ist der Hebel nicht „schneller tippen", sondern die 85 % Wartezeit: fehlende Zuarbeit, Freigaben, Übergaben, Review-Schlangen. Such die längste Wartestrecke und mach sie sichtbar — als eigene Spalte oder als Blocker.<br>
+    <b>Typische Fehldeutung:</b> Den Wert als Fleiß-Note lesen. Er misst das <i>System</i>, nicht die Menschen; 15 % ist der Branchenschnitt, nicht ein Versagen.</p>
+
+    <h3 id="h-misc">📅 Due Date, Class of Service, Work Item Type</h3>
+    <p>Due Date: Termintreue der erledigten Tickets mit Fälligkeitsdatum (grau bei &lt; 3 Terminen). Class of Service: Dringlichkeitsklassen (Expedite/Fixed Date/Intangible/Standard) — ungenutzte Klassen bedeuten unsichtbare Priorisierung. Work Item Type: Ticket-Mix der aktiven Arbeit, ohne Epics.</p>
+    <p class="use"><b>Wo im Alltag:</b> Due Date im Stakeholder-Gespräch, Class of Service im Refinement, Work Item Type in der Retro und in der PI-Planung.<br>
+    <b>Was du daraus machst:</b> Nutzt ihr nur „Standard", priorisiert ihr trotzdem — nur unausgesprochen, im Kopf einzelner. Klassen sichtbar zu machen ersetzt zehn Dringlichkeitsdiskussionen. Beim Ticket-Mix: Ist der Wartungsanteil dauerhaft hoch, ist das eine Kapazitätsaussage, keine Fleißaussage.<br>
+    <b>Typische Fehldeutung:</b> Termintreue ohne Kontext feiern. Bei weniger als drei Terminen ist die Kachel grau — dann sagt sie nichts, und das ist ehrlicher als eine schöne Zahl.</p>
+
+    <h3 id="h-refine">🎯 Refinement-KPI &amp; SUP-SLAs</h3>
+    <p>Refinement: Tickets mit Label <code>refinement_needed</code> (offen) vs. <code>refinement_done</code>; Quote = done ÷ (needed + done), grün ab 70 %. SUP-SLAs: Anteil der Vorgänge im SLA-Ziel (met = completed − everBreached), grün ab 85 %.</p>
+    <p class="use"><b>Wo im Alltag:</b> Refinement-KPI vor dem Refinement-Termin, SLAs im Service-Review mit den Auftraggebern.<br>
+    <b>Was du daraus machst:</b> Eine niedrige Refinement-Quote sagt voraus, dass das nächste Ziehen holprig wird — unklare Tickets werden zu Rückfragen, Rückfragen zu Wartezeit. Zwei Stunden Refinement kosten weniger als zwei Wochen Warten.<br>
+    <b>Typische Fehldeutung:</b> Die Quote als Zielgröße jagen. Sie ist ein Frühindikator, kein Ergebnis — 100 % refined bei falscher Reihenfolge hilft niemandem.</p>
+  </div>
+
+  <h2 id="score">Der Team-Flow-Score</h2>
+  <div class="card">
+    <p>Der Score fasst alle bewerteten Kacheln des <b>Gesamtsystems</b> zu einer Zahl zusammen:</p>
+    <p style="text-align:center;font-size:16px"><code>Score = 100 × (🟢 + 0,5 × 🟡) ÷ (🟢 + 🟡 + 🔴)</code></p>
+    <p>Jede grüne Kachel zählt voll, jede gelbe halb, rote gar nicht; ⚪-Info-Kacheln zählen nicht mit. <b>Beispiel:</b> 0×🟢, 7×🟡, 6×🔴 → 100 × 3,5 ÷ 13 = <b>27/100</b>. Der Score ist bewusst streng: Er steigt nur, wenn Kacheln die datengetriebenen Schwellen erreichen — jede Verbesserung von Rot auf Gelb bringt sofort Punkte.</p>
+  </div>
+
+  <h2>Ampel-Schwellen</h2>
+  <div class="card">
+    <table>
+      <tr><th>Kachel</th><th>Kennzahl</th><th class="g">🟢 grün</th><th class="y">🟡 gelb</th><th class="r">🔴 rot</th></tr>
+      <tr><td>WIP</td><td>Bestand ÷ Ø-Wochendurchsatz (Little's Law)</td><td>≤ 1,5 Wo.</td><td>≤ 3 Wo.</td><td>&gt; 3 Wo.</td></tr>
+      <tr><td>Scatterplot</td><td>Vorhersagbarkeit p85 ÷ p50</td><td>≤ 2</td><td>≤ 3</td><td>&gt; 3</td></tr>
+      <tr><td>Histogramm</td><td>Anteil Langläufer &gt; 120 T</td><td>&lt; 5 %</td><td>&lt; 15 %</td><td>≥ 15 %</td></tr>
+      <tr><td>Throughput</td><td>Schwankung (Variationskoeffizient)</td><td>≤ 30 %</td><td>≤ 60 %</td><td>&gt; 60 %</td></tr>
+      <tr><td>Created vs. Resolved</td><td>Netto-Zufluss ggü. Abfluss</td><td>≤ 0 %</td><td>≤ 20 %</td><td>&gt; 20 %</td></tr>
+      <tr><td>Aging</td><td>Anteil laufender Tickets &gt; 30 T</td><td>&lt; 30 %</td><td>&lt; 50 %</td><td>≥ 50 %</td></tr>
+      <tr><td>Due Date</td><td>Pünktlich-Quote (grau bei &lt; 3 Terminen)</td><td>≥ 80 %</td><td>≥ 60 %</td><td>&lt; 60 %</td></tr>
+      <tr><td>Flow Efficiency</td><td>aktive Zeit ÷ Durchlaufzeit (Schätzung)</td><td>≥ 40 %</td><td>≥ 15 %</td><td>&lt; 15 %</td></tr>
+      <tr><td>CFD</td><td>Wachstum des aktiven Bestands im Zeitraum</td><td>≤ 0 %</td><td>≤ 15 %</td><td>&gt; 15 %</td></tr>
+      <tr><td>Refinement</td><td>done ÷ (needed + done)</td><td>≥ 70 %</td><td>≥ 40 %</td><td>&lt; 40 %</td></tr>
+      <tr><td>SUP-SLA</td><td>Quote im Ziel</td><td>≥ 85 %</td><td>≥ 50 %</td><td>&lt; 50 %</td></tr>
+    </table>
+  </div>
+
+  <h2>Bedienung</h2>
+  <div class="card">
+    <ul>
+      <li><b>📅 Zeitraum:</b> frei wählbar oder Presets (4/8/12/26 Wochen). Bestands-Kacheln (WIP, Aging, Ticket-Mix) sind Momentaufnahmen zum <i>Enddatum</i>; Fluss-Kacheln (Lead Times, Throughput, CFD, Erledigt) beziehen sich auf den ganzen Zeitraum.</li>
+      <li><b>(Klammerwerte):</b> Vergleich zur gleich langen <b>Vorperiode</b> direkt davor — Tooltip zeigt die Daten. Ausgeblendet im Personen-Modus.</li>
+      <li><b>🚦 Flow-Coach:</b> Namen wählen → persönliche Kennzahlen und rollenspezifische, klickbare Tipps. Umschalter „Grafiken: nur meine Tickets" stellt alle Kacheln auf die eigenen Tickets um.</li>
+      <li><b>● LIVE / ○ MOCK:</b> echter Import-Wert vs. Platzhalter. Flow Efficiency ist eine gekennzeichnete Schätzung.</li>
+      <li><b>Datenimport:</b> per Skript über die eingeloggte Jira-Browser-Session (kein dauerhafter Connector, Compliance). Liegt der gewählte Zeitraum vor dem Datenfenster, erscheint eine Nachlade-Warnung.</li>
+    </ul>
+  </div>
+
+  <h2>Version</h2>
+  <div class="card">
+    <p><b>Version 2.1.0</b> · <span class="dim">2.1: Vorperioden-Vergleich, Flow-Efficiency-Schätzung, zweisprachig DE/EN · 2.0: freier Zeitraum, Rohdaten-Engine, Epics ausgeschlossen, Personen-Modus, Flow-Coach · 1.x: datengetriebene Ampeln, Live-CFD, Refinement-KPI</span></p>
+  </div>
+</div>
+
+<div class="wrap" id="en" style="display:none">
+  <h1>How to read the cockpit</h1>
+  <p>This dashboard makes the <b>flow</b> of your Kanban system visible — not the utilisation of individuals, but how well work moves through the system. All values are computed client-side from the embedded Jira raw data; <b>epics are excluded as containers</b>.</p>
+
+  <h2 id="quick-en">🚀 Quick start — five minutes</h2>
+  <div class="card">
+    <p>Opening the cockpit for the first time, or short on time? Read in this order. Each step answers one question, and each answer leads to the next.</p>
+    <ol class="quick">
+      <li><b>Is the system growing?</b> → <a href="#h-through-en">Created vs. resolved</a>. If more keeps coming in than going out, everything else is a symptom. Fix the inflow first, do not work faster.</li>
+      <li><b>How much runs at once?</b> → <a href="#h-wip-en">WIP by column</a>. High inventory forces long lead times — that is arithmetic, not attitude.</li>
+      <li><b>What has been sitting too long?</b> → <a href="#h-aging-en">WIP aging</a>. The oldest running card is almost always the most urgent conversation of the day.</li>
+      <li><b>How reliable are we?</b> → <a href="#h-lead-en">Lead time p85</a>. The average is not the promise; the value you hold in 85% of cases is.</li>
+      <li><b>Where does it jam?</b> → <a href="#h-cfd-en">CFD</a>. A thickening band shows the bottleneck without anyone having to report it.</li>
+    </ol>
+    <p style="margin-bottom:0"><b>The one rule behind it:</b> look at flow before volume. A team that starts less at once delivers measurably earlier — without working more.</p>
+  </div>
+
+  <h2>The tiles in depth</h2>
+  <div class="card">
+    <h3 id="h-cfd-en">📈 Cumulative Flow Diagram (CFD)</h3>
+    <p>Shows, for each point in time, how many tickets sit in which column (stacked cumulatively: Done at the bottom, Discovery on top). Reconstructed from each ticket's status changelog at 8 cut points across the selected period. <b>Reading:</b> parallel bands = stable flow. A thickening band = work piling up there. The slope of the Done band is your delivery rate.</p>
+    <p class="use"><b>Where in practice:</b> opener of the weekly flow review (Mon) — one look and the bottleneck of the week is on the table. In the PI review as the picture over the whole period.<br>
+    <b>What you do with it:</b> name the thickest band and ask "what stops this work from moving on?". If the Done band flattens while the same amount keeps arriving at the top, your inventory is growing — lower the WIP limit instead of raising pressure.<br>
+    <b>Common misreading:</b> a wide band does not mean "much achieved", it means "much sitting here". Width is inventory; only the <i>slope</i> at the bottom is delivery.</p>
+
+    <h3 id="h-wip-en">📊 WIP by column</h3>
+    <p>Snapshot at the period's end date: how many tickets sit in Discovery, Ready, In Progress, In Review? By <b>Little's Law</b>, lead time ≈ inventory ÷ throughput. High WIP mathematically forces long wait times.</p>
+    <p class="use"><b>Where in practice:</b> in the daily, before anyone pulls something new. In the weekly, whenever commitments are discussed.<br>
+    <b>What you do with it:</b> do the arithmetic out loud once: 20 tickets in progress at 5 finished per week is a four-week lead time — no matter how hard everyone works. After that nobody argues about motivation any more, they argue about the WIP limit.<br>
+    <b>Common misreading:</b> "In review" gets overlooked because it feels like "nearly done". A full review column is a queue, not a success — work there waits for <i>people</i>, not for skill.</p>
+
+    <h3 id="h-lead-en">⚫ Lead time scatterplot &amp; histogram</h3>
+    <p>Each dot is a completed ticket; its height shows days from creation to done. The lines mark <b>percentiles</b>: p50 (median), p85, p95 — "85% of our tickets finished within X days". The p85/p50 ratio measures <b>predictability</b>: the larger, the less reliable forecasts are. The histogram shows the same data as a distribution.</p>
+    <p class="use"><b>Where in practice:</b> whenever somebody asks "when will this be done?" — in refinement, with stakeholders, in roadmap alignment.<br>
+    <b>What you do with it:</b> do not say "about two weeks", say "in 85% of cases within X days". That is honest, negotiable and checkable. Look at the dots far above the line one by one: what was different about those tickets? Usually a dependency, not complexity.<br>
+    <b>Common misreading:</b> using the median as a commitment. By definition p50 is wrong half the time — plan with it and you are late every other week.</p>
+
+    <h3 id="h-through-en">📉 Throughput &amp; created vs. resolved</h3>
+    <p>Throughput = tickets completed per week (your real delivery rate — a steady cadence beats peak weeks). Created vs. resolved compares inflow and outflow: if more comes in than goes out, the system grows and all lead times rise.</p>
+    <p class="use"><b>Where in practice:</b> first number in the weekly flow review. In capacity conversations with management — throughput is the only delivery figure that is not estimated.<br>
+    <b>What you do with it:</b> throughput becomes the forecast: twelve open tickets at five per week is a good two weeks. If created stays above resolved, the right move is to <i>limit the inflow</i> — prioritise at the source instead of adding overtime at the end.<br>
+    <b>Common misreading:</b> treating a peak week as the new normal speed. Cadence counts, not the record; variability is itself a metric.</p>
+
+    <h3 id="h-aging-en">⏳ WIP aging</h3>
+    <p>Age of the currently running tickets. Old running tickets are the biggest risk in the system: they bind capacity, go stale and clog the flow.</p>
+    <p class="use"><b>Where in practice:</b> the heart of the daily. Read the board <i>right to left</i>, oldest ticket first — do not go round the circle reporting who does what.<br>
+    <b>What you do with it:</b> make exactly one decision for the oldest card: split it, bring someone in, or deliberately put it back. All of these beat carrying it another week. Compare its age with your p85 — anything older than p85 is unlikely to finish "normally" any more.<br>
+    <b>Common misreading:</b> confusing age with effort. Most old tickets are not hard, they are blocked — the question is "what is it waiting for?", not "who is too slow?".</p>
+
+    <h3 id="h-fe-en">⚙️ Flow efficiency (estimate)</h3>
+    <p>Share of real work time in total lead time. We <b>estimate</b> it from status history: time in "In Progress" + "In Review" ÷ time from creation to done, summed over all tickets completed in the period. ~15% is typical in the industry — the rest is waiting. Exact values would need explicit waiting states. Thresholds: <span class="amp g">≥ 40%</span> · <span class="amp y">≥ 15%</span> · <span class="amp r">&lt; 15%</span>.</p>
+    <p class="use"><b>Where in practice:</b> in the retro, when the team feels it works constantly and still finishes nothing. This tile explains that feeling.<br>
+    <b>What you do with it:</b> at 15% the lever is not "type faster" but the 85% of waiting: missing input, approvals, handovers, review queues. Find the longest wait and make it visible — as its own column or as a blocker.<br>
+    <b>Common misreading:</b> reading the value as a diligence score. It measures the <i>system</i>, not the people; 15% is the industry average, not a failure.</p>
+
+    <h3 id="h-misc-en">📅 Due date, class of service, work item type</h3>
+    <p>Due date: on-time rate of completed tickets with a due date (grey below 3 dates). Class of service: urgency classes (Expedite/Fixed Date/Intangible/Standard) — unused classes mean invisible prioritisation. Work item type: ticket mix of active work, excluding epics.</p>
+    <p class="use"><b>Where in practice:</b> due date in stakeholder conversations, class of service in refinement, work item type in the retro and in PI planning.<br>
+    <b>What you do with it:</b> if you only use "Standard", you still prioritise — just silently, in individual heads. Making classes visible replaces ten urgency debates. On the ticket mix: a permanently high maintenance share is a capacity statement, not a diligence one.<br>
+    <b>Common misreading:</b> celebrating on-time delivery without context. Below three due dates the tile stays grey — then it says nothing, and that is more honest than a pretty number.</p>
+
+    <h3 id="h-refine-en">🎯 Refinement KPI &amp; SUP SLAs</h3>
+    <p>Refinement: tickets labelled <code>refinement_needed</code> (open) vs. <code>refinement_done</code>; rate = done ÷ (needed + done), green from 70%. SUP SLAs: share of requests within the SLA target (met = completed − everBreached), green from 85%.</p>
+    <p class="use"><b>Where in practice:</b> refinement KPI before the refinement session, SLAs in the service review with your customers.<br>
+    <b>What you do with it:</b> a low refinement rate predicts that the next pull will be bumpy — unclear tickets become questions, questions become waiting time. Two hours of refinement cost less than two weeks of waiting.<br>
+    <b>Common misreading:</b> chasing the rate as a target. It is a leading indicator, not a result — 100% refined in the wrong order helps nobody.</p>
+  </div>
+
+  <h2 id="score-en">The team flow score</h2>
+  <div class="card">
+    <p>The score condenses all assessed tiles of the <b>overall system</b> into one number:</p>
+    <p style="text-align:center;font-size:16px"><code>score = 100 × (🟢 + 0.5 × 🟡) ÷ (🟢 + 🟡 + 🔴)</code></p>
+    <p>Every green tile counts fully, yellow counts half, red not at all; ⚪ info tiles are excluded. <b>Example:</b> 0×🟢, 7×🟡, 6×🔴 → 100 × 3.5 ÷ 13 = <b>27/100</b>. The score is deliberately strict: it only rises when tiles reach the data-driven thresholds — every move from red to yellow immediately earns points.</p>
+  </div>
+
+  <h2>Signal thresholds</h2>
+  <div class="card">
+    <table>
+      <tr><th>Tile</th><th>Metric</th><th class="g">🟢 green</th><th class="y">🟡 yellow</th><th class="r">🔴 red</th></tr>
+      <tr><td>WIP</td><td>inventory ÷ avg. weekly throughput (Little's Law)</td><td>≤ 1.5 wks</td><td>≤ 3 wks</td><td>&gt; 3 wks</td></tr>
+      <tr><td>Scatterplot</td><td>predictability p85 ÷ p50</td><td>≤ 2</td><td>≤ 3</td><td>&gt; 3</td></tr>
+      <tr><td>Histogram</td><td>share of long runners &gt; 120 d</td><td>&lt; 5%</td><td>&lt; 15%</td><td>≥ 15%</td></tr>
+      <tr><td>Throughput</td><td>variation (coefficient of variation)</td><td>≤ 30%</td><td>≤ 60%</td><td>&gt; 60%</td></tr>
+      <tr><td>Created vs. resolved</td><td>net inflow vs. outflow</td><td>≤ 0%</td><td>≤ 20%</td><td>&gt; 20%</td></tr>
+      <tr><td>Aging</td><td>share of running tickets &gt; 30 d</td><td>&lt; 30%</td><td>&lt; 50%</td><td>≥ 50%</td></tr>
+      <tr><td>Due date</td><td>on-time rate (grey below 3 dates)</td><td>≥ 80%</td><td>≥ 60%</td><td>&lt; 60%</td></tr>
+      <tr><td>Flow efficiency</td><td>active time ÷ lead time (estimate)</td><td>≥ 40%</td><td>≥ 15%</td><td>&lt; 15%</td></tr>
+      <tr><td>CFD</td><td>growth of active inventory over the period</td><td>≤ 0%</td><td>≤ 15%</td><td>&gt; 15%</td></tr>
+      <tr><td>Refinement</td><td>done ÷ (needed + done)</td><td>≥ 70%</td><td>≥ 40%</td><td>&lt; 40%</td></tr>
+      <tr><td>SUP SLA</td><td>share within target</td><td>≥ 85%</td><td>≥ 50%</td><td>&lt; 50%</td></tr>
+    </table>
+  </div>
+
+  <h2>Usage</h2>
+  <div class="card">
+    <ul>
+      <li><b>📅 Period:</b> freely selectable or presets (4/8/12/26 weeks). Inventory tiles (WIP, aging, ticket mix) are snapshots at the <i>end date</i>; flow tiles (lead times, throughput, CFD, done) cover the whole period.</li>
+      <li><b>(Values in brackets):</b> comparison with the equally long <b>previous period</b> right before — the tooltip shows the dates. Hidden in person mode.</li>
+      <li><b>🚦 Flow Coach:</b> pick a name → personal metrics and role-specific, clickable tips. The toggle "Charts: my tickets only" switches all tiles to your own tickets.</li>
+      <li><b>● LIVE / ○ MOCK:</b> real imported value vs. placeholder. Flow efficiency is a clearly marked estimate.</li>
+      <li><b>Data import:</b> via script using the logged-in Jira browser session (no permanent connector, for compliance). If the selected period lies before the data window, a reload warning appears.</li>
+    </ul>
+  </div>
+
+  <h2>Version</h2>
+  <div class="card">
+    <p><b>Version 2.1.0</b> · <span class="dim">2.1: previous-period comparison, flow-efficiency estimate, bilingual DE/EN · 2.0: free period, raw-data engine, epics excluded, person mode, flow coach · 1.x: data-driven signals, live CFD, refinement KPI</span></p>
+  </div>
+</div>
+
+<footer>
+  <span>© 2026 <a href="https://vishnuartists.com" target="_blank" rel="noopener">vishnuartists.com</a> — Flow Cockpit · <span id="fRights">Alle Rechte vorbehalten.</span></span>
+  <span>Version 2.1.0</span>
+</footer>
+
+<script>
+(function(){
+  /* Sprache aus pb-i18n.js. Diese Seite ist die einzige, die nicht mit Satzpaaren arbeitet,
+     sondern mit zwei kompletten Textbloecken (#de / #en) — ein durchgehender Fliesstext von rund
+     1.500 Woertern. Kroatisch bekommt darum (noch) keinen eigenen Block, sondern den englischen:
+     lieber eine Sprache, die Tarik lesen kann, als ein deutscher Block. Ein dritter Block #hr
+     laesst sich jederzeit danebenlegen — die Weiche unten braucht dann nur einen Zweig mehr. */
+  var lang=(window.pbLang?pbLang():'de');
+  if(lang==='en'||lang==='hr'){
+    document.documentElement.lang='en';
+    document.getElementById('de').style.display='none';
+    document.getElementById('en').style.display='block';
+    document.getElementById('hTitle').textContent='HELP';
+    document.getElementById('backLink').textContent='← Back to the cockpit';
+    document.getElementById('fRights').textContent='All rights reserved.';
+    document.title='Help & Methodology — Flow Cockpit';
+    if(location.hash){var t=location.hash+'-en';if(document.querySelector(t))location.hash=t;}
+  }
+})();
+</script>
+<script src="pb-meet.js?v=04d284cc"></script>
+</body>
+</html>

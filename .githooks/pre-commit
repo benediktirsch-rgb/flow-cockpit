@@ -1,0 +1,87 @@
+#!/bin/sh
+# ── Schutz-Hook (versioniert in .githooks/, aktiv über: git config core.hooksPath .githooks) ──
+# Verhindert die Fehlerbilder vom 17./18.08.2026 (siehe docs/git-workflow.md):
+#   1. Staged LÖSCHUNGEN, die niemand wollte (veralteter Index nach Plumbing-Commits / Google Drive).
+#   2. HEAD ist nicht mehr auf dem Stand des Index (Plumbing/update-ref) -> Commit wuerde Fremdes mitnehmen.
+#   3. CRLF / UTF-8-BOM in Textdateien (PowerShell Set-Content/Out-File) -> EOL-Phantome.
+#   4. Generierte Daten (data/*.json, site/va/va-data.json) werden lokal committet -> Konflikte mit dem Stunden-Sync.
+# Bewusstes Uebersteuern je Punkt: ALLOW_DELETE=1 / ALLOW_DATA=1 / ALLOW_EOL=1 / ALLOW_FREMD=1 git commit …
+fail=0
+say() { printf '%s\n' "$*" >&2; }
+
+# 0) Arbeitet hier gerade eine ANDERE Session? (Leases aus C:\dev\_tools\.sessions,
+#    geschrieben von git-flow.ps1 -Modus claim). Zwei Stufen:
+#      · beansprucht die fremde Session Pfade, die in diesem Commit stecken -> Abbruch
+#      · sonst nur ein sichtbarer Hinweis, wer sonst noch im Repo ist
+#    Eigene Lease über die Umgebungsvariable GIT_FLOW_SESSION ausnehmen.
+LEASES=/c/dev/_tools/.sessions
+if [ -z "$ALLOW_FREMD" ] && [ -d "$LEASES" ]; then
+  _repo=$(basename "$(git rev-parse --show-toplevel 2>/dev/null)")
+  _staged=$(git diff --cached --name-only)
+  for _l in "$LEASES"/*.json; do
+    [ -f "$_l" ] || continue
+    grep -q "\"repo\":[[:space:]]*\"$_repo\"" "$_l" || continue
+    _sit=$(sed -n 's/.*"sitzung\":[[:space:]]*\"\([^\"]*\)\".*/\1/p' "$_l" | head -1)
+    [ "$_sit" = "${GIT_FLOW_SESSION:-}" ] && continue
+    _ziel=$(sed -n 's/.*"ziel\":[[:space:]]*\"\([^\"]*\)\".*/\1/p' "$_l" | head -1)
+    _pfade=$(sed -n 's/.*"pfadeflach":[[:space:]]*"\([^"]*\)".*/\1/p' "$_l" | head -1 | tr "|" " ")
+    _kollision=''
+    for _p in $_pfade; do
+      [ -n "$_p" ] || continue
+      for _f in $_staged; do
+        case "$_f" in "$_p"*) _kollision="$_kollision $_f";; esac
+      done
+    done
+    if [ -n "$_kollision" ]; then
+      say "✖ pre-commit: Diese Dateien beansprucht die Session „$_sit“ (Ziel: ${_ziel:-—}):"
+      for _f in $_kollision; do say "    $_f"; done
+      say "  Erst dort committen lassen — oder bewusst: ALLOW_FREMD=1 git commit …"
+      fail=1
+    else
+      say "ℹ pre-commit: Im Repo arbeitet außerdem „$_sit“ (Ziel: ${_ziel:-—})."
+      say "  Bitte git status --short lesen und nur eigene Dateien committen."
+    fi
+  done
+fi
+
+# 1) Geloeschte Dateien im Commit?
+del=$(git diff --cached --name-only --diff-filter=D)
+if [ -n "$del" ] && [ -z "$ALLOW_DELETE" ]; then
+  say "✖ pre-commit: Der Commit LOESCHT getrackte Dateien:"; say "$del" | sed 's/^/    /'
+  say "  Wenn das Absicht ist:  ALLOW_DELETE=1 git commit …   — sonst: git restore --staged <datei>"
+  fail=1
+fi
+
+# 2) Generierte Daten?
+gen=$(git diff --cached --name-only | grep -E '^(data/[^/]+\.json|site/va/va-data\.json)$')
+if [ -n "$gen" ] && [ -z "$ALLOW_DATA" ]; then
+  say "✖ pre-commit: Generierte Daten im Commit (kommen vom GitHub-Workflow, nie lokal committen):"; say "$gen" | sed 's/^/    /'
+  say "  Loesung: git restore --staged -- $gen   (bzw. ALLOW_DATA=1, wenn du den Sync absichtlich reparierst)"
+  fail=1
+fi
+
+# 3) CRLF oder BOM in Textdateien, die committet werden?
+if [ -z "$ALLOW_EOL" ]; then
+  for f in $(git diff --cached --name-only --diff-filter=AM | grep -Ei '\.(js|mjs|html|css|md|json|ps1|yml|yaml|txt|gs|svg|gitattributes|gitignore)$'); do
+    blob=$(git show ":$f" 2>/dev/null | head -c 3 | od -An -tx1 | tr -d ' \n')
+    case "$f" in *.ps1) blob=skip;; esac   # PowerShell 5.1 liest .ps1 ohne BOM als ANSI -> BOM dort erlaubt
+    if [ "$blob" = "efbbbf" ]; then say "✖ pre-commit: UTF-8-BOM in $f (in PowerShell: [IO.File]::WriteAllText(pfad,text,(New-Object Text.UTF8Encoding \$false)))"; fail=1; fi
+    if git show ":$f" 2>/dev/null | head -c 65536 | tr -d '\000-\011\013-\014\016-\177\200-\377' | grep -q "$(printf '\r')"; then
+      say "✖ pre-commit: CRLF in $f — bitte LF (git add --renormalize $f  oder  sed -i 's/\\r\$//' $f)"; fail=1
+    fi
+  done
+fi
+
+# 4) Index-Basis = HEAD? (Plumbing-Commits verschieben HEAD ohne Index — dann stimmt der Diff nicht)
+if [ -f .git/index ]; then
+  n_del=$(git diff --cached --name-only --diff-filter=D | wc -l)
+  n_all=$(git diff --cached --name-only | wc -l)
+  if [ "$n_del" -gt 3 ] && [ "$n_del" -ge "$n_all" ]; then
+    say "✖ pre-commit: Der Index sieht veraltet aus ($n_del Loeschungen von $n_all Aenderungen)."
+    say "  Vermutlich wurde HEAD per update-ref/commit-tree bewegt. Bitte: git reset -q  &&  git add <deine Dateien>"
+    fail=1
+  fi
+fi
+
+if [ "$fail" -ne 0 ]; then say ""; say "Commit abgebrochen. Regeln: docs/git-workflow.md"; exit 1; fi
+exit 0

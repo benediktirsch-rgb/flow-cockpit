@@ -1,0 +1,85 @@
+name: Deploy Flow Cockpit nach KAS (vishnu-artists.de)
+
+# Zwei Ziele auf derselben Domain, jedes mit eigenem Sync-State:
+#   1. site/     → Domain-Root: Starter-Demo (flow-cockpit-starter.html) und Hilfe.
+#                  Der Ordner va/ ist hier ausgeschlossen, den übernimmt Job 2.
+#   2. site/va/  → /va/: die Vishnu-Instanz (Zugangsschutz per .htaccess + .htpasswd-va).
+#                  va-data.json ist ausgeschlossen — die schreibt update-va-data.yml stündlich.
+# Die Sync-State-Namen sind NEU (nicht die des aufgelösten Repos analytics-dashboard):
+# ein alter State würde Dateien löschen, die in diesem Repo nicht mehr liegen.
+# >>> NIE eine site/.htaccess ins Repo legen <<< — die im Domain-Root pflegt Bene im KAS.
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: FTPS-Deploy Starter + Hilfe in den Domain-Root
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:   ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./site/
+          server-dir: ./vishnu-artists.com/
+          state-name: .ftp-deploy-flow-cockpit-root-state.json
+          exclude: |
+            va/**
+            .htpasswd
+
+      - name: FTPS-Deploy Vishnu-Instanz nach /va/
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:   ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./site/va/
+          server-dir: ./vishnu-artists.com/va/
+          state-name: .ftp-deploy-flow-cockpit-va-state.json
+          exclude: |
+            va-data.json
+
+      # Zugangsdatei für /va/ (HTTP-Basic-Auth) in den Domain-Ordner legen. Das All-Inkl-WebFTP
+      # kann keine Punkt-Dateien anlegen, der FTPS-Upload schon. Inhalt (eine Zeile "va:{SHA}…",
+      # Anleitung docs/va-zugangsschutz.md) kommt aus dem Repo-Secret VA_HTPASSWD — Rotation =
+      # Secret ändern + Workflow laufen lassen. Ohne Secret werden beide Schritte übersprungen.
+      # Kein "secrets." in if-Bedingungen (macht den Workflow ungültig): Secret → env → Step-Output.
+      - name: Zugangsdatei .htpasswd-va aus Secret erzeugen
+        id: htpasswd
+        env:
+          VA_HTPASSWD: ${{ secrets.VA_HTPASSWD }}
+        run: |
+          if [ -z "$VA_HTPASSWD" ]; then
+            echo "Repo-Secret VA_HTPASSWD fehlt oder ist leer - Upload wird uebersprungen."
+            echo "vorhanden=nein" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          mkdir -p .htpasswd-out
+          printf '%s\n' "$VA_HTPASSWD" > .htpasswd-out/.htpasswd-va
+          echo "vorhanden=ja" >> "$GITHUB_OUTPUT"
+          echo "Datei erzeugt ($(wc -c < .htpasswd-out/.htpasswd-va) Bytes)."
+
+      # curl statt FTP-Deploy-Action: eine einzelne Datei braucht keinen Sync-State, und curl
+      # schreibt einen klaren Fehler ins Log. Ziel ist der Domain-Ordner, nicht der Webspace-Root
+      # (dort darf der Deploy-User nicht schreiben).
+      - name: FTPS-Upload .htpasswd-va in den Domain-Ordner
+        if: steps.htpasswd.outputs.vorhanden == 'ja'
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          curl --silent --show-error --fail --ssl-reqd \
+            -T .htpasswd-out/.htpasswd-va \
+            --user "$FTP_USERNAME:$FTP_PASSWORD" \
+            "ftp://$FTP_SERVER/vishnu-artists.com/.htpasswd-va"
+          echo "Upload fertig."

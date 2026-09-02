@@ -1,0 +1,40 @@
+name: VA-Board Daten aktualisieren (stuendlich)
+
+on:
+  schedule:
+    - cron: '23 * * * *'
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+    paths:
+      - 'scripts/fetch-va-data.mjs'
+      - '.github/workflows/update-va-data.yml'
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Node einrichten
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: VA-Daten aus Jira ziehen
+        env:
+          JIRA_EMAIL: ${{ secrets.JIRA_EMAIL }}
+          JIRA_TOKEN: ${{ secrets.JIRA_TOKEN }}
+        run: node scripts/fetch-va-data.mjs
+
+      - name: FTPS-Deploy /va nach KAS
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server:   ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: ./site/va/
+          server-dir: ./vishnu-artists.com/va/
+          state-name: .ftp-va-state.json
