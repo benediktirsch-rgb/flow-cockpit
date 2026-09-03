@@ -17,3 +17,20 @@ AuthType Basic
 AuthName "Vishnu Flow Cockpit"
 AuthUserFile /www/htdocs/w01e7219/vishnu-artists.com/.htpasswd-va
 Require valid-user
+
+# Seit 03.09.2026 liegt die Instanz auf va.vishnuartists.com (eigenes Dokumentenverzeichnis).
+# Die Zugangsdatei bleibt im Ordner von vishnu-artists.de — der Pfad oben ist absolut.
+# https-Zwang: Basic-Auth ueber http hiesse Team-Passwort im Klartext.
+<IfModule mod_rewrite.c>
+RewriteEngine On
+RewriteCond %{HTTPS} !=on
+RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+</IfModule>
+
+# Der persoenliche Compass (bene.vishnuartists.com) liest va-data.json direkt von hier —
+# anderer Ursprung, deshalb CORS mit Zugangsdaten, und nur fuer genau diesen Ursprung.
+<IfModule mod_headers.c>
+  Header always set Access-Control-Allow-Origin "https://bene.vishnuartists.com"
+  Header always set Access-Control-Allow-Credentials "true"
+  Header always set Vary "Origin"
+</IfModule>

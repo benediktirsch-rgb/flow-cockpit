@@ -1,10 +1,15 @@
-name: Deploy Flow Cockpit nach KAS (vishnu-artists.de)
+name: Deploy Flow Cockpit nach KAS (va.vishnuartists.com + demo.vishnuartists.com/cockpit)
 
-# Zwei Ziele auf derselben Domain, jedes mit eigenem Sync-State:
-#   1. site/     → Domain-Root: Starter-Demo (flow-cockpit-starter.html) und Hilfe.
+# Zwei Ziele, seit 03.09.2026 je eine Subdomain mit eigenem Dokumentenverzeichnis im KAS (vorher
+# teilten sich drei Repos den Domain-Ordner von vishnu-artists.de, und Compass und Cockpit dort
+# denselben localStorage und Login):
+#   1. site/     → demo.vishnuartists.com/cockpit/: Starter-Demo (flow-cockpit-starter.html) und Hilfe.
 #                  Der Ordner va/ ist hier ausgeschlossen, den übernimmt Job 2.
-#   2. site/va/  → /va/: die Vishnu-Instanz (Zugangsschutz per .htaccess + .htpasswd-va).
+#   2. site/va/  → va.vishnuartists.com: die Vishnu-Instanz (Zugangsschutz per .htaccess + .htpasswd-va).
 #                  va-data.json ist ausgeschlossen — die schreibt update-va-data.yml stündlich.
+# Die Zugangsdatei .htpasswd-va bleibt im Ordner von vishnu-artists.de: AuthUserFile in den .htaccess
+# ist absolut und gilt von jedem Ordner aus (Job 3 unten). Zweiter Weg von Benes Rechner aus, solange
+# dem Repo die FTP-Secrets fehlen: publish-cockpit.ps1 (dieselben Bytes, eigener Stand).
 # Die Sync-State-Namen sind NEU (nicht die des aufgelösten Repos analytics-dashboard):
 # ein alter State würde Dateien löschen, die in diesem Repo nicht mehr liegen.
 # >>> NIE eine site/.htaccess ins Repo legen <<< — die im Domain-Root pflegt Bene im KAS.
@@ -21,7 +26,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: FTPS-Deploy Starter + Hilfe in den Domain-Root
+      - name: FTPS-Deploy Starter + Hilfe nach demo.vishnuartists.com/cockpit/
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server:   ${{ secrets.FTP_SERVER }}
@@ -29,13 +34,13 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./site/
-          server-dir: ./vishnu-artists.com/
-          state-name: .ftp-deploy-flow-cockpit-root-state.json
+          server-dir: ./demo.vishnuartists.com/cockpit/
+          state-name: .ftp-deploy-flow-cockpit-starter-subdomain-state.json
           exclude: |
             va/**
             .htpasswd
 
-      - name: FTPS-Deploy Vishnu-Instanz nach /va/
+      - name: FTPS-Deploy Vishnu-Instanz nach va.vishnuartists.com
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server:   ${{ secrets.FTP_SERVER }}
@@ -43,8 +48,8 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./site/va/
-          server-dir: ./vishnu-artists.com/va/
-          state-name: .ftp-deploy-flow-cockpit-va-state.json
+          server-dir: ./va.vishnuartists.com/
+          state-name: .ftp-deploy-flow-cockpit-va-subdomain-state.json
           exclude: |
             va-data.json
 

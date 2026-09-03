@@ -789,8 +789,8 @@
      direkt lesen. Lokal auf zwei Ports geht das nicht — dann bleibt es bei
      „angefragt“, was ehrlich ist. */
   var CP={
-    demo:'https://vishnu-artists.de/compass-demo/',
-    verkauf:'https://vishnu-artists.de/personal-compass.html',
+    demo:'https://demo.vishnuartists.com/',
+    verkauf:'https://vishnuartists.com/flow-compass.html',
     anfrage:'https://naturnah-lernen.de/f/compass-start.php',
     register:'compass-register.json',
     KEY:'vaCompassState'

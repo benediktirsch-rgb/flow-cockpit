@@ -36,5 +36,5 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
           local-dir: ./site/va/
-          server-dir: ./vishnu-artists.com/va/
-          state-name: .ftp-va-state.json
+          server-dir: ./va.vishnuartists.com/
+          state-name: .ftp-va-subdomain-state.json

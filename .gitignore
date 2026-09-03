@@ -21,3 +21,6 @@ docs/va.htpasswd
 
 # Kundeninstanzen: Namen, Board-URLs, Zugangs-Hashes — bleiben lokal
 instanzen/
+# Hash-Stand der FTPS-Uploads je Subdomain (publish-cockpit.ps1)
+site/.publish-state/
+publish-cockpit.log
