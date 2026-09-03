@@ -1,5 +1,6 @@
 ﻿# publish-cockpit.ps1 — Flow Cockpit per FTPS auf die Subdomains bringen (seit 03.09.2026)
-#   site\va\  → va.vishnuartists.com    (Vishnu-Instanz, Zugangsschutz per .htaccess; inkl. va-data.json als Startstand)
+#   site\va\  → va.vishnuartists.com    (Vishnu-Instanz, Zugangsschutz per .htaccess; va-data.json nur als Startstand,
+#                                        siehe Soll-VaDatenHoch — eine frischere Live-Fassung wird nie ueberschrieben)
 #   site\     → demo.vishnuartists.com/cockpit/   (Starter-Demo + Hilfe; der Ordner va\ bleibt hier aussen vor)
 #
 #   Der eigentliche Weg ist deploy.yml (GitHub → KAS). Dieses Skript ist der zweite Weg von diesem Rechner aus,
@@ -46,6 +47,33 @@ function Lade-FtpHoch($zugang, [string]$lokal, [string]$fernPfad) {
 }
 function Hash([string]$p) { (Get-FileHash -LiteralPath $p -Algorithm SHA256).Hash }
 
+# va-data.json erzeugt der stuendliche Datenlauf (update-va-data.yml bzw. _tools\va-datenlauf.ps1) und legt
+# sie direkt live ab — im Repo ist sie gitignored. Der Ordner-Upload wuerde die frische Fassung mit dem
+# hiesigen Arbeitsstand ueberschreiben: genau das ist am 03.09.2026 um 10:01 passiert, danach hing das Board
+# 17 Tage auf dem Stand vom 17.08. (ohne Titel, weil Feld 13/14 erst seit dem 19.08. mitkommt).
+# Darum: nur hochladen, wenn live noch gar keine liegt (echter Startstand einer frischen Subdomain) oder
+# wenn der lokale Stand nachweislich juenger ist (meta.generatedAt).
+function Hole-FtpText($zugang, [string]$fernPfad) {
+  $a = Neu-FtpAnfrage $zugang $fernPfad ([Net.WebRequestMethods+Ftp]::DownloadFile)
+  $r = $a.GetResponse()
+  try { $sr = New-Object IO.StreamReader($r.GetResponseStream(), [Text.Encoding]::UTF8); return $sr.ReadToEnd() }
+  finally { $r.Close() }
+}
+function Stand-Von([string]$json) {
+  try { $m = ($json | ConvertFrom-Json).meta; if ($m.generatedAt) { return [DateTime]::Parse($m.generatedAt).ToUniversalTime() } } catch { }
+  return $null
+}
+function Soll-VaDatenHoch($zugang, [string]$lokal) {
+  if (-not (Test-Path $lokal)) { return $false }
+  try { $fern = Hole-FtpText $zugang '/va.vishnuartists.com/va-data.json' }
+  catch { Log '  va-data.json liegt live noch nicht — wird als Startstand mitgeschickt.'; return $true }
+  $sL = Stand-Von ([IO.File]::ReadAllText($lokal)); $sF = Stand-Von $fern
+  if (-not $sL -or -not $sF) { Log '  va-data.json: Stand nicht lesbar — live bleibt unangetastet.'; return $false }
+  if ($sL -gt $sF) { Log ("  va-data.json: lokal {0:yyyy-MM-dd HH:mm} ist juenger als live {1:yyyy-MM-dd HH:mm} (UTC) — wird ersetzt." -f $sL, $sF); return $true }
+  Log ("  va-data.json uebersprungen: live {0:yyyy-MM-dd HH:mm} UTC ist so frisch oder frischer als der Arbeitsstand." -f $sF)
+  return $false
+}
+
 $stateDir = Join-Path $repo 'site\.publish-state'
 if (-not (Test-Path $stateDir)) { New-Item -ItemType Directory -Force $stateDir | Out-Null }
 
@@ -76,5 +104,9 @@ function Lade-Ordner($zugang, [string]$lokal, [string]$fernBasis, [string]$state
 $zugang = Hole-FtpZugang
 if (-not $zugang) { Log 'ABBRUCH: FTP-Zugang fehlt (User-Umgebungsvariablen VA_FTP_HOST / VA_FTP_USER / VA_FTP_PASS).'; return }
 Sichere-FtpOrdner $zugang '/demo.vishnuartists.com/cockpit'
-if (-not $NurStarter) { Lade-Ordner $zugang (Join-Path $repo 'site\va') '/va.vishnuartists.com' 'va' 'Vishnu-Instanz (va.)' }
+if (-not $NurStarter) {
+  $ohneVa = @()
+  if (-not (Soll-VaDatenHoch $zugang (Join-Path $repo 'site\va\va-data.json'))) { $ohneVa = @('va-data.json') }
+  Lade-Ordner $zugang (Join-Path $repo 'site\va') '/va.vishnuartists.com' 'va' 'Vishnu-Instanz (va.)' $ohneVa
+}
 if (-not $NurVa)      { Lade-Ordner $zugang (Join-Path $repo 'site')    '/demo.vishnuartists.com/cockpit' 'demo-cockpit' 'Starter + Hilfe (demo./cockpit/)' @('va/', '.publish-state/') }
