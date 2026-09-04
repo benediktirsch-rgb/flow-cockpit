@@ -173,7 +173,7 @@
      dieselbe Sitzung. ?wer=1 sagt, wer da ist (Vorname, Mail). Der Jira-Name wird aus dem Vornamen gesucht;
      ist er nicht eindeutig, bleibt nur die Namensfrage — ohne Passwort. Antwortet die Tür nicht (lokal,
      Basic-Auth-Instanz, Netz weg), läuft der alte Weg. ── */
-  var TUER=null;
+  var TUER=null, TUER_WARTET=false;
   function tuerFragen(){
     var u=''; try{ u=new URL('/gate.php?wer=1',location.href).href; }catch(e){}
     if(!/^https:/.test(u)) return Promise.resolve(null);
@@ -1121,7 +1121,9 @@
   }
 
   /* ───────── Boot ───────── */
-  window.vaApp={loginShow:loginShow,logout:logout,start:startShow,startClose:startClose,chNext:chNext,challenge:ziffChallenge,openFL:openFL,drill:drill,jump:jump,go:go,compassUrl:compassUrl,board:board,boardHtml:boardHtml,hash:hash,auth:auth,teamKv:teamKv,ver:VER,
+  /* loginShow nach außen: der Autostart in index.html (600 ms nach dem Laden) darf den alten Dialog nicht
+     öffnen, solange die Tür noch gefragt wird — boot() ruft loginShow selbst, wenn es nötig ist. */
+  window.vaApp={loginShow:function(m){ if(TUER_WARTET) return; loginShow(m); },logout:logout,start:startShow,startClose:startClose,chNext:chNext,challenge:ziffChallenge,openFL:openFL,drill:drill,jump:jump,go:go,compassUrl:compassUrl,board:board,boardHtml:boardHtml,hash:hash,auth:auth,teamKv:teamKv,ver:VER,
     tboard:tboard,personen:personen,roster:ROSTER,istAktiv:istAktiv,stand:stand,
     bio:{verknuepfen:bioVerknuepfen,login:bioLogin,vergessen:function(){localStorage.removeItem(BIO_KEY);}},
     compass:{anfragen:cpAnfrageDialog,einrichten:cpEinrichten,uebergeben:cpUebergeben,oeffnen:cpEmbedShow,schliessen:cpEmbedClose,stand:function(){return CP_STAND;},auffrischen:cpAuffrischen,eintrag:cpEintrag,konfig:cpKonfig}};
@@ -1169,9 +1171,11 @@
       document.documentElement.classList.add('va-locked');
       /* Erst die Tür fragen: kennt sie die Person und ist der Vorname in Jira eindeutig, ist das die
          Anmeldung. Sonst die Namensfrage (ohne Passwort) — oder, ohne Tür, der alte Login. */
+      TUER_WARTET=true;
       tuerFragen().then(function(j){
-        TUER=j;
-        if(j){ var p=matchPerson(j.name||''); if(p&&istAktiv(p[0])){ anmelden(p[0],true); boot(); return; } }
+        TUER_WARTET=false; TUER=j;
+        /* Neu laden statt boot(): der Bootstrap in index.html setzt USER nur beim Laden aus vaUser_va. */
+        if(j){ var p=matchPerson(j.name||''); if(p&&istAktiv(p[0])){ anmelden(p[0],true); location.reload(); return; } }
         loginShow(LOGIN_MSG);
       });
       return;
