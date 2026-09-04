@@ -349,7 +349,7 @@
          ausgefallener Datenlauf faellt damit erst nach Tagen auf. */
       var std=null;
       if(m.generatedAt){ var t=Date.parse(m.generatedAt); if(!isNaN(t))std=(Date.now()-t)/36e5; }
-      return {demo:!!m.demo,datum:m.importDate||'',alter:alter,stunden:std,n:RAWS().length};
+      return {demo:!!m.demo,datum:m.importDate||'',alter:alter,stunden:std,n:RAWS().length,puffer:m.puffer||null};
     }catch(e){ return null; }
   }
   function standHtml(){
@@ -357,6 +357,14 @@
     if(s.demo)return '<div class="vawarn"><b>⚠ '+T('Demo-Daten — das sind keine Zahlen aus eurem Jira.','Demo data — these are not numbers from your Jira.')+'</b>'
       +'<div>'+T('Das Cockpit konnte <code>va-data.json</code> nicht laden und zeigt 170 erfundene Tickets. Namen und Werte in den Ranglisten sind ausgedacht.','The cockpit could not load <code>va-data.json</code> and is showing 170 invented tickets. Names and values in the leaderboards are made up.')
       +'<span id="vaDiag"> '+T('Grund wird geprüft …','Checking the reason …')+'</span></div></div>';
+    /* Puffer (04.09.2026): die Datei war nicht erreichbar oder leer, angezeigt wird der letzte
+       echte Stand aus diesem Browser. Besser als Demo-Zahlen — aber es muss dranstehen. */
+    if(s.puffer){
+      var geholt=(typeof s.puffer==='string')?new Date(s.puffer):null;
+      var gtxt=(geholt&&!isNaN(geholt))?(' ('+T('zuletzt geholt','last fetched')+' '+geholt.toLocaleString(de()?'de-DE':'en-GB',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})+')'):'';
+      return '<div class="vawarn"><b>📦 '+T('Aus dem Puffer in diesem Browser — Datenstand '+dDE(s.datum)+'.','From this browser buffer — data as of '+s.datum+'.')+'</b>'
+        +'<div>'+T('<code>va-data.json</code> ist gerade nicht erreichbar oder enthält keinen einzigen Vorgang. Angezeigt wird der letzte echte Stand'+gtxt+' — keine erfundenen Zahlen, aber möglicherweise nicht von heute. Ein Neuladen holt echte Daten, sobald der stündliche Datenlauf wieder liefert.','<code>va-data.json</code> is unreachable or contains no work items. Showing the last real data'+gtxt+' — nothing invented, but possibly not from today.')+'</div></div>';
+    }
     /* Alters-Ampel (VA-13495): unter 2 h gruen, bis 24 h gelb, darueber rot. Ein still stehen
        gebliebener Datenlauf sieht sonst aus wie eine Aussage ueber das Team. */
     var h=s.stunden;

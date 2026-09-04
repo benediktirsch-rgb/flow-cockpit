@@ -54,11 +54,22 @@ Rep "if(role==='Engineer'||role==='Analyst'){" "if(role==='Engineer'||role==='An
 Rep @'
 /*__RAWDATA__*/const RAWDATA=(function(){
   try{const d=JSON.parse(localStorage.getItem('fcData')||'null');
+    if(d&&d.issues&&d.issues.length&&d.meta)return d;}catch(e){}
 '@ @'
 /*__RAWDATA__*/const RAWDATA=(function(){
+  /* Datenstand holen — und den letzten guten behalten (04.09.2026).
+     Bis hierher endete jeder Ausfall der Datei im Demo-Generator: 170 erfundene Tickets, verteilt auf
+     echte Namen. Ein leerer Datenstand (toter Jira-Token: HTTP 200 mit 0 Vorgängen, so geschehen am
+     26.08.) sah genauso aus. Jetzt wandert jeder gute Stand in localStorage.fcData; fällt die Datei
+     aus oder kommt sie leer, zeigt das Cockpit den letzten echten Stand — mit Puffer-Hinweis
+     (va-app.js > standHtml), nie stumm und nie erfunden. */
   try{const x=new XMLHttpRequest();x.open('GET','va-data.json?ts='+Date.now(),false);x.send();
-    if(x.status===200){const d=JSON.parse(x.responseText);if(d&&d.issues&&d.issues.length&&d.meta)return d;}}catch(e){}
+    if(x.status===200){const d=JSON.parse(x.responseText);
+      if(d&&d.issues&&d.issues.length&&d.meta){
+        try{ d.meta.geholtAm=new Date().toISOString(); localStorage.setItem('fcData',JSON.stringify(d)); }catch(e){}
+        return d; }}}catch(e){}
   try{const d=JSON.parse(localStorage.getItem('fcData')||'null');
+    if(d&&d.issues&&d.issues.length&&d.meta){ d.meta.puffer=d.meta.geholtAm||true; return d; }}catch(e){}
 '@ 'Boot-XHR'
 
 # 2a) VA-Datenformat: Feld 11 = STA-Link-Flag (0/1), Feld 12 = Resolution-Name (seit 17.08.2026).
