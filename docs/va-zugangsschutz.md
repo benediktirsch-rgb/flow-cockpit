@@ -12,6 +12,26 @@
 > Rueckfallebene fuer Instanzen ohne Tuer. Der Rest dieser Seite beschreibt den alten Stand
 > und gilt weiter fuer `.htpasswd-va` als Rueckweg (`git checkout <commit vor der Tuer> -- site/va/.htaccess`).
 
+## Wenn jemand vor der Tuer steht (04.09.2026 abends, Bene: „bene. laesst mich nicht rein“)
+
+Die Tuer selbst (gate.php auf der Subdomain) entscheidet nichts ueber Anmeldung — sie schickt
+zu `vishnuartists.com/weiter.php` und fragt dort per Einmal-Ticket nach, wer da ist. Alles,
+was „ich komme nicht rein“ heisst, liegt deshalb im Website-Repo (`f/anmelden.php`,
+`f/weiter.php`, `f/passkey.php`) — dort sind am 04.09. abends vier Dinge geradegezogen worden:
+
+| Symptom | Ursache | Seit dem 04.09. abends |
+|---|---|---|
+| „Der Link ist abgelaufen oder schon benutzt“, obwohl frisch | Der erste **GET** verbrauchte den Einmal-Link — und den macht die Link-Vorschau von Slack/Teams, der Mail-Scanner oder das Vorladen des Browsers, nicht der Mensch | GET zeigt nur „Anmelden als …“ mit Knopf; eingeloest wird erst das **POST** dahinter. Links duerfen wieder ueber Slack gehen |
+| „Mit Passkey anmelden“ laeuft ins Leere (Windows Hello findet nichts) | Passkeys vom 03.09. liegen im Geraet nicht als „auffindbar“; der Knopf fragte ohne Benutzernamen | Adresse ins Feld darueber eintragen — dann nennt `passkey.php` die Schluessel dieser Person (`allowCredentials`), und das Geraet bietet auch den alten an |
+| Bei Vaikuntha angemeldet, Tuer trotzdem zu | Das Vereins-Token lebt nur im Browser (localStorage); `weiter.php` kennt allein das Cookie `vf_sitz` | `anmelden.php?vaikuntha=1` tauscht das Token gegen eine Vishnu-Sitzung (Knopf im Formular; `vf.js` tut es im Hintergrund, sobald ein Token da ist). Voraussetzung bleibt eine Innenraum-Rolle |
+| „Das ist nicht deine Tuer“ fuer die Geschaeftsfuehrung an einer persoenlichen Instanz (`GATE_ROLLEN = gruender`) | `weiter.php` gab nur `person_rolle` zurueck; der CRM-Import kennt fuer das Kern-Team nur `intern`, `gruender` steht im Roster | `weiter.php` antwortet mit `vf_rollen_ermitteln` (CRM **plus** Roster) — dieselbe Antwort wie Backstage, CRM und Portal |
+
+Reihenfolge fuer den Notfall, wenn nichts davon greift: **Adresse + Passwort** (wer eins hat) →
+**Anmelde-Link** an die im CRM hinterlegte Adresse, per Knopf einloesen → **Vaikuntha-Konto** →
+Einladungslink aus dem CRM durch eine zweite Person mit Rolle `gruender`/`intern`
+(`anmelden.php?einladen=<person_id>`). Mail-Zustellung ist der eine Punkt, den der Code nicht
+heilen kann — deshalb stehen die drei anderen Wege daneben.
+
 ## Warum
 
 `site/va/va-data.json` enthaelt echte Jira-Daten mit Klarnamen. Der Passwort-Check in
