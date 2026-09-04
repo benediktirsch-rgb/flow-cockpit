@@ -244,6 +244,40 @@ $mstamp = (($mh | ForEach-Object { $_.ToString('x2') }) -join '').Substring(0,8)
 $script:s = [regex]::Replace($script:s, '<script src="pb-meet\.js[^"]*"></script>', ('<script src="pb-meet.js?v=' + $mstamp + '"></script>'))
 Write-Output ("geteilt uebernommen: pb-meet.js (v={0})" -f $mstamp)
 
+# -- 13b. Kopfangaben fuer Suchmaschinen (04.09.2026) --------------------------
+# Anlass: Starter und Hilfe liegen an ZWEI Adressen — vishnu-artists.de/ (alt) und
+# demo.vishnuartists.com/cockpit/ (neu). Beide antworteten mit 200, keine trug ein
+# canonical. Damit hat Google zwei gleiche Anwendungen ohne Fliesstext im Index und
+# muss selbst raten, welche zaehlt; im Abdeckungsbericht standen sie als
+# "gecrawlt, zurzeit nicht indexiert".
+#
+# Was jetzt drinsteht:
+#   canonical  -> die Produktseite auf der Marke. Nicht die andere Kopie: was
+#                 ranken soll, ist die Seite MIT Text, nicht die Anwendung.
+#   robots     -> noindex,follow. Eine Anwendung ohne Fliesstext ist kein gutes
+#                 Suchergebnis; die Links darin sollen aber weiter zaehlen.
+#                 Wichtig: NICHT zusaetzlich per robots.txt sperren — wer aussperrt,
+#                 verhindert, dass dieses noindex ueberhaupt gelesen wird.
+#   og:*       -> damit ein geteilter Link nicht als grauer Kasten ankommt.
+function Kopfangaben([string]$html, [string]$titel, [string]$beschreibung, [string]$kanonisch) {
+  $block = @"
+<link rel="canonical" href="$kanonisch">
+<meta name="robots" content="noindex,follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="$titel">
+<meta property="og:description" content="$beschreibung">
+<meta property="og:url" content="$kanonisch">
+<meta property="og:image" content="https://vishnuartists.com/img/og-default.jpg">
+<meta name="twitter:card" content="summary_large_image">
+"@
+  $block = $block -replace "`r", ''
+  if ($html -match '<link rel="canonical"') { throw 'Kopfangaben stehen schon drin — Anker pruefen' }
+  $i = $html.IndexOf('</head>')
+  if ($i -lt 0) { throw 'kein </head> gefunden' }
+  return $html.Substring(0, $i) + $block + $html.Substring($i)
+}
+
+$script:s = Kopfangaben $script:s 'Flow Cockpit - Demo mit Beispieldaten' 'Das vollstaendige Flow Cockpit mit Beispieldaten: CFD, Lead-Time-Streuung, WIP- und Aging-Ampeln. Ohne Anmeldung.' 'https://vishnuartists.com/flow-cockpit.html'
 [IO.File]::WriteAllText("$base\site\flow-cockpit-starter.html", $script:s, (New-Object Text.UTF8Encoding($false)))
 Write-Output ("Starter geschrieben: {0} KB" -f [math]::Round((Get-Item "$base\site\flow-cockpit-starter.html").Length/1KB))
 
@@ -283,5 +317,6 @@ $h = $h.Replace('--brand:#1a44ea;--brand2:#2b50e8;--brand-dark:#0f2ec2;--accent:
 $h = $h.Replace("fill='%23010205'", "fill='%230c1013'").Replace("fill='%231a44ea'", "fill='%2389c527'")
 $h = $h.Replace('© 2026 <a href="https://www.porsche.digital" target="_blank" rel="noopener">Porsche Digital GmbH</a>', '© 2026 <a href="https://vishnuartists.com" target="_blank" rel="noopener">vishnuartists.com</a>')
 if ($h -match 'porsche|Car Sales') { throw 'HILFE: Porsche-Branding oder Kundenname nicht entfernt' }
+$h = Kopfangaben $h 'Flow Cockpit - Anleitung' 'Die Anleitung zum Flow Cockpit: Setup-Wizard, Board-Mapping, Kennzahlen und Ampeln.' 'https://vishnuartists.com/flow-cockpit.html'
 [IO.File]::WriteAllText("$base\site\flow-cockpit-hilfe.html", $h, (New-Object Text.UTF8Encoding($false)))
 Write-Output "Hilfe geschrieben. BUILD KOMPLETT."
