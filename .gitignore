@@ -18,6 +18,10 @@ site/va/va-data.json
 # Zugangsdateien (HTTP-Basic-Auth) entstehen im Workflow aus dem Secret VA_HTPASSWD
 .htpasswd*
 docs/va.htpasswd
+# Die Tuer von va. (seit 04.09.2026): Konfiguration mit Maschinenschluessel und Cookie-Geheimnis
+# legt publish-cockpit.ps1 einmal an — beides bleibt auf diesem Rechner und dem Server.
+site/va/gate-config.php
+site/va/gate-secret.php
 
 # Kundeninstanzen: Namen, Board-URLs, Zugangs-Hashes — bleiben lokal
 instanzen/

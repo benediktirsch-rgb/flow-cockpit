@@ -83,7 +83,10 @@ function Lade-Ordner($zugang, [string]$lokal, [string]$fernBasis, [string]$state
   $stateDatei = Join-Path $stateDir "$stateName.json"
   $state = @{}
   if (Test-Path $stateDatei) { try { $j = (Get-Content -LiteralPath $stateDatei -Raw -Encoding UTF8) | ConvertFrom-Json; foreach ($p in $j.PSObject.Properties) { $state[$p.Name] = [string]$p.Value } } catch { $state = @{} } }
-  $dateien = @(Get-ChildItem -LiteralPath $lokal -Recurse -File -Force | Where-Object { $_.Name -notlike '.publish-state*' -and $_.Name -notlike '.ftp-*' })
+  # .htaccess GANZ ZULETZT (04.09.2026): sie leitet seit der Tuer jede Anfrage auf gate.php um. Ginge sie
+  # vor gate.php hoch, waere die Subdomain in der Zwischenzeit tot (alles 404).
+  $dateien = @(Get-ChildItem -LiteralPath $lokal -Recurse -File -Force | Where-Object { $_.Name -notlike '.publish-state*' -and $_.Name -notlike '.ftp-*' } |
+    Sort-Object @{ Expression = { if ($_.Name -eq '.htaccess') { 1 } else { 0 } } }, FullName)
   $hoch = 0; $fehler = 0; $ordnerDa = @{}
   foreach ($f in $dateien) {
     $rel = $f.FullName.Substring($lokal.Length).TrimStart('\').Replace('\', '/')
@@ -104,7 +107,57 @@ function Lade-Ordner($zugang, [string]$lokal, [string]$fernBasis, [string]$state
 $zugang = Hole-FtpZugang
 if (-not $zugang) { Log 'ABBRUCH: FTP-Zugang fehlt (User-Umgebungsvariablen VA_FTP_HOST / VA_FTP_USER / VA_FTP_PASS).'; return }
 Sichere-FtpOrdner $zugang '/demo.vishnuartists.com/cockpit'
+# ---------- Die Tuer fuer va. (04.09.2026) ----------
+# Seit dem Abend des 04.09.2026 haengt das Team-Cockpit an derselben Tuer wie die persoenlichen Subdomains:
+# gate.php (Quelle: flow-compass\produkt\gate\gate.php — hier liegt eine Kopie, die bei jedem Lauf
+# nachgezogen wird, solange die Quelle auf diesem Rechner liegt), gate-config.php (wer darf: Rollen aus
+# dem CRM + Maschinenschluessel fuer john-server und Datenlauf) und gate-secret.php (signiert das
+# Tuercookie). Konfiguration und Geheimnis entstehen EINMAL und sind gitignored — ein neues Geheimnis
+# wirft alle raus, ein neuer Schluessel sperrt john-server und Datenlauf aus (VA_GATE_KEY nachziehen).
+function Neu-Hex([int]$bytes) {
+  $b = New-Object byte[] $bytes; (New-Object Security.Cryptography.RNGCryptoServiceProvider).GetBytes($b)
+  return (($b | ForEach-Object { $_.ToString('x2') }) -join '')
+}
+function Sichere-Tuer([string]$ordner) {
+  $quelle = 'C:\dev\persoenliches-dashboard\produkt\gate\gate.php'
+  $ziel = Join-Path $ordner 'gate.php'
+  if (Test-Path $quelle) {
+    $q = [IO.File]::ReadAllText($quelle, [Text.Encoding]::UTF8).Replace("`r`n", "`n")
+    $z = ''; if (Test-Path $ziel) { $z = [IO.File]::ReadAllText($ziel, [Text.Encoding]::UTF8) }
+    if ($q -ne $z) { [IO.File]::WriteAllText($ziel, $q, (New-Object Text.UTF8Encoding($false))); Log '  gate.php aus flow-compass nachgezogen.' }
+  } elseif (-not (Test-Path $ziel)) { Log 'WARNUNG: gate.php fehlt und die Quelle in flow-compass ist nicht da — die Tuer bleibt zu.' }
+  $gc = Join-Path $ordner 'gate-config.php'
+  if (-not (Test-Path $gc)) {
+    $key = [Environment]::GetEnvironmentVariable('VA_GATE_KEY', 'User')
+    if (-not $key -or $key.Trim().Length -lt 16) {
+      $key = Neu-Hex 24
+      [Environment]::SetEnvironmentVariable('VA_GATE_KEY', $key, 'User')
+      Log '  VA_GATE_KEY neu erzeugt und als User-Umgebungsvariable gesetzt (john-server liest sie ohne Neustart).'
+    }
+    $zeilen = @(
+      '<?php',
+      '/* gate-config.php — wer das Team-Cockpit oeffnen darf (erzeugt von publish-cockpit.ps1, wird nie ueberschrieben).',
+      '   Rollen aus db.php > VF_ROLLEN. Das Team-Cockpit zeigt Jira-Klarnamen und die Team-Rangliste — deshalb',
+      '   das Kern-Team und alle mit Kooperationsvertrag, nicht der ganze Pool. Aendern = Zeile anpassen, Datei hochladen.',
+      '   $GATE_KEY ist der Maschinenschluessel fuer john-server und Datenlauf (User-Umgebungsvariable VA_GATE_KEY). */',
+      '$GATE_MAIL   = '''';',
+      '$GATE_ROLLEN = array( ''gruender'', ''intern'', ''vertrag'', ''coach'', ''trainer'' );',
+      '$GATE_TITEL  = ''Vishnu Team-Cockpit'';',
+      ('$GATE_KEY    = ''' + $key.Trim() + ''';')
+    )
+    [IO.File]::WriteAllText($gc, (($zeilen -join "`n") + "`n"), (New-Object Text.UTF8Encoding($false)))
+    Log '  gate-config.php angelegt (gruender, intern, vertrag, coach, trainer + Maschinenschluessel).'
+  }
+  $gs = Join-Path $ordner 'gate-secret.php'
+  if (-not (Test-Path $gs)) {
+    $zeilen = @('<?php', '/* gate-secret.php — signiert das Tuercookie. Einmal erzeugt, NIE aendern (sonst fliegen alle raus). */', ('$GEHEIM = ''' + (Neu-Hex 32) + ''';'))
+    [IO.File]::WriteAllText($gs, (($zeilen -join "`n") + "`n"), (New-Object Text.UTF8Encoding($false)))
+    Log '  gate-secret.php angelegt (32 Byte Zufall).'
+  }
+}
+
 if (-not $NurStarter) {
+  Sichere-Tuer (Join-Path $repo 'site\va')
   $ohneVa = @()
   if (-not (Soll-VaDatenHoch $zugang (Join-Path $repo 'site\va\va-data.json'))) { $ohneVa = @('va-data.json') }
   Lade-Ordner $zugang (Join-Path $repo 'site\va') '/va.vishnuartists.com' 'va' 'Vishnu-Instanz (va.)' $ohneVa

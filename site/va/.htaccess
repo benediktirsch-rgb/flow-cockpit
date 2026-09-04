@@ -1,36 +1,34 @@
-# Zugangsschutz /va/ — HTTP-Basic-Auth fuer den GESAMTEN Ordner (25.08.2026)
-# Grund: va-data.json enthaelt echte Jira-Daten mit Klarnamen; der Passwort-Check in
-# va-app.js laeuft nur im Browser und schuetzt die Datei selbst nicht. Diese Schicht
-# liegt davor — der Client-Login bleibt unveraendert bestehen, ist aber nicht mehr die
-# einzige Huerde.
-#
-# Das Passwort liegt NICHT im Repo. Apache antwortet auch ohne vorhandene .htpasswd
-# mit 401 auf jede Anfrage ohne Zugangsdaten — anmelden kann man sich aber erst, wenn
-# die .htpasswd-va auf dem Server existiert (Anleitung: docs/va-zugangsschutz.md).
-# Ablage seit 27.08.2026 im Domain-Ordner (nicht mehr im Webspace-Root): der
-# Deploy-FTP-User darf im Root nicht schreiben (curl exit 25, STOR denied), im
-# Domain-Ordner schon. Dort schuetzt Apaches eingebaute FilesMatch-^\.ht-Sperre die
-# Datei vor Abruf (403). deploy.yml laedt sie aus dem Repo-Secret VA_HTPASSWD hoch.
-# Nie eine .htpasswd nach site/va/ legen: update-va-data.yml laedt diesen Ordner
-# stuendlich ohne Ausschluesse hoch, die Datei laege damit im Repo-Sync.
-AuthType Basic
-AuthName "Vishnu Flow Cockpit"
-AuthUserFile /www/htdocs/w01e7219/vishnu-artists.com/.htpasswd-va
-Require valid-user
-
-# Seit 03.09.2026 liegt die Instanz auf va.vishnuartists.com (eigenes Dokumentenverzeichnis).
-# Die Zugangsdatei bleibt im Ordner von vishnu-artists.de — der Pfad oben ist absolut.
-# https-Zwang: Basic-Auth ueber http hiesse Team-Passwort im Klartext.
+# Team-Cockpit va.vishnuartists.com — jede Anfrage geht durch gate.php (seit 04.09.2026 abends).
+# Vorher: HTTP-Basic-Auth mit einem gemeinsamen Team-Passwort (.htpasswd-va, 25.08.–04.09.2026).
+# Jetzt: dieselbe Tuer wie die persoenlichen Subdomains — die Person kommt mit ihrem Konto von
+# vishnuartists.com herein (weiter.php-Ticket, Tuercookie vf_gate), wer darf steht in gate-config.php,
+# Leser ohne Konto (john-server, Datenlauf) schicken den Maschinenschluessel im Kopf X-Vf-Key.
+# gate.php ist eine Kopie aus flow-compass/produkt/gate/ und wird von publish-cockpit.ps1 nachgezogen.
+# Rueckweg zur alten Tuer: diese Datei aus dem Commit vor der Umstellung (docs/va-zugangsschutz.md).
+# gate-fassung: 1
 <IfModule mod_rewrite.c>
 RewriteEngine On
+# https erzwingen: das Ticket und das Tuercookie gehoeren nie ueber eine offene Leitung.
 RewriteCond %{HTTPS} !=on
 RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+# Alles andere beantwortet die Tuer. Sie liefert die Datei selbst aus, wenn jemand
+# angemeldet ist (oder den Schluessel hat), und schickt sonst zu vishnuartists.com/weiter.php.
+RewriteCond %{REQUEST_URI} !^/gate\.php$
+RewriteRule ^(.*)$ /gate.php [QSA,L]
 </IfModule>
-
-# Der persoenliche Compass (bene.vishnuartists.com) liest va-data.json direkt von hier —
-# anderer Ursprung, deshalb CORS mit Zugangsdaten, und nur fuer genau diesen Ursprung.
+# Ohne mod_rewrite gaebe es keine Tuer — dann lieber gar nichts ausliefern als alles.
+<IfModule !mod_rewrite.c>
+Require all denied
+</IfModule>
+# Die Tuerdateien sind auch dann tabu, wenn jemand sie direkt anspricht.
+<FilesMatch "^(gate-config|gate-secret)\.php$">
+  Require all denied
+</FilesMatch>
+# CORS fuer den persoenlichen Compass (bene.vishnuartists.com liest va-data.json) setzt gate.php
+# selbst — je nach Origin, nur fuer *.vishnuartists.com, mit Cookie.
 <IfModule mod_headers.c>
-  Header always set Access-Control-Allow-Origin "https://bene.vishnuartists.com"
-  Header always set Access-Control-Allow-Credentials "true"
-  Header always set Vary "Origin"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Strict-Transport-Security "max-age=31536000"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), interest-cohort=()"
 </IfModule>

@@ -1,5 +1,17 @@
 # Zugangsschutz fuer /va/ und /compass/ — HTTP-Basic-Auth (25.08.2026)
 
+> **Seit dem 04.09.2026 abends gilt das nicht mehr fuer va.vishnuartists.com.** Das Team-Cockpit
+> haengt an derselben Tuer wie die persoenlichen Subdomains: `site/va/.htaccess` leitet jede
+> Anfrage auf `gate.php` (Kopie aus `flow-compass/produkt/gate/`), die Person kommt mit ihrem
+> Konto von vishnuartists.com herein (`weiter.php`-Ticket, Tuercookie `vf_gate`, 4 h), und
+> `va-app.js` fragt `gate.php?wer=1`, statt ein zweites Mal Name + Team-Passwort zu verlangen.
+> Wer darf: `site/va/gate-config.php` (gitignored, legt `publish-cockpit.ps1` an) — Rollen
+> `gruender, intern, vertrag, coach, trainer` aus dem CRM. Leser ohne Konto (john-server,
+> Datenlauf) schicken den Maschinenschluessel aus derselben Datei im Kopf `X-Vf-Key`
+> (User-Umgebungsvariable `VA_GATE_KEY`). Das Team-Passwort in `va-app.js` bleibt nur als
+> Rueckfallebene fuer Instanzen ohne Tuer. Der Rest dieser Seite beschreibt den alten Stand
+> und gilt weiter fuer `.htpasswd-va` als Rueckweg (`git checkout <commit vor der Tuer> -- site/va/.htaccess`).
+
 ## Warum
 
 `site/va/va-data.json` enthaelt echte Jira-Daten mit Klarnamen. Der Passwort-Check in

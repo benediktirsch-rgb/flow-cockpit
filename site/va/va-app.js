@@ -156,8 +156,8 @@
   /* Ein Login für beide Werkzeuge (27.08.2026): dieselben Schlüssel, die auch das Compass-Gate
      schreibt (dashboard.html › vaAnmelden). Live liegen /va/ und /compass/ auf einer Herkunft —
      wer sich hier anmeldet, ist drüben angemeldet, und umgekehrt. */
-  function anmelden(name){
-    localStorage.setItem(AUTH_KEY,JSON.stringify({name:name,exp:Date.now()+AUTH_DAYS*86400000,ts:Date.now()}));
+  function anmelden(name,tuer){
+    localStorage.setItem(AUTH_KEY,JSON.stringify({name:name,exp:Date.now()+AUTH_DAYS*86400000,ts:Date.now(),tuer:!!tuer}));
     localStorage.setItem('vaUser_va',JSON.stringify({name:name,role:'Coach'}));
     try{
       localStorage.setItem('compassGate',JSON.stringify({h:VA_PW_HASH,bis:Date.now()+AUTH_DAYS*86400000}));
@@ -168,6 +168,22 @@
   /* Anmelde-Link + Passwort-vergessen laufen über flow-login.php (Variante F, CORS offen).
      Der Endpunkt schickt nur an freigegebene Adressen — die Antwort ist immer „ok“. */
   var LOGIN_API='https://vishnuartists.com/flow-login.php';
+  /* ── Die Tür (04.09.2026): liegt das Cockpit hinter gate.php (ein Konto von vishnuartists.com für alle
+     Produkt-Subdomains), kennt der Server die Person schon — das Team-Passwort wäre ein zweites Login für
+     dieselbe Sitzung. ?wer=1 sagt, wer da ist (Vorname, Mail). Der Jira-Name wird aus dem Vornamen gesucht;
+     ist er nicht eindeutig, bleibt nur die Namensfrage — ohne Passwort. Antwortet die Tür nicht (lokal,
+     Basic-Auth-Instanz, Netz weg), läuft der alte Weg. ── */
+  var TUER=null;
+  function tuerFragen(){
+    var u=''; try{ u=new URL('/gate.php?wer=1',location.href).href; }catch(e){}
+    if(!/^https:/.test(u)) return Promise.resolve(null);
+    var spaet=new Promise(function(r){ setTimeout(function(){ r(null); },4000); });
+    var frage=fetch(u,{credentials:'same-origin',cache:'no-store'})
+      .then(function(r){ return r.ok?r.json():null; })
+      .then(function(j){ return (j&&j.ok)?j:null; })
+      .catch(function(){ return null; });
+    return Promise.race([frage,spaet]);
+  }
   /* ── Windows Hello / Fingerabdruck / Face: derselbe Geräte-Eintrag (compassBio) wie im
      Compass-Gate. Geräte-Komfort hinter der OS-Sperre, kein Server-Beweis — gespeichert sind
      nur Name, Credential-ID und der Gate-Hash. Angeboten wird der Knopf nur, wenn der Eintrag
@@ -197,7 +213,7 @@
   }
   /* Nach der Anmeldung einmalig anbieten, dieses Gerät zu verknüpfen (gleiches Muster wie im Compass). */
   function bioAngebot(){
-    if(!bioKann()||!auth())return;
+    var a0=auth(); if(!bioKann()||!a0||a0.tuer)return;   /* durch die Tür angemeldet: Passkeys gehören zum Konto */
     try{ if(JSON.parse(localStorage.getItem(BIO_KEY)||'null'))return; }catch(e){}
     if(localStorage.getItem(BIO_NIE)||sessionStorage.getItem('vaBioGefragt'))return;
     sessionStorage.setItem('vaBioGefragt','1');
@@ -224,16 +240,18 @@
     var ov=document.createElement('div'); ov.className='vaov'; ov.id='vaLogin';
     ov.innerHTML='<div class="vabox">'
       +'<h2>🔐 '+T('Vishnu Artists · Flow Cockpit','Vishnu Artists · Flow Cockpit')+'</h2>'
-      +'<div class="sub">'+T('Team-Login — gilt zugleich für deinen persönlichen Flow Compass (eine Anmeldung für beide Werkzeuge).','Team login — also signs you into your personal Flow Compass (one sign-in for both tools).')+'</div>'
-      +'<label>'+T('Dein Name','Your name')+'<input id="vaLName" autocomplete="username" list="vaLNamen" placeholder="'+T('z. B. Vorname reicht, wenn eindeutig','e.g. first name is enough if unique')+'" value="'+esc(a?a.name:'')+'"></label>'
+      +'<div class="sub">'+(TUER
+        ?T('Du bist angemeldet als '+(TUER.mail||TUER.name||'')+'. Unter welchem Namen stehst du in Jira? Danach bist du drin — ohne Passwort.','You are signed in as '+(TUER.mail||TUER.name||'')+'. Which name are you in Jira? Then you are in — no password needed.')
+        :T('Team-Login — gilt zugleich für deinen persönlichen Flow Compass (eine Anmeldung für beide Werkzeuge).','Team login — also signs you into your personal Flow Compass (one sign-in for both tools).'))+'</div>'
+      +'<label>'+T('Dein Name','Your name')+'<input id="vaLName" autocomplete="username" list="vaLNamen" placeholder="'+T('z. B. Vorname reicht, wenn eindeutig','e.g. first name is enough if unique')+'" value="'+esc(a?a.name:(TUER&&TUER.name)||'')+'"></label>'
       +'<datalist id="vaLNamen">'+namen.map(function(n){return '<option value="'+esc(n)+'">';}).join('')+'</datalist>'
       +'<div class="hint" id="vaLWer" style="margin-top:4px;min-height:14px"></div>'
-      +'<label>'+T('Team-Passwort','Team password')+'<input id="vaLPw" type="password" autocomplete="current-password"></label>'
+      +(TUER?'':'<label>'+T('Team-Passwort','Team password')+'<input id="vaLPw" type="password" autocomplete="current-password"></label>')
       +'<div class="err" id="vaLErr">'+esc(msg||'')+'</div>'
       +'<button class="btn" id="vaLBtn">'+T('Anmelden →','Sign in →')+'</button>'
       +(bio?' <button class="btn sec" id="vaLBio">🔓 '+T('Als ','Sign in as ')+esc(bio.name)+T(' anmelden (Hello / Face)',' (Hello / Face)')+'</button>':'')
       +(a?' <button class="btn sec" id="vaLCancel">'+T('Abbrechen','Cancel')+'</button>':'')
-      +'<div class="hint" style="margin-top:12px">'
+      +'<div class="hint" style="margin-top:12px'+(TUER?';display:none':'')+'">'
       +'<a href="#" id="vaLLink" style="color:var(--brand-dark,#5c9220);font-weight:700">📧 '+T('Anmelde-Link per Mail','Email me a sign-in link')+'</a>'
       +' · <a href="#" id="vaLReset" style="color:var(--brand-dark,#5c9220);font-weight:700">'+T('Passwort vergessen?','Forgot the password?')+'</a></div>'
       +'<div id="vaLMailRow" style="display:none">'
@@ -244,12 +262,14 @@
       +'</div>';
     document.body.appendChild(ov);
     var go=function(){
-      var name=document.getElementById('vaLName').value, pw=document.getElementById('vaLPw').value, err=document.getElementById('vaLErr');
+      var pwEl=document.getElementById('vaLPw');
+      var name=document.getElementById('vaLName').value, pw=pwEl?pwEl.value:'', err=document.getElementById('vaLErr');
       var p=matchPerson(name);
       if(!p){err.textContent=T('Name nicht erkannt — bitte wie in Jira schreiben (Vorname reicht, wenn eindeutig).','Name not recognised — type it as in Jira (first name is enough if unique).');return;}
       /* Ausgeschieden (ROSTER.weg): kein Zugang mehr, aber eine Meldung, die den Weg zeigt —
          eine stumme Ablehnung würde nach einem Fehler des Cockpits aussehen. */
       if(!istAktiv(p[0])){err.textContent=T('Für '+p[0]+' ist der Zugang beendet'+(wegSeit(p[0])?' ('+wegSeit(p[0])+')':'')+'. Wenn das nicht stimmt: bei Benedikt melden.','Access for '+p[0]+' has ended. If that is wrong, tell Benedikt.');return;}
+      if(TUER){ anmelden(p[0],true); location.reload(); return; }   /* die Tür hat die Person schon geprüft */
       hash(pw).then(function(h){
         if(h!==VA_PW_HASH){err.textContent=T('Team-Passwort stimmt nicht.','Wrong team password.');return;}
         anmelden(p[0]);
@@ -257,7 +277,7 @@
       });
     };
     document.getElementById('vaLBtn').onclick=go;
-    ['vaLName','vaLPw'].forEach(function(id){document.getElementById(id).onkeydown=function(e){if(e.key==='Enter')go();};});
+    ['vaLName','vaLPw'].forEach(function(id){var el=document.getElementById(id); if(el)el.onkeydown=function(e){if(e.key==='Enter')go();};});
     var cx=document.getElementById('vaLCancel'); if(cx)cx.onclick=function(){ov.remove();};
     var bb=document.getElementById('vaLBio'); if(bb)bb.onclick=function(){ bioLogin().then(function(ok){ if(!ok)bb.textContent=T('Nicht geklappt — bitte Team-Passwort nutzen.','Did not work — please use the team password.'); }); };
     /* Vorschlag unter dem Namensfeld: wer wird das, und in welcher Rolle? */
@@ -295,11 +315,16 @@
         .then(function(){ info.textContent='✅ '+T('Wenn die Adresse freigegeben ist, liegt der Link in wenigen Minuten im Postfach (auch im Spam nachsehen).','If the address is approved, the link arrives within minutes (check spam too).'); })
         .catch(function(){ btn.disabled=false; info.textContent=T('Gerade keine Verbindung — bitte später noch einmal.','No connection right now — please try again later.'); });
     };
-    setTimeout(function(){try{document.getElementById(a?'vaLPw':'vaLName').focus();}catch(e){}},60);
+    setTimeout(function(){try{document.getElementById((a&&!TUER)?'vaLPw':'vaLName').focus();}catch(e){}},60);
   }
   function logout(){
+    /* Kam die Person durch die Tür, heißt Abmelden: Türcookie weg und das Konto der Website abmelden —
+       sonst stünde sie nach dem Neuladen in derselben Sekunde wieder drin. */
+    var a=auth(), tuer=!!(a&&a.tuer);
     ['vaUser_va','compassGate','compassUser'].forEach(function(k){try{localStorage.removeItem(k);}catch(e){}});
-    localStorage.removeItem(AUTH_KEY); sessionStorage.removeItem('vaStartSeen'); location.reload();
+    localStorage.removeItem(AUTH_KEY); sessionStorage.removeItem('vaStartSeen');
+    if(tuer){ location.href=new URL('/gate.php?raus=1',location.href).href; return; }
+    location.reload();
   }
 
   /* ───────── Team-Besetzung (31.08.2026) ─────────
@@ -1140,7 +1165,17 @@
   });
   function boot(){
     var a=auth();
-    if(!a){ document.documentElement.classList.add('va-locked'); loginShow(LOGIN_MSG); return; }
+    if(!a){
+      document.documentElement.classList.add('va-locked');
+      /* Erst die Tür fragen: kennt sie die Person und ist der Vorname in Jira eindeutig, ist das die
+         Anmeldung. Sonst die Namensfrage (ohne Passwort) — oder, ohne Tür, der alte Login. */
+      tuerFragen().then(function(j){
+        TUER=j;
+        if(j){ var p=matchPerson(j.name||''); if(p&&istAktiv(p[0])){ anmelden(p[0],true); boot(); return; } }
+        loginShow(LOGIN_MSG);
+      });
+      return;
+    }
     document.documentElement.classList.remove('va-locked');
     /* Identitaet konsistent halten (z. B. nach Datenwechsel oder wenn vaUser_va fehlt) */
     try{var u=JSON.parse(localStorage.getItem('vaUser_va')||'null'); if(!u||u.name!==a.name||u.role!=='Coach'){localStorage.setItem('vaUser_va',JSON.stringify({name:a.name,role:'Coach'})); location.reload(); return;}}catch(e){}
