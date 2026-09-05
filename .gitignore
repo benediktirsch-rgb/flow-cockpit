@@ -4,8 +4,10 @@ Thumbs.db
 .DS_Store
 node_modules/
 
-# Sitzungsstand von Claude Code (Berechtigungen, lokale Overrides, Notizen)
-.claude/
+# Sitzungsstand von Claude Code (Berechtigungen, lokale Overrides, Notizen) — nur die Skills
+# reisen mit (04.09.2026 abends, Bene: mobil dieselben Skills wie am Desktop).
+.claude/*
+!.claude/skills/
 CLAUDE.local.md
 
 # Laufzeit-Protokolle
