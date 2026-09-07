@@ -1,0 +1,7 @@
+# demo.vishnuartists.com/cockpit/ — Starter-Demo + Hilfe (aus flow-cockpit/site, hochgeladen von publish-cockpit.ps1).
+# Ohne diese Datei antwortet der Ordner selbst mit 403: es gibt kein index.html, und Verzeichnislisten sind
+# aus. Die alte Adresse vishnuartists.com/demo/cockpit/ leitet aber genau hierher — seit dem Umzug auf die
+# Subdomain (03.09.2026) stand sie deshalb rot in der Adress-Uebersicht (07.09.2026). Der Starter ist die
+# Eingangsseite, die Hilfe verlinkt er selbst.
+DirectoryIndex flow-cockpit-starter.html
+Options -Indexes
