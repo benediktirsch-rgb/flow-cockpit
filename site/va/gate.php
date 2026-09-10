@@ -361,9 +361,21 @@ if ( isset( $_GET['briefkasten'] ) ) {
 	$d = json_decode( (string) $roh, true );
 	$art = is_array( $d ) && isset( $d['art'] ) ? strtolower( (string) $d['art'] ) : '';
 	$datum = is_array( $d ) && isset( $d['datum'] ) ? (string) $d['datum'] : '';
-	if ( ! in_array( $art, array( 'morgen', 'abend', 'wochenstart', 'wochenreview', 'fragen', 'checkin', 'madeleine' ), true )
-	  || ! preg_match( '/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $datum ) ) {
+	if ( ! preg_match( '/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/', $datum ) ) {
 		http_response_code( 400 ); echo json_encode( array( 'ok' => false, 'error' => 'UNBRAUCHBAR' ) ); exit;
+	}
+	/* Die Art wird nur zum Dateinamen — deshalb eine Liste und kein Durchreichen. Was nicht darauf
+	   steht, wird trotzdem angenommen und heißt 'checkin' (09.09.2026): bis heute wies der Kasten
+	   eine Freigaben-Übergabe mit 400 zurück, weil ihre Art hier fehlte — der Abschluss sagte dann
+	   „Noch nicht übergeben“ statt „Im Briefkasten“, und die fertige Übergabe lag nur im Browser.
+	   Eine neue Ritual-Art darf nie wieder dazu führen, dass eine Übergabe nirgends liegt. Nur
+	   'madeleine' zählt wörtlich: an ihr hängt der andere Weg (Antwort hinein statt Löschen). */
+	if ( ! in_array( $art, array( 'morgen', 'abend', 'wochenstart', 'wochenreview', 'fragen', 'freigaben', 'trichter', 'checkin', 'madeleine' ), true ) ) { $art = 'checkin'; }
+	/* Ein Brief ohne Inhalt wäre nur Müll, den der Abholer bis zum Ablauf immer wieder
+	   dem john-server anbietet (der lehnt leeren Text mit 'LEER' ab). Madeleine trägt ihre
+	   Frage statt eines Textes — sie wird gleich darunter geprüft. */
+	if ( $art !== 'madeleine' && trim( (string) ( $d['text'] ?? '' ) ) === '' ) {
+		http_response_code( 400 ); echo json_encode( array( 'ok' => false, 'error' => 'LEER' ) ); exit;
 	}
 	if ( $art === 'madeleine' ) {
 		$frage = trim( (string) ( $d['frage'] ?? '' ) );
@@ -443,6 +455,10 @@ $typen = array(
 	'pdf' => 'application/pdf', 'csv' => 'text/csv; charset=utf-8',
 	'mp4' => 'video/mp4', 'webm' => 'video/webm', 'mp3' => 'audio/mpeg', 'wav' => 'audio/wav',
 	'xml' => 'application/xml; charset=utf-8', 'vtt' => 'text/vtt; charset=utf-8',
+	/* Das Compass-Server-Paket laedt der Einrichtungs-Assistent aus dem Ordner der Instanz
+	   (Schritt „Dein Coach“). Ohne diesen Eintrag antwortet die Tuer mit 403 „Diesen Dateityp
+	   liefern wir hier nicht aus“ und niemand kommt an den Server (VA-13681, 10.09.2026). */
+	'zip' => 'application/zip',
 );
 if ( ! isset( $typen[ $endung ] ) ) { g_seite( 403, 'Nicht abrufbar', 'Diesen Dateityp liefern wir hier nicht aus.' ); }
 
