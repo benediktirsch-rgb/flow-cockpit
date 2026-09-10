@@ -7,15 +7,15 @@
     "",
     "Die Kennung ist der gesalzene SHA-256 des Namens, damit hier keine Klarnamen-Liste im Netz steht.",
     "Zeile erzeugen: im Cockpit anmelden, Browser-Konsole öffnen und",
-    "    vaApp.compass.eintrag('Vorname Nachname', 'https://vishnu-artists.de/compass/kuerzel/')",
+    "    vaApp.compass.eintrag('Vorname Nachname', 'https://vorname.vishnuartists.com/')",
     "Die ausgegebene Zeile in 'instanzen' einfügen, committen, pushen. 'notiz' ist frei — der Vorname",
     "reicht, damit die Datei pflegbar bleibt; alles Weitere steht im Jira-Vorgang (Label compass-setup).",
     "",
     "Wichtig: der Zugangsschutz der Instanz liegt in ihrer instanz.js (gate.hash), nicht hier. Diese",
     "Datei ist öffentlich lesbar — nie Zugangsworte, Token oder E-Mail-Adressen hineinschreiben."
   ],
-  "stand": "2026-08-20",
+  "stand": "2026-09-10",
   "instanzen": {
-    "49f72d412e85e78e7cae812b5dc56d1319649d9124d66019c8f7c0f5b6263bb8": { "url": "https://vishnu-artists.de/compass/", "seit": "2026-08-19", "notiz": "Benedikt" }
+    "49f72d412e85e78e7cae812b5dc56d1319649d9124d66019c8f7c0f5b6263bb8": { "url": "https://bene.vishnuartists.com/", "seit": "2026-08-19", "notiz": "Benedikt" }
   }
 }

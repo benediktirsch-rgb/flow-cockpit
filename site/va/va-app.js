@@ -15,7 +15,7 @@
   'use strict';
   var VA_PW_HASH='da277872e63dfcd629c1378efa86c72f534ef24190c1afa550fbe5d594982250'; /* Salted-SHA-256 des Team-Passworts (rotiert 25.08.2026, VA-13506 — der alte Hash stand oeffentlich und gilt als kompromittiert) */
   var SALT='va::flowcockpit::';
-  var AUTH_KEY='vaAuth_va2', AUTH_DAYS=30, VER='0831a'; /* AUTH_KEY-Wechsel = alle vor der Rotation gespeicherten Logins verfallen */
+  var AUTH_KEY='vaAuth_va2', AUTH_DAYS=30, VER='0910a'; /* AUTH_KEY-Wechsel = alle vor der Rotation gespeicherten Logins verfallen */
   var COMPASS_KEY='vaCompassUrl';
   function compassUrl(){ var u=localStorage.getItem(COMPASS_KEY)||''; return /^https?:\/\//.test(u)?u:''; }
   /* FL2+3-Schicht (site/va/va-fl.js): Pflege-Rangliste, persoenliche Verantwortung, Aufmerksamkeitsliste */
@@ -925,19 +925,27 @@
   }
   function cpAuffrischen(){ return cpErmitteln().then(function(st){ CP_STAND=st; cpMalen(); return st; }); }
 
-  /* ───────── Compass im Cockpit (27.08.2026) ─────────
-     Der persönliche Compass läuft als Vollbild-Ebene IM Cockpit (iframe; live liegen beide auf
-     einer Herkunft, die gemeinsame Anmeldung gilt drüben also mit). Die Absprungpunkte wechseln
-     die Stelle über ?go=… — das versteht jede Instanz und die Demo (compassGo in dashboard.html).
-     Ohne freigegebene Instanz erscheint dieselbe Ebene AUSGEGRAUT: die Demo als stummes
-     Schaufenster hinter Grau, davor der Weg zur eigenen Instanz (gleiche Stände wie die Leiste). */
+  /* ───────── Compass im Cockpit (27.08.2026, umgestellt 10.09.2026) ─────────
+     Der persönliche Compass lief als Vollbild-Ebene IM Cockpit (iframe) — das ging, solange beide
+     auf einer Herkunft lagen (vishnu-artists.de/va + /compass). Seit dem Umzug auf eigene
+     Subdomains (03.09.2026) sind es fremde Herkünfte, und jede schickt frame-ancestors 'self':
+     der Rahmen bliebe leer, und die Anmeldeweiche vishnuartists.com/weiter.php lässt sich ohnehin
+     nicht einbetten. Fremde Ziele öffnen deshalb als Seite (Rückweg über die Produktleiste drüben),
+     eigene weiter als Ebene. Die Absprungpunkte wechseln die Stelle über ?go=… — das versteht jede
+     Instanz und die Demo (compassGo in dashboard.html).
+     Ohne freigegebene Instanz erscheint dieselbe Ebene AUSGEGRAUT: davor der Weg zur eigenen
+     Instanz (gleiche Stände wie die Leiste), die Demo dahinter nur bei gleicher Herkunft. */
   function cpEmbedUrl(base,go){
     var u=String(base||'').replace(/\/?$/,'/');
     return go?u+'?go='+encodeURIComponent(go):u;
   }
+  /* Fremde Herkunft = nicht einbettbar (frame-ancestors 'self' auf allen Subdomains) */
+  function cpFremd(url){
+    try{ return new URL(url,location.href).origin!==location.origin; }catch(e){ return true; }
+  }
   function cpTeaserHtml(st){
     var kopf='<h2>🧭 '+T('Dein Flow Compass — noch nicht freigeschaltet','Your Flow Compass — not unlocked yet')+'</h2>'
-      +'<div class="sub">'+T('Hinter dem Grau läuft die Demo: so sieht deine persönliche Ebene aus — <b>dein</b> Board, dein Morgencheck, deine Kennzahlen. Freigeschaltet wird sie als eigene Instanz.','Behind the grey runs the demo: this is what your personal level looks like — <b>your</b> board, your morning check, your numbers. It gets unlocked as your own instance.')+'</div>';
+      +'<div class="sub">'+T('So sieht deine persönliche Ebene aus — <b>dein</b> Board, dein Morgencheck, deine Kennzahlen. Freigeschaltet wird sie als eigene Instanz; die Demo öffnest du unten bedienbar.','This is what your personal level looks like — <b>your</b> board, your morning check, your numbers. It gets unlocked as your own instance; the demo opens below, ready to use.')+'</div>';
     var mitte='';
     if(st.stand==='warten'){
       mitte='<div class="steps">'+T('Deine Konfiguration ist übergeben','Your configuration is handed over')+(st.key?' · <b>'+esc(st.key)+'</b>':'')+' — '+T('Benedikt baut die Instanz und gibt sie frei. Danach steht hier dein echter Compass.','Benedikt builds and releases the instance. Then your real Compass lives here.')+'</div>'
@@ -962,6 +970,8 @@
     var st=CP_STAND||{stand:'neu'};
     var alt=document.getElementById('vaCompassEmbed'); if(alt)alt.remove();
     var aktiv=(st.stand==='aktiv'&&st.url);
+    /* Eigene Instanz auf fremder Herkunft: hinüberspringen statt eine leere Ebene zeigen */
+    if(aktiv&&cpFremd(st.url)){ location.href=cpEmbedUrl(st.url,go); return; }
     var ov=document.createElement('div'); ov.className='vacp'+(aktiv?'':' grau'); ov.id='vaCompassEmbed';
     var chips=aktiv?CP_ENTRIES.map(function(e){
       return '<span class="ep'+(go===e[3]?' an':'')+'" data-go="'+esc(e[3])+'" title="'+esc(e[2])+'">'+e[0]+' '+esc(e[1])+'</span>';
@@ -970,7 +980,7 @@
       +'<span style="flex:1"></span>'
       +(aktiv?'<a class="ep" id="vaCpTab" href="'+esc(cpEmbedUrl(st.url,go))+'" target="_blank" rel="noopener">↗ '+T('Eigener Tab','Own tab')+'</a>':'')
       +'<span class="ep" id="vaCpZu">✕ '+T('Zurück ins Cockpit','Back to the cockpit')+'</span></div>'
-      +'<div class="cpf"><iframe id="vaCpFrame" src="'+esc(cpEmbedUrl(aktiv?st.url:CP.demo,go))+'" title="Flow Compass"></iframe>'
+      +'<div class="cpf">'+(cpFremd(aktiv?st.url:CP.demo)?'':'<iframe id="vaCpFrame" src="'+esc(cpEmbedUrl(aktiv?st.url:CP.demo,go))+'" title="Flow Compass"></iframe>')
       +(aktiv?'':'<div class="cpt"><div class="vabox">'+cpTeaserHtml(st)+'</div></div>')
       +'</div>';
     document.body.appendChild(ov);
@@ -981,7 +991,7 @@
           Array.prototype.forEach.call(ov.querySelectorAll('.cph .ep[data-go]'),function(x){x.className='ep';});
           ch.className='ep an';
           var u=cpEmbedUrl(st.url,ch.getAttribute('data-go'));
-          document.getElementById('vaCpFrame').src=u;
+          var fr=document.getElementById('vaCpFrame'); if(fr)fr.src=u; else location.href=u;
           var tb=document.getElementById('vaCpTab'); if(tb)tb.href=u;
         };
       });
@@ -1085,7 +1095,7 @@
     });
   }
   /* Konsolen-Helfer für Benedikt: nach der Freigabe die Zeile fürs Register erzeugen.
-     vaApp.compass.eintrag('Vorname Nachname','https://vishnu-artists.de/compass/kuerzel/') */
+     vaApp.compass.eintrag('Vorname Nachname','https://vorname.vishnuartists.com/') */
   function cpEintrag(name,url){
     return cpKey(name).then(function(k){
       var z='  "'+k+'": { "url": "'+String(url||'').replace(/[""]/g,'')+'", "seit": "'+new Date().toISOString().slice(0,10)+'", "notiz": "'+String(name||'').split(' ')[0].replace(/[""]/g,'')+'" }';
