@@ -15,7 +15,7 @@
   'use strict';
   var VA_PW_HASH='da277872e63dfcd629c1378efa86c72f534ef24190c1afa550fbe5d594982250'; /* Salted-SHA-256 des Team-Passworts (rotiert 25.08.2026, VA-13506 — der alte Hash stand oeffentlich und gilt als kompromittiert) */
   var SALT='va::flowcockpit::';
-  var AUTH_KEY='vaAuth_va2', AUTH_DAYS=30, VER='0910a'; /* AUTH_KEY-Wechsel = alle vor der Rotation gespeicherten Logins verfallen */
+  var AUTH_KEY='vaAuth_va2', AUTH_DAYS=30, VER='0910b'; /* AUTH_KEY-Wechsel = alle vor der Rotation gespeicherten Logins verfallen */
   var COMPASS_KEY='vaCompassUrl';
   function compassUrl(){ var u=localStorage.getItem(COMPASS_KEY)||''; return /^https?:\/\//.test(u)?u:''; }
   /* FL2+3-Schicht (site/va/va-fl.js): Pflege-Rangliste, persoenliche Verantwortung, Aufmerksamkeitsliste */
@@ -41,7 +41,6 @@
     '.vastart{max-width:1180px;width:100%;max-height:calc(100vh - 24px);overflow:auto;padding:14px 20px 12px}',
     '.vastart h2{font-size:17px} .vastart .sub{margin-bottom:8px;font-size:12px}',
     '.vastart details.fold summary{cursor:pointer;font-size:13px;font-weight:800;margin:10px 0 4px;list-style:none;display:flex;align-items:center;gap:6px} .vastart details.fold summary::-webkit-details-marker{display:none} .vastart details.fold summary::after{content:"▸";color:var(--sub,#5f6668);font-weight:400;margin-left:auto} .vastart details.fold[open] summary::after{content:"▾"}',
-    '.vastart .lb.scroll{max-height:236px;overflow:auto}',
     '.vastart .k.click{cursor:pointer;transition:.12s} .vastart .k.click:hover{outline:2px solid var(--brand,#89c527);outline-offset:-2px} .vastart .k .go{font-size:10px;color:var(--brand-dark,#5c9220);font-weight:700}',
     '.vastart .att{background:linear-gradient(180deg,#fff7e6,#fff);border:1px solid #ffe380;border-left:4px solid #ffab00;border-radius:12px;padding:10px 14px;font-size:12.5px;line-height:1.5} .vastart .att .i{padding:4px 0;border-bottom:1px dashed var(--line,#e2e4e5)} .vastart .att .i:last-child{border-bottom:0} .vastart .att .w{font-size:11.5px;color:var(--sub,#5f6668)}',
     '.vastart .att.ok{background:linear-gradient(180deg,#e3fcef,#fff);border-color:#abf5d1;border-left-color:#36b37e}',
@@ -73,9 +72,28 @@
        Schrift ein Dark-Gegenstueck (er sieht hinter var(--brand) keinen gruenen Grund und hellt auf).
        Seine Regel haette dieselbe Spezifitaet und stuende spaeter im Head — .tbtabs sticht sie. */
     'html[data-theme=dark] .vastart .tbtabs .tbt.an{background:var(--brand,#89c527);color:#0c1013}',
-    '.vastart .lb{border:1px solid var(--line,#e2e4e5);border-radius:10px;overflow:hidden} .vastart .lb .r{display:flex;align-items:center;gap:8px;padding:6px 10px;border-bottom:1px dashed var(--line,#e2e4e5);font-size:12.5px} .vastart .lb .r:last-child{border-bottom:0}',
-    '.vastart .lb .r.me{background:rgba(137,197,39,.10)} .vastart .lb .rk{width:26px;font-weight:800;text-align:center} .vastart .lb .nm{flex:1;font-weight:700} .vastart .lb .bd{font-size:11px;color:var(--sub,#5f6668)} .vastart .lb .sc{font-weight:800;min-width:46px;text-align:right}',
-    '.vastart .lb .m{font-size:11px;color:var(--sub,#5f6668);white-space:nowrap}',
+    /* Ranglisten-Zeile (10.09.2026, Benes Befund „kein Scroll“): vorher ein Flex-Streifen mit
+       max-height:236px — im schmalen Fenster brach jede Zeile dreizeilig um, die Karte bekam einen
+       eigenen Scrollbalken und Platz 5 war halb abgeschnitten. Jetzt ein Raster mit fester
+       Spaltenordnung; unter 640px PANELbreite (Container-Query, nicht Fensterbreite — die Karte steht
+       auch im breiten Fenster in einer schmalen Spalte) rutschen die Kennzahlen unter den Namen, und
+       die Auszeichnungen zeigen nur ihr Zeichen; ihr Text steht im Tooltip. */
+    '.vastart .lb{border:1px solid var(--line,#e2e4e5);border-radius:10px;overflow:hidden;container-type:inline-size}',
+    '.vastart .lb .r{display:grid;grid-template-columns:22px minmax(0,1fr) max-content max-content;align-items:center;column-gap:10px;row-gap:1px;padding:5px 10px;border-bottom:1px dashed var(--line,#e2e4e5);font-size:12.5px} .vastart .lb .r:last-child{border-bottom:0}',
+    '.vastart .lb .r.me{background:rgba(137,197,39,.10)} .vastart .lb .rk{font-weight:800;text-align:center;white-space:nowrap}',
+    /* Name und Auszeichnungen teilen sich eine Zelle: der Name darf kuerzen (min-width:0 + ellipsis),
+       die Zeichen dahinter bleiben stehen — sonst schiebt ein langer Name sie aus der Zeile. */
+    '.vastart .lb .lbn{display:flex;align-items:baseline;gap:7px;min-width:0}',
+    '.vastart .lb .nm{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}',
+    '.vastart .lb .nm .du{font-weight:400;font-size:11px;color:var(--sub,#5f6668)}',
+    '.vastart .lb .bd{font-size:11px;color:var(--sub,#5f6668);white-space:nowrap;display:flex;gap:6px;flex:0 0 auto}',
+    '.vastart .lb .bd i{font-style:normal}',
+    '.vastart .lb .m{font-size:11px;color:var(--sub,#5f6668);white-space:nowrap;font-variant-numeric:tabular-nums}',
+    '.vastart .lb .sc{font-weight:800;min-width:42px;text-align:right;font-variant-numeric:tabular-nums}',
+    '@container (max-width:639px){.vastart .lb .r{grid-template-columns:22px minmax(0,1fr) max-content}',
+    '  .vastart .lb .rk{grid-row:1/span 2} .vastart .lb .lbn{grid-column:2;grid-row:1}',
+    '  .vastart .lb .m{grid-column:2;grid-row:2} .vastart .lb .sc{grid-column:3;grid-row:1/span 2;align-self:center}',
+    '  .vastart .lb .bd i{display:none} .vastart .lb .bd{gap:4px}}',
     '.vastart .meet{font-size:12.5px;line-height:1.55} .vastart .meet b{color:var(--brand-dark,#5c9220)} .vastart .meet div{padding:5px 0;border-bottom:1px dashed var(--line,#e2e4e5)} .vastart .meet div:last-child{border-bottom:0}',
     '.vastart .acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}',
     '.vastart .lvl{display:flex;align-items:center;gap:10px;background:linear-gradient(180deg,#f2f7ec,#fff);border:1px solid #d8e2cc;border-radius:12px;padding:6px 12px;font-size:12.5px}',
@@ -459,8 +477,9 @@
     var h='<div class="lb">';
     rows.slice(0,limit||rows.length).forEach(function(r,i){
       var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1);
-      h+='<div class="r'+(r.n===me?' me':'')+'"><span class="rk">'+medal+'</span><span class="nm">'+esc(r.n)+(r.n===me?' <span class="bd">('+T('du','you')+')</span>':'')
-        +'<div class="bd">'+r.badges.map(function(b){return '<span title="'+esc(b[2])+'">'+b[0]+' '+esc(b[1])+'</span>';}).join(' · ')+'</div></span>'
+      h+='<div class="r'+(r.n===me?' me':'')+'"><span class="rk">'+medal+'</span>'
+        +'<span class="lbn"><span class="nm">'+esc(r.n)+(r.n===me?' <span class="du">('+T('du','you')+')</span>':'')+'</span>'
+        +'<span class="bd">'+r.badges.map(function(b){return '<span title="'+esc(b[1])+' — '+esc(b[2])+'">'+b[0]+'<i> '+esc(b[1])+'</i></span>';}).join('')+'</span></span>'
         +'<span class="m">'+T('erledigt','done')+' <b>'+r.done+'</b> · WIP <b>'+r.wip+'</b> · '+T('ältestes','oldest')+' <b>'+r.old+' '+T('T','d')+'</b>'+(r.blk?' · 🚩 '+r.blk:'')+'</span>'
         +'<span class="sc">'+r.score+'</span></div>';
     });
@@ -546,7 +565,7 @@
       return '<span class="tbt'+(x.id===def.id?' an':'')+'" onclick="vaApp.tboard(\''+x.id+'\')" title="'+esc(T(x.d[0],x.d[1]))+'">'+x.ic+' '+esc(T(x.t[0],x.t[1]))+'</span>';
     }).join('')+'</div>';
     h+='<div class="tbd">'+esc(T(def.d[0],def.d[1]))+'</div>';
-    if(def.id==='flow')return '<div id="vaTB">'+h+boardHtml(6).replace('<div class="lb">','<div class="lb scroll">')+'</div>';
+    if(def.id==='flow')return '<div id="vaTB">'+h+boardHtml(8)+'</div>';
     if(def.braucht&&!def.braucht())return '<div id="vaTB">'+h+'<div class="vahint">'+T(def.fehlt[0],def.fehlt[1])+'</div></div>';
     var st=personen();
     if(!st)return '<div id="vaTB">'+h+'<div class="vahint">'+T('Noch keine Ticketdaten geladen.','No ticket data loaded yet.')+'</div></div>';
@@ -559,10 +578,11 @@
     var platz=[], letzte=null, p=0;
     rows.forEach(function(r,i){ var v=def.wert(r); if(letzte===null||v!==letzte){p=i+1;letzte=v;} platz.push(p); });
     var me=(typeof USER!=='undefined'&&USER&&USER.name)||'', ein=def.einheit?T(def.einheit[0],def.einheit[1]):'';
-    h+='<div class="lb scroll">'+rows.slice(0,8).map(function(r,i){
+    h+='<div class="lb">'+rows.slice(0,8).map(function(r,i){
       var pz=platz[i], medal=pz===1?'🥇':pz===2?'🥈':pz===3?'🥉':String(pz);
       return '<div class="r'+(r.n===me?' me':'')+'"><span class="rk">'+medal+'</span>'
-        +'<span class="nm">'+esc(r.n)+(r.n===me?' <span class="bd">('+T('du','you')+')</span>':'')+'<div class="bd">'+esc(def.zeile(r))+'</div></span>'
+        +'<span class="lbn"><span class="nm">'+esc(r.n)+(r.n===me?' <span class="du">('+T('du','you')+')</span>':'')+'</span></span>'
+        +'<span class="m">'+esc(def.zeile(r))+'</span>'
         +'<span class="sc">'+def.wert(r)+ein+'</span></div>';
     }).join('')+'</div>';
     return '<div id="vaTB">'+h+'</div>';

@@ -530,7 +530,7 @@
     var open=teaseId?isOpen(teaseId,false):false; var lim=open?rows.length:(limit||rows.length);
     var h='<div class="vfl-lb">';
     rows.slice(0,lim).forEach(function(r,i){ var medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':String(i+1); var isMe=me&&nn(r.n)===nn(me);
-      h+='<div class="r'+(isMe?' me':'')+'"><span class="rk">'+medal+'</span><span class="nm">'+E(r.n)+(isMe?' <span class="bd">('+T('du','you')+')</span>':'')+'<div class="bd">'+(r.badges.length?badgesHtml(r.badges):T('noch keine Auszeichnung','no badge yet'))+'</div></span><span class="m">'+r.inits.length+T(' Init.',' init.')+' · '+r.krs.length+' KR · Ø <b>'+r.avg+'</b>'+(r.open?' · 🔔 '+r.open:' · ✨')+'</span><span class="sc">'+r.score+'</span></div>'; });
+      h+='<div class="r'+(isMe?' me':'')+'"><span class="rk">'+medal+'</span><span class="lbn"><span class="nm">'+E(r.n)+(isMe?' <span class="du">('+T('du','you')+')</span>':'')+'</span><span class="bd">'+(r.badges.length?badgesHtml(r.badges):'')+'</span></span><span class="m">'+r.inits.length+T(' Init.',' init.')+' · '+r.krs.length+' KR · Ø <b>'+r.avg+'</b>'+(r.open?' · 🔔 '+r.open:' · ✨')+'</span><span class="sc">'+r.score+'</span></div>'; });
     h+='</div>';
     if(teaseId&&rows.length>(limit||0))h+='<div class="vfl-more"><span class="subtab" onclick="vaFL.toggle(\''+teaseId+'\')">'+(open?'▴ '+T('weniger anzeigen','show less'):'▾ '+T('alle '+rows.length+' anzeigen','show all '+rows.length))+'</span></div>';
     if(m.unowned.length)h+='<div class="explain" style="color:#bf2600">🔔 '+m.unowned.length+T(' Initiativen ohne Verantwortliche:n — wer übernimmt, steigt in der Rangliste.',' initiatives without owner — take one and climb the leaderboard.')+'</div>';
