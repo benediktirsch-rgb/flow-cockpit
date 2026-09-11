@@ -934,6 +934,7 @@
         +'<span class="st">'+T('Deine persönliche Ebene: ein Board für <b>deine</b> Arbeit — nicht die des Teams.','Your personal level: a board for <b>your</b> work — not the team’s.')+'</span>'
         +'<button class="cta" onclick="vaApp.compass.anfragen()">🧭 '+T('Eigenen Compass einrichten','Set up my own Compass')+'</button>';
     }
+    if (location.hostname === 'va.vishnuartists.com') h += '<a class="prod" href="https://bene.vishnuartists.com/compass/#holodeck" style="border:1px solid #cdb478;background:#132b3b;color:#ffe5a6;padding:8px 13px;border-radius:8px">⇧ '+T('Aufzug zum Holodeck','Elevator to the holodeck')+'</a>';
     return h;
   }
   function cpMalen(){
