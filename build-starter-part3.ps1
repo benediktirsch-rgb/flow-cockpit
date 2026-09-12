@@ -284,6 +284,11 @@ Write-Output ("Starter geschrieben: {0} KB" -f [math]::Round((Get-Item "$base\si
 # ── 14. Hilfe anonymisieren ────────────────────────────────────────────────────
 $h = [IO.File]::ReadAllText("$script:src\hilfe.html").Replace("`r`n","`n")
 $h = $h.Replace('href="index.html"', 'href="flow-cockpit-starter.html"')
+# Reifegrad-Seite (12.09.2026, nur im Produkt): Link in der Kopfzeile der Hilfe. Die Quelle kennt
+# die Seite nicht — sie liegt als site/reifegrad.html neben der generierten Hilfe.
+$hBefore = $h.Length
+$h = $h.Replace('<a href="flow-cockpit-starter.html" id="backLink" onclick="return hilfeBack(event)">', '<a href="reifegrad.html" id="reifegradLink" style="margin-left:auto;margin-right:18px">' + [char]0x1F333 + ' Reifegrad</a>' + "`n" + '  <a href="flow-cockpit-starter.html" id="backLink" style="margin-left:0" onclick="return hilfeBack(event)">')
+if ($h.Length -eq $hBefore) { throw 'HILFE: backLink-Anker fuer den Reifegrad-Link nicht gefunden — Anker pruefen.' }
 $h = $h.Replace('CARS', 'FEAT').Replace('CIA', 'PRJ').Replace('CAS', 'SUP').Replace('Car Sales', 'Demo Org')
 # Kopfzeile der Hilfe fuehrt den Wertstrom-Namen in Grossbuchstaben — vom .Replace
 # darueber nicht erfasst. Gleicher Fall wie in der Kopfzeile des Cockpits.
