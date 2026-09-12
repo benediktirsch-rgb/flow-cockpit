@@ -30,3 +30,11 @@ instanzen/
 # Hash-Stand der FTPS-Uploads je Subdomain (publish-cockpit.ps1)
 site/.publish-state/
 publish-cockpit.log
+
+# memanto (12.09.2026, Bene): Gedächtnis über Sessions. Hooks und settings.json reisen mit,
+# damit mobile Sessions dieselben Hooks haben wie der Desktop; MEMORY.md/okf/ schreibt
+# „memanto memory sync“ aus dem Backend — generiert, nie committen. Details: docs/memanto.md
+!.claude/hooks/
+!.claude/settings.json
+MEMORY.md
+okf/
