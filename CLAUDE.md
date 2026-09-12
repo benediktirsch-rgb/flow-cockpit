@@ -56,3 +56,10 @@ ins Repo** — die im Domain-Root pflegt Bene im KAS.
 ## Prüfen vor dem Melden
 `node -e "new Function(require('fs').readFileSync('site/va/va-app.js','utf8'))"` für JS,
 `php -l site/va/gate.php` für die Tür, Live-Endpunkte mit curl wie oben.
+
+## Gedächtnis über Sessions (memanto, seit 12.09.2026)
+Was eine Session über dieses Repo lernt (Entscheidungen, Workarounds, Regeln), gehört nicht in den
+Chat, sondern per `memanto remember` in den Agent `flow-cockpit`; vor größeren Änderungen
+`memanto recall … --tool claude-code`. Einrichtung, Hooks und die Grenze zu Regel 1 (nichts aus
+`instanzen/` oder `va-data.json` ins Backend): `docs/memanto.md`. Fehlt das CLI, arbeitet die
+Session ohne Gedächtnis weiter — dann steht die Einrichtung dort an erster Stelle.
