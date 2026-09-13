@@ -1,0 +1,40 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PATH=\"/c/dev/_tools/memanto/bin:$PATH\" python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/session_start.py\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PATH=\"/c/dev/_tools/memanto/bin:$PATH\" memanto memory sync --project-dir \"$CLAUDE_PROJECT_DIR\"",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "if": "Bash(memanto *)",
+            "command": "PATH=\"/c/dev/_tools/memanto/bin:$PATH\" python3 \"$CLAUDE_PROJECT_DIR/.claude/hooks/notify.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,6 +1,6 @@
 # memanto — Gedächtnis über Sessions hinweg
 
-Stand 12.09.2026. Anlass: Bene will [memanto](https://github.com/moorcheh-ai/memanto) (MIT, 0.2.x)
+Stand 13.09.2026 (12.09. vorbereitet, 13.09. auf dem Desktop angeschlossen). Anlass: Bene will [memanto](https://github.com/moorcheh-ai/memanto) (MIT, 0.2.x)
 als Gedächtnis für Claude-Code-Sessions in diesem Repo nutzen — Desktop und mobil, ohne dass
 `CLAUDE.local.md` mitreisen muss. Diese Seite ist die Einrichtung in der Reihenfolge, in der sie
 funktioniert, plus das, was bewusst **nicht** ins Repo gehört.
@@ -65,6 +65,36 @@ Sessions ohne Hooks laufen. Bleibt draußen:
 
 Committen wie immer nur Porcelain: `git add CLAUDE.md .claude/settings.json .claude/hooks
 .claude/skills/memanto .gitignore`, dann `commit`, `push`.
+
+## Benes Rechner (Windows, seit 13.09.2026 angeschlossen)
+
+Auf dem Desktop gibt es kein `pip install memanto`: das portable Python (`C:\dev\_tools\python`) hat
+kein venv und ignoriert PYTHONPATH. Stattdessen läuft die CLI direkt aus dem Fork-Checkout
+`C:\dev\memanto` (Abhängigkeiten in `.pydeps`) über Launcher in `C:\dev\_tools\memanto\bin`
+(`memanto.exe`, `python.exe`, `python3.exe`; Bootstrap `memantoreal.py`, Bau `build_launchers.py`).
+Eine Kopie von `memanto.exe` liegt in `~/bin`, das Git Bash vorn im PATH führt — damit finden der
+Bash-Werkzeugaufruf einer Session und die Hooks das Kommando. Für PowerShell-Fenster fehlt
+`C:\dev\_tools\memanto\bin` im User-PATH (trägt Bene selbst ein).
+
+`.claude/settings.json` ist bewusst portabel geschrieben: `$CLAUDE_PROJECT_DIR` statt absoluter Pfade,
+ein `PATH="/c/dev/_tools/memanto/bin:$PATH"`-Präfix (auf Linux wirkungslos) und nur die
+`python3`-Variante der Hooks, weil `python` unter Windows der Store-Platzhalter ist. Hooks laufen
+unter Windows in Git Bash — am 13.09. mit einer echten `claude -p`-Sitzung belegt.
+
+Der Key liegt **nicht** in `~/.memanto/.env`, sondern als User-Umgebungsvariable `MOORCHEH_API_KEY`
+(memanto liest beides). Backend `cloud` steht in `~/.memanto/config.yaml`. Nach dem Setzen des
+Keys einmal `C:\dev\_tools\memanto\einrichten.ps1` laufen lassen: legt Agent `flow-cockpit`
+(Avatar John) an, spielt `erstbefuellung.json` (12 Prinzipien aus `CLAUDE.md`) ein, schreibt
+`MEMORY.md` und macht den ersten `recall`.
+
+### Probelauf und Messung (13.09.–28.09.2026)
+
+Frage: Liefert memanto einer Session Wissen, das sie sonst nicht gehabt hätte? Der Launcher
+zählt jeden `recall`/`answer` mit Trefferzahl in `C:\dev\_tools\memanto\recall.log`, jeder
+Hook-Lauf steht in `hooks.log`. Auswertung: `C:\dev\_tools\python\python.exe
+C:\dev\_tools\memanto\zaehlung.py` — null Treffer heißt ausbauen (`memanto connect remove
+claude-code --project-dir .`), sonst behalten und das nächste Repo anschließen.
+Kalendertermin dafür: 28.09.2026, 09:00.
 
 ## Web-Sessions (claude.ai/code) und mobil
 
