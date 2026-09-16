@@ -184,7 +184,7 @@ $map = @{'Improve Observability'='Observability ausbauen';'Publish Dashboard Pag
 foreach ($k in $map.Keys) { $script:s = $script:s.Replace($k, $map[$k]) }
 
 # ── 13. Anonymisierung & Branding ──────────────────────────────────────────────
-Rep ('  <a href="programmboard.html">📋 Programm Board PI 2026.25</a>' + "`n") '' 'Footer-Programmboard-Link'
+Rep ('  <a href="programmboard.html">📋 Programm Board</a>' + "`n") '' 'Footer-Programmboard-Link'
 $script:s = $script:s.Replace('porschedigital.atlassian.net', '${CONFIG.jiraBase.replace(/^https?:\/\//,"")}')
 # Restnamen aus Kommentar-Beispielen der Login-Namenserkennung anonymisieren (seit persoenl. Uebersicht 58bf951)
 $script:s = $script:s.Replace('"Zhang Tian" -> "Tian Zhang"', '"Muster Anna" -> "Anna Muster"')
@@ -214,6 +214,10 @@ RepX '\n<script src="pb-buddy\.js[^"]*"></script>' '' 'pb-buddy-Einbindung dropp
 # 404 in der Konsole der Verkaufs-Demo (22.08.).
 RepX '\n<script src="pb-data\.js[^"]*"></script>' '' 'pb-data-Einbindung droppen'
 RepX '\n<script src="pb-gauges\.js[^"]*"></script>' '' 'pb-gauges-Einbindung droppen'
+# pb-pi.js / pb-fl2.js (PI-Rechenschicht und FL2-Panel der Porsche-Quelle, seit 09/2026) ebenso:
+# site/ deployt beide nicht; das Cockpit ruft sie nur geguardet auf.
+RepX '\n<script src="pb-pi\.js[^"]*"></script>' '' 'pb-pi-Einbindung droppen'
+RepX '\n<script src="pb-fl2\.js[^"]*"></script>' '' 'pb-fl2-Einbindung droppen'
 # Kopf-Includes der Porsche-Infrastruktur droppen — site/ deployt keine dieser Dateien
 # (jeder Tag = 404 in der Konsole). pb-i18n.js (Kroatisch-Overlay) nennt zudem Kundschaft
 # und Kollegen im Klartext (Car Sales, CARS-Keys, Uebersetzer) — gehoert nicht in die
@@ -243,6 +247,18 @@ $mh = [Security.Cryptography.MD5]::Create().ComputeHash([Text.Encoding]::UTF8.Ge
 $mstamp = (($mh | ForEach-Object { $_.ToString('x2') }) -join '').Substring(0,8)
 $script:s = [regex]::Replace($script:s, '<script src="pb-meet\.js[^"]*"></script>', ('<script src="pb-meet.js?v=' + $mstamp + '"></script>'))
 Write-Output ("geteilt uebernommen: pb-meet.js (v={0})" -f $mstamp)
+
+# Flow-Wissen (Chat-Fallback + Impuls je Kachel) ebenso nach site/ (seit 16.09.2026).
+# Ohne Assistent (Starter) zeigt das Cockpit damit nur die Impulse an den Kacheln.
+$fwSrc = Join-Path $script:src 'pb-flowwissen.js'
+if (-not (Test-Path $fwSrc)) { throw "GETEILTE DATEI FEHLT: $fwSrc" }
+$fwTxt = [IO.File]::ReadAllText($fwSrc).Replace("`r`n","`n")
+if ($fwTxt -match 'porsche|Car Sales|Irsch|Benedikt|Vishnu|John|Ziff') { throw 'pb-flowwissen.js ist nicht neutral — Marken-/Personennamen gefunden' }
+[IO.File]::WriteAllText("$base\site\pb-flowwissen.js", $fwTxt, (New-Object Text.UTF8Encoding($false)))
+$fh = [Security.Cryptography.MD5]::Create().ComputeHash([Text.Encoding]::UTF8.GetBytes($fwTxt))
+$fstamp = (($fh | ForEach-Object { $_.ToString('x2') }) -join '').Substring(0,8)
+$script:s = [regex]::Replace($script:s, '<script src="pb-flowwissen\.js[^"]*"></script>', ('<script src="pb-flowwissen.js?v=' + $fstamp + '"></script>'))
+Write-Output ("geteilt uebernommen: pb-flowwissen.js (v={0})" -f $fstamp)
 
 # -- 13b. Kopfangaben fuer Suchmaschinen (04.09.2026) --------------------------
 # Anlass: Starter und Hilfe liegen an ZWEI Adressen — vishnu-artists.de/ (alt) und
@@ -287,7 +303,7 @@ $h = $h.Replace('href="index.html"', 'href="flow-cockpit-starter.html"')
 # Reifegrad-Seite (12.09.2026, nur im Produkt): Link in der Kopfzeile der Hilfe. Die Quelle kennt
 # die Seite nicht — sie liegt als site/reifegrad.html neben der generierten Hilfe.
 $hBefore = $h.Length
-$h = $h.Replace('<a href="flow-cockpit-starter.html" id="backLink" onclick="return hilfeBack(event)">', '<a href="reifegrad.html" id="reifegradLink" style="margin-left:auto;margin-right:18px">' + [char]0x1F333 + ' Reifegrad</a>' + "`n" + '  <a href="flow-cockpit-starter.html" id="backLink" style="margin-left:0" onclick="return hilfeBack(event)">')
+$h = $h.Replace('<a href="flow-cockpit-starter.html" id="backLink" onclick="return hilfeBack(event)">', '<a href="reifegrad.html" id="reifegradLink" style="margin-left:auto;margin-right:18px">' + [char]::ConvertFromUtf32(0x1F333) + ' Reifegrad</a>' + "`n" + '  <a href="flow-cockpit-starter.html" id="backLink" style="margin-left:0" onclick="return hilfeBack(event)">')
 if ($h.Length -eq $hBefore) { throw 'HILFE: backLink-Anker fuer den Reifegrad-Link nicht gefunden — Anker pruefen.' }
 $h = $h.Replace('CARS', 'FEAT').Replace('CIA', 'PRJ').Replace('CAS', 'SUP').Replace('Car Sales', 'Demo Org')
 # Kopfzeile der Hilfe fuehrt den Wertstrom-Namen in Grossbuchstaben — vom .Replace

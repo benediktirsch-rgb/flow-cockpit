@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hilfe &amp; Methodik — Flow Cockpit</title>
+<script src="pb-flowwissen.js?v=0916b"></script>
 <!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js; Grundfarben vor dem ersten Paint -->
 <script>try{if(localStorage.getItem('fcTheme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 <style>html[data-theme=dark]{background:#0e1013;color-scheme:dark}html[data-theme=dark]:root{--bg:#0e1013;--card:#16191d;--ink:#e8eaed;--sub:#9aa1a9;--line:#262b31}html[data-theme=dark] body{background:#0e1013;color:#e8eaed}</style>
@@ -66,7 +67,7 @@
 function hilfeBack(ev){
   try{
     var a=JSON.parse(sessionStorage.getItem('vsAuth')||'null');
-    var C={formular1:'cockpit-formular1.html',pawpatrol:'cockpit-pawpatrol.html',heisenberg:'cockpit-heisenberg.html',team42:'cockpit-team42.html',loansharks:'cockpit-loansharks.html',analytics:'cockpit.html'};
+    var C={formular1:'cockpit-formular1.html',pawpatrol:'cockpit-pawpatrol.html',heisenberg:'cockpit-heisenberg.html',team42:'cockpit-team42.html',loansharks:'cockpit-loansharks.html',planetexpress:'cockpit-planetexpress.html',firstorder:'cockpit-firstorder.html',dreamers:'cockpit-dreamers.html',analytics:'cockpit.html'};
     var ref=document.referrer||'', same=ref&&ref.indexOf(location.origin)===0&&!/hilfe\.html/.test(ref);
     if(same&&history.length>1){ ev.preventDefault(); history.back(); return false; }
     if(a&&a.team&&C[a.team]){ ev.preventDefault(); location.href=C[a.team]; return false; }
@@ -167,6 +168,17 @@ function hilfeBack(ev){
       <tr><td>Refinement</td><td>done ÷ (needed + done)</td><td>≥ 70 %</td><td>≥ 40 %</td><td>&lt; 40 %</td></tr>
       <tr><td>SUP-SLA</td><td>Quote im Ziel</td><td>≥ 85 %</td><td>≥ 50 %</td><td>&lt; 50 %</td></tr>
     </table>
+  </div>
+
+  <h2 id="liga">🏆 Flight Level 2 — Charts, Historie, Team-Liga</h2>
+  <div class="card">
+    <p>Der Tab <b>Programm Board</b> im Cockpit zeigt seit dem 14.09.2026 unter dem Miniboard drei weitere Karten, dieselben stehen im Programm Board als Abschnitt „Team-Liga":</p>
+    <ul>
+      <li><b>📈 Entwicklung über PIs:</b> Durchsatz, Cycle Time p50/p85, WIP und Blocker-Tage des Teams je PI (Feature-Ebene, FEAT, Team(s)-Feld). Jeder Balken führt zu seinen Vorgängen in Jira. Lesen wie einen Trend, nicht wie einen Tacho.</li>
+      <li><b>🏆 Team-Liga:</b> zehn Abzeichen zu je 10 Punkten — 🎯 Fokus (WIP ≤ 5), 🛡️ Freie Bahn (0 Blocker-Tage), ⚡ Tempo (p50 ≤ 30 T), 🎖️ Verlässlich (p85 ≤ 2 × p50), 🧹 Sauber (nichts ohne Arbeit geschlossen, kein Platzhalter 99), ⚖️ Priorisiert (≥ 90 % WSJF), 📈 Aufwärts (mehr und schneller als im PI davor), 🔀 Teamplayer (Cross-Team-Feature geliefert), 🏗️ Runway (Enabler geliefert), 🧭 Auf Kurs (nur laufendes PI: Predictability nahe am PI-Fortschritt). Stufen wie die persönlichen Racing-Stufen: Kart → Formel 4 → Formel 3 → Formel 2 → Formel 1 → Weltmeister. 🔥 = so viele PIs in Folge gehalten. <b>Durchsatz ist bewusst kein Abzeichen</b> — die Liga belohnt, wie ein Team arbeitet, nicht wie viel.</li>
+      <li><b>🕰 Historie:</b> Punkte und Abzeichen je PI — welche Praktiken das Team hält und welche kippen. Mit ◀ ▶ lässt sich das PI wechseln; bis Tag 14 eines PI steht das letzte volle PI voreingestellt.</li>
+      <li><b>Betriebsrat:</b> nur Teams, nie Personen. Quelle ist ausschließlich <code>data/pihistory.json</code> (stündlicher Jira-Sync); fehlt die Datei, zeigen die Karten das an statt zu schätzen.</li>
+    </ul>
   </div>
 
   <h2>Bedienung</h2>
@@ -277,6 +289,17 @@ function hilfeBack(ev){
       <tr><td>Refinement</td><td>done ÷ (needed + done)</td><td>≥ 70%</td><td>≥ 40%</td><td>&lt; 40%</td></tr>
       <tr><td>SUP SLA</td><td>share within target</td><td>≥ 85%</td><td>≥ 50%</td><td>&lt; 50%</td></tr>
     </table>
+  </div>
+
+  <h2 id="liga-en">🏆 Flight level 2 — charts, history, team league</h2>
+  <div class="card">
+    <p>Since 14 Sep 2026 the <b>Program Board</b> tab in the cockpit shows three more cards below the mini board; the same appear on the program board as the section "Team league":</p>
+    <ul>
+      <li><b>📈 Development across PIs:</b> throughput, cycle time p50/p85, WIP and blocked days of the team per PI (feature level, FEAT, Team(s) field). Every bar links to its issues in Jira. Read as a trend, not a speedometer.</li>
+      <li><b>🏆 Team league:</b> ten badges worth 10 points each — 🎯 Focus (WIP ≤ 5), 🛡️ Clear road (0 blocked days), ⚡ Pace (p50 ≤ 30 d), 🎖️ Reliable (p85 ≤ 2 × p50), 🧹 Clean (nothing closed without work, no placeholder 99), ⚖️ Prioritised (≥ 90 % WSJF), 📈 Upward (more and faster than the previous PI), 🔀 Team player (cross-team feature delivered), 🏗️ Runway (enabler delivered), 🧭 On course (running PI only: predictability close to PI progress). Levels mirror the personal racing levels: Kart → Formula 4 → Formula 3 → Formula 2 → Formula 1 → World Champion. 🔥 = held that many PIs in a row. <b>Throughput is deliberately not a badge</b> — the league rewards how a team works, not how much.</li>
+      <li><b>🕰 History:</b> points and badges per PI — which practices the team keeps and which slip. ◀ ▶ switches the PI; until day 14 of a PI the last full PI is preselected.</li>
+      <li><b>Works council:</b> teams only, never people. The only source is <code>data/pihistory.json</code> (hourly Jira sync); if the file is missing the cards say so instead of estimating.</li>
+    </ul>
   </div>
 
   <h2>Usage</h2>

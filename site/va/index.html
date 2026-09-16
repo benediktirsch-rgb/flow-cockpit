@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Flow Cockpit — Analytics (Demo Org)</title>
+<script src="pb-flowwissen.js?v=2dab041f"></script>
 <!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js; Grundfarben vor dem ersten Paint -->
 <script>try{if(localStorage.getItem('fcTheme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 <style>html[data-theme=dark]{background:#0e1013;color-scheme:dark}html[data-theme=dark]:root{--bg:#0e1013;--card:#16191d;--ink:#e8eaed;--sub:#9aa1a9;--line:#262b31}html[data-theme=dark] body{background:#0e1013;color:#e8eaed}  .wiz-ov{position:fixed;inset:0;background:rgba(15,16,16,.55);z-index:100;display:none;align-items:center;justify-content:center}
@@ -76,7 +77,7 @@
   .src summary::-webkit-details-marker{display:none}
   .src code{display:block;background:#f4f5f7;border-radius:6px;padding:8px 10px;margin-top:6px;
     font-family:"SF Mono",Consolas,monospace;font-size:11.5px;color:#42526e;white-space:pre-wrap;word-break:break-word}
-  .miniboard{display:grid;grid-template-columns:repeat(8,1fr);gap:8px}
+  .miniboard{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
   .col{background:#f4f5f7;border-radius:8px;padding:8px;min-height:120px}
   .col .ct{font-size:10.5px;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.3px;
     display:flex;justify-content:space-between;margin-bottom:8px}
@@ -90,6 +91,8 @@
   .chip{font-size:9px;font-weight:700;padding:1px 7px;border-radius:9px;margin-left:8px;vertical-align:middle;white-space:nowrap}
   .chip.live{background:#e3fcef;color:#006644}
   .chip.mock{background:#ebecf0;color:#5e6c84}
+  /* Planungsstand: weder live noch Platzhalter — die Karte kommt aus dem Miro-Abzug. */
+  .chip.plan{background:#fff7e6;color:#974f0c}
   .kpi .chip{margin-left:0;font-size:8px;padding:0 5px}
   .subfilter{display:flex;gap:6px;margin-bottom:16px;align-items:center;flex-wrap:wrap}
   .subfilter .lbl{font-size:12px;color:var(--sub);margin-right:4px;font-weight:600}
@@ -140,6 +143,14 @@
   .assess-red{border-left-color:var(--red)} .assess-grey{border-left-color:var(--grey)}
   .assess .tip{margin-top:4px;color:#42526e}
   .explain{font-size:11.5px;color:var(--sub);margin-top:7px;font-style:italic}
+  /* Karten ohne Aussage: Hinweiszeile + Trenner am Ende der Flow-Metriken (08.09.2026) */
+  .kargwhy{font-size:11.5px;color:var(--sub);border-left:3px solid var(--line);border-radius:0 6px 6px 0;
+    padding:6px 9px;margin:-4px 0 10px;line-height:1.45}
+  .card.karg{opacity:.85}
+  #chartRail .rl-i.karg{opacity:.62}
+  .card.karg:hover{opacity:1}
+  #flowview .grid>.kargsep{grid-column:span 12;order:499;font-size:12px;color:var(--sub);
+    border-top:1px dashed var(--line);padding-top:12px;margin-top:2px}
   .kpi.k-green{border-left:4px solid var(--green)} .kpi.k-yellow{border-left:4px solid var(--yellow)}
   .kpi.k-red{border-left:4px solid var(--red)} .kpi.k-grey{border-left:4px solid var(--grey)}
   .legend-amp{font-size:12px;color:var(--sub);margin:-6px 0 16px}
@@ -229,7 +240,7 @@
   .tipItem .go{color:var(--brand-dark);font-weight:700;font-size:11px;white-space:nowrap;float:right;margin-left:8px}
   h2.section{font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--sub);
     margin:26px 0 12px;border-bottom:1px solid var(--line);padding-bottom:6px}
-  @media(max-width:900px){.span6,.span4,.span8{grid-column:span 12}.miniboard{grid-template-columns:repeat(4,1fr)}}
+  @media(max-width:900px){.span6,.span4,.span8{grid-column:span 12}.miniboard{grid-template-columns:repeat(2,1fr)}}
 
   /* ——— UI-Refresh 08/2026: ruhige, moderne Fläche (additive Overrides — Tokens oben bleiben Build-Anker) ——— */
   :root{--radius:14px;--shadow:0 1px 2px rgba(15,16,16,.04),0 10px 30px -18px rgba(15,16,16,.18)}
@@ -384,7 +395,14 @@
   .wiz .mini{font-size:11.5px;color:var(--sub)}
   .wiz .ok{color:var(--brand-dark);font-weight:700}
 </style>
-</head>
+<link rel="canonical" href="https://vishnuartists.com/flow-cockpit.html">
+<meta name="robots" content="noindex,follow">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Flow Cockpit - Demo mit Beispieldaten">
+<meta property="og:description" content="Das vollstaendige Flow Cockpit mit Beispieldaten: CFD, Lead-Time-Streuung, WIP- und Aging-Ampeln. Ohne Anmeldung.">
+<meta property="og:url" content="https://vishnuartists.com/flow-cockpit.html">
+<meta property="og:image" content="https://vishnuartists.com/img/og-default.jpg">
+<meta name="twitter:card" content="summary_large_image"></head>
 <body>
 <header>
   <span class="logo"><span class="mark">◢</span> VISHNU ARTISTS · FLOW COCKPIT</span>
@@ -525,17 +543,25 @@
         <div class="cv" id="reso"></div>
         <details class="src"><summary>ℹ︎ Datenquelle</summary><code id="src-reso">resolution-Feld je Ticket (Jira) · resolutiondate im gewählten Zeitraum</code></details>
       </div>
+      <div class="card span6" id="opsCard" style="display:none">
+        <h3>Betriebslast: Bugs &amp; Operational-Subtasks</h3>
+        <div class="desc">Subtasks unter den Container-Storys (Operational Tasks, Technical Maintenance), die von Sprint zu Sprint mitgezogen werden. Sie tragen keine Story Points und fließen <strong>nicht</strong> in Durchsatz, Lead Time und Forecast ein — hier sichtbar, damit die Kapazität ehrlich bleibt.</div>
+        <div class="cv" id="ops"></div>
+        <div id="opsTbl" style="font-size:12px;margin-top:6px"></div>
+        <details class="src"><summary>ℹ︎ Datenquelle</summary><code id="src-ops">parent in (Container-Storys) · Subtasks aggregiert, ohne Personen · je Woche erledigt (grün) vs. neu angelegt (rot) · Sync stündlich</code></details>
+      </div>
       <div class="card span12">
         <h3>🎲 Monte-Carlo-Forecast <span class="chip live">● LIVE</span></h3>
-        <div class="desc">ML4-Vorgeschmack: Forecast aus euren <strong>echten Wochen-Durchsätzen</strong> statt Schätzung — „Wie viel schaffen wir in N Wochen?" und „Wann sind X Tickets fertig?". 4.000 Simulationen, direkt im Browser, folgt dem gewählten 📅 Zeitraum.</div>
+        <div class="desc">ML4-Vorgeschmack: Forecast aus euren <strong>echten Wochen-Durchsätzen</strong> statt Schätzung — „Wie viel schaffen wir in N Wochen?" und „Wann sind X Tickets fertig?". 4.000 Simulationen, direkt im Browser — für die aktive Ansicht, gerechnet aus dem gewählten 📅 Zeitraum; ist der zu kurz (Iteration), aus den letzten 12 Wochen bis zum Datenstand.</div>
         <div id="mcCtl" style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-size:12.5px;margin:6px 0">
           <label>Horizont <input type="number" id="mcWeeks" value="4" min="1" max="26" style="width:58px;padding:5px 7px;border:1px solid var(--line);border-radius:7px;font-family:inherit" onchange="runMC()"> Wochen</label>
           <label>Vorhaben <input type="number" id="mcItems" value="20" min="1" max="500" style="width:64px;padding:5px 7px;border:1px solid var(--line);border-radius:7px;font-family:inherit" onchange="runMC()"> Tickets</label>
           <span class="subtab" onclick="runMC()">🎲 Neu simulieren</span>
         </div>
         <div id="mc"></div>
-        <details class="src"><summary>ℹ︎ Datenquelle</summary><code id="src-mc">Sampling aus den Wochen-Durchsätzen des gewählten Zeitraums (Throughput Run Chart) · Perzentile aus 4.000 Läufen</code></details>
+        <details class="src"><summary>ℹ︎ Datenquelle</summary><code id="src-mc">Sampling aus den Wochen-Durchsätzen der aktiven Ansicht — gewählter Zeitraum, sonst die letzten 12 Wochen bis zum Datenstand · Perzentile aus 4.000 Läufen</code></details>
       </div>
+      <div class="kargsep" id="kargSep" style="display:none"></div>
     </div>
     <div id="casPanel" style="display:none">
       <h2 class="section">SUP Support — Projekt-Split &amp; SLA (nur Analysten)</h2>
@@ -544,44 +570,46 @@
           <div class="desc">Aktive Items der Analysten nach Projekt. Fast alles liegt in PRJ.</div><div class="cv" id="casSplit"></div>
           <div class="lgd"><span><i class="dot" style="background:#0052cc"></i>PRJ</span><span><i class="dot" style="background:#00b8d9"></i>SUP</span></div></div>
         <div class="card span4"><h3>SUP-SLA: Time to First Response</h3>
-          <div class="desc">SUP gesamt (232 Vorgänge): im Ziel vs. gerissen.</div><div class="cv" id="casFR"></div></div>
+          <div class="desc" id="casFRD">SUP gesamt: im Ziel vs. gerissen.</div><div class="cv" id="casFR"></div></div>
         <div class="card span4"><h3>SUP-SLA: Time to Resolution</h3>
-          <div class="desc">Nur 29 % im Ziel — 165 von 232 gerissen.</div><div class="cv" id="casRT"></div></div>
+          <div class="desc" id="casRTD">Im Ziel vs. gerissen.</div><div class="cv" id="casRT"></div></div>
       </div>
     </div>
   </div>
 
   <div id="progview" style="display:none">
-    <h2 class="section">Programm Board — [K] Demo Org Board (FEAT · SAFe Portfolio-Kanban)</h2>
+    <h2 class="section" id="progTitle">Programm Board</h2>
+    <div class="desc" id="progStand" style="margin:-6px 0 10px"></div>
     <div class="kpis" id="progkpis"></div>
     <div class="grid">
       <div class="card span12">
-        <h3>Feature-Flow — PI 2026.25 (16.06–07.09)</h3>
-        <div class="desc">Demo-Momentaufnahme. Spalten-Zähler = Bestand / WIP-Limit · Zahl je Karte = WSJF-Score.</div>
+        <h3><span id="progFlowT">Feature-Flow</span></h3>
+        <div class="desc" id="progFlowD"></div>
         <div class="miniboard" id="miniboard"></div>
-        <div class="lgd"><span><strong>PI 2026.37 in Vorbereitung:</strong> 2 Features (FEAT-921 · FEAT-857, beide PI-Backlog)</span></div>
-        <details class="src"><summary>ℹ︎ Datenquelle</summary><code>project = FEAT AND "Team(s)[Checkboxes]" in (Analytics) AND sprint = 29538 ORDER BY status
--- Confluence: Jira-Issues-Macro (live, PI-Filter) + Custom Charts nach Status</code></details>
+        <div class="lgd"><span id="progNext"></span></div>
+        <details class="src"><summary>ℹ︎ Datenquelle</summary><code id="progFlowSrc"></code></details>
       </div>
       <div class="card span4">
         <h3>WSJF-Abdeckung</h3>
-        <div class="desc">Features mit vs. ohne WSJF-Score (Quick-Filter „WSJF filled/missing").</div>
+        <div class="desc" id="progWsjfD"></div>
         <div class="cv" id="wsjf"></div>
-        <details class="src"><summary>ℹ︎ Datenquelle</summary><code>project = FEAT AND "WSJF" is EMPTY   -- missing
-project = FEAT AND "WSJF" is not EMPTY -- filled</code></details>
+        <details class="src"><summary>ℹ︎ Datenquelle</summary><code>WSJF = customfield_11277 · gerechnet aus Business Value (11214), Time Criticality (11215),
+Risk/Opportunity (11216) und Job Size (11171). Der Wert 99 ist ein handgesetzter Platzhalter
+und zaehlt hier nicht als Score. Quelle: data/pihistory.json (stuendlicher Jira-Sync).</code></details>
       </div>
       <div class="card span4">
         <h3>PI-Fortschritt</h3>
-        <div class="desc">Committed vs. Done je Program Increment.</div>
+        <div class="desc" id="progPiD"></div>
         <div class="cv" id="pi"></div>
-        <div class="lgd"><span><i class="dot" style="background:#4c9aff"></i>Geplant</span><span><i class="dot" style="background:#36b37e"></i>Done</span></div>
-        <details class="src"><summary>ℹ︎ Datenquelle</summary><code>project = FEAT AND "PI" in (2026.13, 2026.25)</code></details>
+        <div class="lgd"><span><i class="dot" style="background:#4c9aff"></i>Eingeplant</span><span><i class="dot" style="background:#36b37e"></i>Done</span></div>
+        <details class="src"><summary>ℹ︎ Datenquelle</summary><code>Eingeplant: Features der Team-Lane im Programm-Board-Frame (Miro).
+Done: statusCategory = done in data/pihistory.json, ohne Won't Do / Duplicate.</code></details>
       </div>
       <div class="card span4">
-        <h3>WSJF-Verteilung (PI 2026.25)</h3>
-        <div class="desc">Priorisierungs-Spread der aktiven Features (höher = dringlicher).</div>
+        <h3><span id="progDistT">WSJF-Verteilung</span></h3>
+        <div class="desc">Priorisierungs-Spread der aktiven Features (höher = dringlicher). Nur gerechnete Scores.</div>
         <div class="cv" id="wsjfdist"></div>
-        <details class="src"><summary>ℹ︎ Datenquelle</summary><code>project = FEAT AND "Team(s)[Checkboxes]" in (Analytics) AND sprint = 29538 AND WSJF is not EMPTY</code></details>
+        <details class="src"><summary>ℹ︎ Datenquelle</summary><code>WSJF-Scores der Team-Features aus data/pihistory.json, Platzhalter 99 ausgenommen.</code></details>
       </div>
     </div>
   </div>
@@ -696,10 +724,29 @@ function setLang(){ if(window.pbLangSet&&window.pbLangNext)pbLangSet(pbLangNext(
 // NICHT über tr(), weil der deutsche Text im HTML steht und hier nur die Zielsprache gebraucht wird.
 // S() schickt jeden dieser englischen Sätze durch das Overlay: auf HR liefert pbHr() die kroatische
 // Fassung (nach dem englischen Schlüssel), sonst bleibt der englische stehen.
+/* Welches Jira-Board hängt hier dran? Kopf-Badge neben dem Datenstand + Zusatz in der Legende, aus
+   RAWDATA.meta.boards (Name/Typ je Board, seit 14.09.2026 vom Sync geliefert) — sonst nur die boardId.
+   Bene 14.09.2026 (Heisenberg-Konsistenzcheck): „sinnvoll zu sehen, welches Board eingebunden ist".
+   RapidBoard.jspa?rapidView=<id> leitet in Jira Cloud auf jede Board-Art (scrum/kanban, company/team-managed) weiter. */
+function boardLinks(){try{
+  var M=(RAWDATA&&RAWDATA.meta)||{}; if(M.demo)return;
+  var bs=Array.isArray(M.boards)&&M.boards.length?M.boards:(M.boardId?[{id:M.boardId}]:[]);
+  if(!bs.length)return;
+  var jb=((typeof CONFIG!=='undefined'&&CONFIG.jiraBase)||'https://${CONFIG.jiraBase.replace(/^https?:\/\//,"")}').replace(/\/+$/,'');
+  var E=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});};
+  var typ=function(b){return b.type==='scrum'?'Scrum':b.type==='kanban'?'Kanban':'';};
+  var links=bs.map(function(b){return '<a href="'+jb+'/secure/RapidBoard.jspa?rapidView='+encodeURIComponent(b.id)+'" target="_blank" rel="noopener" title="Jira-Board '+E(b.id)+(typ(b)?' · '+typ(b):'')+(b.project?' · '+E(b.project):'')+'" style="color:inherit;font-weight:700;text-decoration:underline dotted;text-underline-offset:3px">'+E(b.name||('#'+b.id))+' ↗</a>';});
+  var ib=document.getElementById('importBadge'), bb=document.getElementById('boardBadge');
+  if(ib&&!bb){bb=document.createElement('span');bb.className='badge';bb.id='boardBadge';bb.style.marginLeft='8px';ib.insertAdjacentElement('afterend',bb);}
+  if(bb)bb.innerHTML='🗂 Board: '+links.join(' · ');
+  var nr=document.querySelector('.note .nrow');
+  if(nr&&!document.getElementById('boardNote'))nr.insertAdjacentHTML('beforeend',' <span class="dim" id="boardNote">· '+tr('Quelle: Jira-Board','Source: Jira board')+' '+links.join(', ')+(M.filterId?' · Filter <a href="'+jb+'/issues/?filter='+encodeURIComponent(M.filterId)+'" target="_blank" rel="noopener" style="color:inherit">'+E(M.filterId)+' ↗</a>':'')+'</span>');
+}catch(e){}}
 function applyStatic(){
   const lb=document.getElementById('langBtn');
   if(lb){ const n=(window.PB_LANGS&&window.pbLangNext)?(PB_LANGS.filter(l=>l.code===pbLangNext())[0]||{ab:'EN'}).ab:(LANG==='de'?'EN':'DE'); lb.textContent=n; }
   document.getElementById('verInfo').textContent='Version '+VERSION+' · '+tr('Datenstand','Data as of')+' '+RAWDATA.meta.importDate.split('-').reverse().join('.');
+  boardLinks();
   if(LANG==='de')return;
   const S=t=>(LANG==='hr'&&window.pbHr)?pbHr(t,t):t;
   const q=(sel,txt)=>{const e=document.querySelector(sel);if(e)e.textContent=S(txt);};
@@ -749,11 +796,12 @@ function applyStatic(){
    casRT:['SUP SLA: Time to Resolution','Share of resolutions within the SLA target.'],
    wsjf:['WSJF Coverage','Features with vs. without a WSJF score.'],
    pi:['PI Progress','Committed vs. done per program increment.'],
-   wsjfdist:['WSJF Distribution (PI 2026.25)','Prioritisation spread of active features (higher = more urgent).'],
+   wsjfdist:['WSJF Distribution','Prioritisation spread of active features (higher = more urgent).'],
    /* Diese beiden fehlten in der Tabelle — dadurch stand die Karte auf Englisch, aber Titel und
       Beschreibung blieben deutsch. Gemeldet von Tarik Demirovic am 24.08.2026. */
    reso:['Done by Resolution','All completions in the period by resolution. The "Done" metrics (throughput, lead time, due-date performance, forecast) count Done/Fixed only — Won\'t Do, Duplicate & co. are visible here but do not feed into them.'],
-   mc:['🎲 Monte Carlo Forecast','ML4 preview: a forecast from your real weekly throughput instead of an estimate — "how much do we finish in N weeks?" and "when are X tickets done?". 4,000 simulations, right in the browser, following the selected period.']};
+   ops:['Operations load: bugs & operational subtasks','Subtasks under the container stories (Operational Tasks, Technical Maintenance) that are carried from sprint to sprint. They carry no story points and are NOT part of throughput, lead time or forecast — shown here so capacity stays honest.'],
+   mc:['🎲 Monte Carlo Forecast','ML4 preview: a forecast from your real weekly throughput instead of an estimate — "how much do we finish in N weeks?" and "when are X tickets done?". 4,000 simulations, right in the browser — for the active view, based on the selected period; if that is too short (an iteration), on the last 12 weeks up to the data date.']};
   Object.keys(cards).forEach(id=>{const cv=document.getElementById(id);if(!cv)return;
     const card=cv.closest('.card');if(!card)return;
     const h=card.querySelector('h3'),d=card.querySelector('.desc');
@@ -767,7 +815,7 @@ function applyStatic(){
      stehen als deutscher Text im HTML und brauchen darum ihre eigene Uebersetzung. */
   q('#cfdSrcNote','Reconstructed from the ticket status changelogs (REST /issue/{key}/changelog) · 8 weeks, done baseline normalised to the window start');
   q('#src-reso','resolution field per ticket (Jira) · resolutiondate within the selected period');
-  q('#src-mc','Sampling from the weekly throughput of the selected period (throughput run chart) · percentiles from 4,000 runs');
+  q('#src-mc','Sampling from the weekly throughput of the active view — selected period, otherwise the last 12 weeks up to the data date · percentiles from 4,000 runs');
 }
 const C={ink:'#172b4d',sub:'#5e6c84',line:'#dfe1e6',blue:'#0052cc',blue2:'#4c9aff',
   green:'#36b37e',yellow:'#ffab00',red:'#ff5630',purple:'#6554c0',teal:'#00b8d9',grey:'#97a0af'};
@@ -794,6 +842,13 @@ function axis(yMax,xLabels,band){ // returns {grid, y(v), xb(i), xl(i)}
 const JQL={gesamt:'project in (PRJ, SUP)',
   analytics:'(project = PRJ AND (component != "data-platform" OR component IS EMPTY)) OR project = SUP',
   engineering:'project = PRJ AND component = "data-platform"'};
+/* Datenquelle-Zeilen („ℹ︎ Datenquelle") in den Team-Cockpits: der echte Jira-Filter des Syncs
+   (RAWDATA.meta.filterId, seit 14.09.2026), sonst der Projekt-Rahmen aus den Ticket-Schlüsseln —
+   nie mehr der Demo-Platzhalter „project in (PRJ, SUP)", der bis 14.09. in allen fünf Team-Cockpits stand. */
+function jqlScope(){try{var M=RAWDATA.meta||{};
+  if(!M.demo&&M.filterId)return 'filter = '+M.filterId;
+  if(!M.demo&&typeof pScopeJql==='function'){var s=pScopeJql();if(s)return s;}}catch(e){}
+  return JQL.gesamt;}
 const WEEKS=['KW22','KW23','KW24','KW25','KW26','KW27','KW28','KW29'];
 const DATA={
   gesamt:{f:1,tp:[14,11,16,13,18,15,12,17],wip:[6,4,9,3],limits:[8,6,10,4],
@@ -826,7 +881,7 @@ var REFINE={needed:16,done:8};
 // REST-Abzug 06.07.2026 (Assignee-Auswertung; wip = aktive Spalten, oldest = ältestes offenes Ticket)
 var PDATA={};
 let anaScope='both';
-function setAna(s){anaScope=s;document.querySelectorAll('#anaFilter .subtab').forEach(b=>b.classList.toggle('active',b.dataset.s===s));renderFlow('analytics');}
+function setAna(s){anaScope=s;document.querySelectorAll('#anaFilter .subtab').forEach(b=>b.classList.toggle('active',b.dataset.s===s));renderFlow('analytics');if(typeof runMC==='function')runMC();}
 
 // ═══ TEAM-KONFIGURATION — für den Rollout auf andere Teams nur diesen Block anpassen ═══
 const CONFIG={
@@ -1173,7 +1228,10 @@ function applyTiles(){
   const cfg=tileCfg(); const cards=tileCards(); const ord=tileOrderIds();
   cards.forEach(t=>{
     const i=ord.indexOf(t.id);
-    t.el.style.order=i>=0?i:900+t.ix;
+    /* Karten ohne Aussage rutschen hinter die Trennzeile (order 499). Ihre Reihenfolge
+       untereinander bleibt — sie stehen nur nicht mehr zwischen den sprechenden Karten. */
+    const k=(window.__karg&&window.__karg[t.id])?500:0;
+    t.el.style.order=k+(i>=0?i:900+t.ix);
     const hid=(cfg.hide||[]).includes(t.id);
     t.el.style.display=(hid&&!window.__EDITDASH)?'none':'';
     t.el.classList.toggle('thidden',hid&&!!window.__EDITDASH);
@@ -1373,7 +1431,118 @@ function tilesInit(){
     b.textContent='🖉 '+tr('Ansicht anpassen','Adjust view'); b.onclick=tilesEdit; rb.appendChild(b);
   }
 }
+/* ——— Karten ohne Aussage nach unten (08.09.2026, Benes Entscheidung) ——————————
+   Drei Ringe zeigen im Analysten-Tab regelmäßig einen einzigen Vollkreis: Class of
+   Service (der Sync liest das Feld gar nicht), Work Item Type (alles Story) und Erledigt
+   nach Resolution (alles Done). Sie ganz auszublenden wäre bequem, ließe aber die Frage
+   offen, ob Daten fehlen oder das Feld — deshalb wandern sie hinter eine Trennzeile ans
+   Ende der Flow-Metriken und sagen dort in einem Satz, warum sie nichts hergeben.
+   Sobald echte Verteilung entsteht, stehen sie von selbst wieder oben. */
+function kargGrund(id,R){
+  if(!R)return null;
+  const sum=a=>Array.isArray(a)?a.reduce((x,y)=>x+(y||0),0):0;
+  if(id==='cos'){
+    const n=sum(R.cos);
+    return tr('Der stündliche Import liest kein Class-of-Service-Feld mit — deshalb steht hier alles auf „Standard"'+(n?' ('+n+' Tickets)':'')+'. Die Karte lebt erst auf, wenn Expedite / Fixed Date / Intangible in Jira gepflegt und im Sync mitgelesen werden.',
+              'The hourly import does not read a class-of-service field — so everything shows as "Standard"'+(n?' ('+n+' tickets)':'')+'. The tile comes alive only once Expedite / Fixed Date / Intangible are maintained in Jira and picked up by the sync.');
+  }
+  if(id==='type'){
+    const t=R.type||[], n=sum(t), voll=t.filter(v=>v>0).length;
+    if(!n)return tr('Im gewählten Zeitraum läuft kein Ticket — es gibt keinen Ticket-Mix zu zeigen.',
+                    'No ticket is running in the selected period — there is no ticket mix to show.');
+    if(voll<=1){
+      const ix=t.findIndex(v=>v>0), lb=((R.typeLabels||(typeof REAL!=='undefined'&&REAL.typeLabels)||[])[ix])||'?';
+      return tr('Alle '+n+' laufenden Tickets sind vom Typ „'+lb+'" — ein Ring mit einem einzigen Segment. Ein Mix entsteht erst, wenn Bugs und Tech-Tasks als eigene Vorgangsart geführt werden statt als Story.',
+                'All '+n+' running tickets are of type "'+lb+'" — a ring with a single segment. A mix only appears once bugs and tech tasks are tracked as their own issue type instead of as stories.');
+    }
+    return null;
+  }
+  if(id==='reso'){
+    const r=R.reso||{}, ks=Object.keys(r).filter(k=>r[k]>0), n=ks.reduce((a,k)=>a+r[k],0);
+    if(!n)return tr('Im gewählten Zeitraum wurde nichts abgeschlossen — die Karte hat nichts zu verteilen.',
+                    'Nothing was completed in the selected period — the tile has nothing to distribute.');
+    if(ks.length<=1)return tr('Alle '+n+' Abschlüsse tragen dieselbe Resolution („'+ks[0]+'") — Won\'t Do, Duplicate & Co. kamen im Zeitraum nicht vor. Genau dann ist diese Karte langweilig, und das ist ein gutes Zeichen.',
+                              'All '+n+' completions carry the same resolution ("'+ks[0]+'") — Won\'t Do, Duplicate & co. did not occur in this period. That is exactly when this tile is boring, and that is a good sign.');
+    return null;
+  }
+  if(id==='due'){
+    if(!sum(R.due))return tr('Kein im Zeitraum erledigtes Ticket trägt ein Fälligkeitsdatum — Termintreue lässt sich daraus nicht messen.',
+                             'No ticket completed in this period carries a due date — due-date performance cannot be measured from that.');
+    return null;
+  }
+  if(id==='floweff'&&R.fe==null)
+    return tr('Die Status-Historie im Import reicht für keine Schätzung der Flow Efficiency.',
+              'The status history in the import is not enough to estimate flow efficiency.');
+  return null;
+}
+/* Prüft alle Karten, hängt den Grund unter die Beschreibung und meldet applyTiles(),
+   welche Kacheln nach unten gehören. */
+function kargAnwenden(R){
+  const karg={};
+  document.querySelectorAll('#flowview .grid > .card').forEach(card=>{
+    if(card.closest('#casPanel'))return;
+    const cv=card.querySelector('.cv')||card.querySelector('#mc'); const id=cv?(cv.id||'mc'):null; if(!id)return;
+    const alt=card.querySelector('.kargwhy'); if(alt)alt.remove();
+    const grund=kargGrund(id,R);
+    card.classList.toggle('karg',!!grund);
+    if(grund){
+      karg[id]=1;
+      const anker=card.querySelector('.desc')||card.querySelector('h3');
+      if(anker)anker.insertAdjacentHTML('afterend','<div class="kargwhy">ℹ️ '+grund+'</div>');
+    }
+  });
+  window.__karg=karg;
+  const sep=document.getElementById('kargSep');
+  if(sep){
+    const n=Object.keys(karg).length;
+    sep.style.display=n?'':'none';
+    sep.innerHTML=n?('<b>'+tr('Zurzeit ohne Aussage','Nothing to show right now')+'</b> · '
+      +tr((n===1?'Diese Karte hat':'Diese '+n+' Karten haben')+' im gewählten Zeitraum nichts zu verteilen — ein einziges Segment oder gar keinen Wert. '+(n===1?'Sie bleibt':'Sie bleiben')+' sichtbar, damit klar ist, dass hier nichts fehlt; warum, steht jeweils in der Karte.',
+           (n===1?'This tile has':'These '+n+' tiles have')+' nothing to distribute for the selected period — a single segment or no value at all. They stay visible so it is clear that nothing is missing; each tile says why.')):'';
+  }
+}
+
 // ——— Monte-Carlo-Forecast (ML4-Vorgeschmack): Durchsatz-Sampling statt Schätzung ———
+/* ——— Woraus der Forecast sampelt (08.09.2026) ———————————————————————————————
+   Bis heute nahm runMC() immer REAL (Gesamtsystem) und immer die Wochen des gewaehlten
+   Zeitraums. Beides ging schief: im Analysten- oder Engineering-Tab rechnete der Forecast
+   an der falschen Ansicht vorbei, und bei den beiden Iterations-Spannen (2 Wochen = 2
+   Durchsatzwerte) stand dauerhaft „Zeitraum vergroessern" statt eines Ergebnisses — die
+   Karte sah kaputt aus, obwohl die Daten da waren.
+   Jetzt gilt: die aktive Ansicht liefert die Stichprobe, der gewaehlte Zeitraum bleibt die
+   Basis, solange er mindestens MC_MIN Wochen hergibt — sonst weicht der Forecast auf die
+   letzten MC_RUECK Wochen bis zum Datenstand aus und sagt das in der Karte dazu. */
+const MC_MIN=5, MC_RUECK=12;
+const MC_ANSICHT={gesamt:['Gesamtsystem','whole system'],analytics:['Analytics-Team','analytics team'],engineering:['Engineering-Team','engineering team']};
+function mcView(){
+  const t=document.querySelector('.tab.active'); const v=t&&t.dataset?t.dataset.view:'gesamt';
+  return (v==='analytics'||v==='engineering')?v:'gesamt';
+}
+function mcSatz(view){
+  if(view==='analytics')return (typeof ANA!=='undefined'&&ANA)?ANA[anaScope]:null;
+  if(view==='engineering')return (typeof REALT!=='undefined'&&REALT)?REALT.engineering:null;
+  return (typeof REAL!=='undefined')?REAL:null;
+}
+function mcBasis(){
+  const rein=a=>Array.isArray(a)?a.filter(x=>isFinite(x)&&x>=0):[];
+  const view=mcView(), satz=mcSatz(view)||((typeof REAL!=='undefined')?REAL:null);
+  const eigen=rein(satz&&satz.through);
+  if(eigen.length>=MC_MIN&&eigen.some(x=>x>0))
+    return {s:eigen,quelle:'zeitraum',view:view,eigen:eigen.length};
+  /* Rueckblick mit denselben Filtern und derselben Ansicht — nur mit laengerem Fenster.
+     Einmal je Ansicht/Datenstand/Filterstand gerechnet, sonst rechnet jede Eingabe im
+     Horizont-Feld den ganzen Datensatz neu durch. */
+  const bis=TO, von=new Date(+TO-MC_RUECK*7*D1);
+  const key=[view,anaScope,+bis,MC_RUECK,JSON.stringify((typeof viewCfg==='function')?viewCfg():null)].join('|');
+  let r=window.__mcRueck;
+  if(!r||r.key!==key){
+    const iss=(view==='analytics')?subsetIss('analytics',anaScope==='both'?null:anaScope)
+             :(view==='engineering')?subsetIss('engineering'):subsetIss('gesamt');
+    let th=[]; try{ th=rein(buildSetR(iss,von,bis).through); }catch(e){ th=[]; }
+    r={key:key,s:th}; window.__mcRueck=r;
+  }
+  return {s:r.s,quelle:'rueckblick',view:view,eigen:eigen.length,von:von,bis:bis};
+}
 function mcPct(a,p){const s=[...a].sort((x,y)=>x-y);return s[Math.min(s.length-1,Math.floor(p*s.length))];}
 function runMC(){
   const el=document.getElementById('mc'); if(!el) return;
@@ -1381,11 +1550,11 @@ function runMC(){
   const ctl=document.getElementById('mcCtl');
   if(ctl&&LANG==='en'&&!ctl.dataset.en){ctl.dataset.en='1';
     ctl.innerHTML=ctl.innerHTML.replace('Horizont','Horizon').replace('Wochen','weeks').replace('Vorhaben','Scope').replace('Tickets','tickets').replace('Neu simulieren','Re-simulate');}
-  const s=(typeof REAL!=='undefined'&&REAL.through)?REAL.through.filter(x=>isFinite(x)&&x>=0):[];
+  const B=mcBasis(), s=B.s;
   const wkN=Math.max(1,Math.min(26,parseInt((document.getElementById('mcWeeks')||{}).value,10)||4));
   const itN=Math.max(1,Math.min(500,parseInt((document.getElementById('mcItems')||{}).value,10)||20));
   if(s.length<3||!s.some(x=>x>0)){
-    el.innerHTML='<div style="font-size:12px;color:var(--sub);margin:6px 0">ℹ️ '+tr('Zu wenige Durchsatz-Wochen im gewählten Zeitraum — Zeitraum vergrößern (📅), dann kann ich simulieren.','Not enough throughput weeks in the selected range — widen the range (📅) so I can simulate.')+'</div>'; return; }
+    el.innerHTML='<div style="font-size:12px;color:var(--sub);margin:6px 0">ℹ️ '+tr('Für diese Ansicht liegen auch in den letzten '+MC_RUECK+' Wochen keine abgeschlossenen Tickets im Import — ohne Durchsatz-Historie lässt sich nichts simulieren.','For this view the import holds no completed tickets even across the last '+MC_RUECK+' weeks — without throughput history there is nothing to simulate.')+'</div>'; return; }
   const T=4000, done=[], dur=[];
   for(let i=0;i<T;i++){
     let sum=0; for(let w=0;w<wkN;w++) sum+=s[(Math.random()*s.length)|0];
@@ -1412,6 +1581,14 @@ function runMC(){
   const aiBtn=(window.pbAssistantVisible&&window.pbAssistantVisible())
     ? '<div style="margin-top:6px"><a onclick="mcAskAi()" style="cursor:pointer;display:inline-block;background:linear-gradient(135deg,var(--brand),var(--brand-dark));color:#fff;border-radius:9px;padding:7px 12px;font-weight:700;font-size:12px">'+tr('Forecast mit '+BUDDY()+' interpretieren','Interpret the forecast with '+BUDDY())+'</a></div>'
     : '';
+  const vN=MC_ANSICHT[B.view]||MC_ANSICHT.gesamt;
+  /* Woher die Stichprobe kommt, steht sichtbar in der Karte, sobald sie NICHT aus dem
+     gewählten Zeitraum stammt — sonst wirkt der Forecast, als ignoriere er die 📅-Wahl. */
+  const basis=(B.quelle==='rueckblick')
+    ? '<div class="tipItem">📐 '+tr('Basis: die '+s.length+' Wochen bis zum Datenstand ('+tr(vN[0],vN[1])+') — der gewählte 📅 Zeitraum liefert nur '+B.eigen+(B.eigen===1?' Woche':' Wochen')+' und trägt keine Simulation.',
+                                    'Basis: the '+s.length+' weeks up to the data date ('+tr(vN[0],vN[1])+') — the selected 📅 period yields only '+B.eigen+(B.eigen===1?' week':' weeks')+', not enough to simulate.')+'</div>'
+    : '<div class="explain">'+tr('Basis: die '+s.length+' Durchsatz-Wochen des gewählten Zeitraums ('+tr(vN[0],vN[1])+').',
+                                 'Basis: the '+s.length+' throughput weeks of the selected period ('+tr(vN[0],vN[1])+').')+'</div>';
   el.innerHTML=
     '<div style="display:flex;gap:8px;margin:6px 0 2px;align-items:stretch">'
     +'<div style="writing-mode:vertical-rl;transform:rotate(180deg);font-size:9.5px;color:var(--sub);text-align:center">'+tr('Häufigkeit (Anteil der '+T+' Läufe)','frequency (share of '+T+' runs)')+'</div>'
@@ -1421,6 +1598,7 @@ function runMC(){
     +'<div class="tipItem ok">📦 <b>'+tr('In den nächsten ','In the next ')+wkN+tr(' Wochen',' weeks')+':</b> '+tr('mit 85 % Sicherheit ≥ ','with 85% confidence ≥ ')+'<b>'+d85+'</b>'+tr(' Tickets erledigt, Median ',' tickets done, median ')+'<b>'+d50+'</b>.</div>'
     +'<div class="tipItem">⏳ <b>'+itN+tr(' Tickets',' tickets')+':</b> '+tr('fertig mit 50 % in ','done with 50% in ')+'<b>'+w50+tr(' Wo.',' wk')+' ('+fmtD(w50)+')</b> · '+tr('mit 85 % in ','with 85% in ')+'<b>'+w85+tr(' Wo.',' wk')+' ('+fmtD(w85)+')</b> · '+tr('mit 95 % in ','with 95% in ')+'<b>'+w95+tr(' Wo.',' wk')+' ('+fmtD(w95)+')</b> '+tr('ab Datenstand','from data date')+'.</div>'
     +interp
+    +basis
     +aiBtn
     +'<div class="explain">'+tr('So spricht man auf ML4 über Termine: Wahrscheinlichkeiten statt Versprechen. Zusagen mit dem 85-%-Wert machen, nicht mit dem Median.','This is how ML4 talks about dates: probabilities instead of promises. Commit on the 85% value, not the median.')+'</div>';
 }
@@ -1433,7 +1611,27 @@ function mcAskAi(){
     : ('Interpretiere unseren Monte-Carlo-Forecast: In '+m.wkN+' Wochen schaffen wir mit 85 % Sicherheit mindestens '+m.d85+' Tickets (Median '+m.d50+'). '+m.itN+' Tickets sind mit 85 % Sicherheit in '+m.w85+' Wochen fertig. Was heißt das für unsere Zusagen, und wo sollten wir ansetzen?');
   pbFlow.open(q);
 }
-function rerender(){renderActive();flowScore();renderCoach();runMC();}
+function rerender(){renderActive();renderOps();flowScore();renderCoach();runMC();}
+/* Betriebslast-Karte (Bugs/Operational als Subtasks unter Container-Storys) — nur, wenn der Sync
+   einen ops-Block liefert (jira-sync.mjs opsLoad, z. B. Formular 1). Ohne Block bleibt die Karte weg. */
+function renderOps(){
+  const card=document.getElementById('opsCard'); if(!card)return;
+  const o=(typeof RAWDATA!=='undefined'&&RAWDATA&&RAWDATA.ops)||null;
+  if(!o||!Array.isArray(o.weekly)||!o.weekly.length){card.style.display='none';return;}
+  card.style.display='';
+  const wk=o.weekly.slice(-12);
+  const lab=wk.map(w=>{const [y,m,d]=w[0].split('-');return d+'.'+m;});
+  set('ops',grouped(lab,[wk.map(w=>w[1]),wk.map(w=>w[2])],[C.green,C.red]));
+  const P=(o.parents||[]);
+  const rows=P.map(p=>`<tr><td style="padding:3px 6px 3px 0"><a href="${CONFIG.jiraBase}/browse/${p.key}" target="_blank" rel="noopener" style="color:var(--brand-dark)">${p.key}</a> ${esc(p.title||'')}</td>`+
+    `<td style="text-align:right;padding:3px 6px"><b>${p.open}</b>/${p.total}</td><td style="text-align:right;padding:3px 6px">${p.done8w}</td><td style="text-align:right;padding:3px 0 3px 6px">${p.sprints||'–'}</td></tr>`).join('');
+  const bal=(o.done8w||0)-(o.created8w||0);
+  const sum=tr(`<b>${o.open}</b> offene Subtasks · 8 Wochen: <b>${o.done8w}</b> erledigt, <b>${o.created8w}</b> neu (${bal>=0?'+':''}${bal})`+(o.openAgeP50!=null?` · offene sind im Median <b>${o.openAgeP50} T</b> alt`:''),
+               `<b>${o.open}</b> open subtasks · 8 weeks: <b>${o.done8w}</b> done, <b>${o.created8w}</b> new (${bal>=0?'+':''}${bal})`+(o.openAgeP50!=null?` · open ones are <b>${o.openAgeP50} d</b> old (median)`:''));
+  const t=document.getElementById('opsTbl'); if(!t)return;
+  t.innerHTML=`<div style="margin:2px 0 6px;color:var(--sub)">${sum}</div><table style="border-collapse:collapse;width:100%"><thead><tr style="color:var(--sub);font-size:11px"><th style="text-align:left;font-weight:600;padding:0 6px 4px 0">${tr('Container-Story','Container story')}</th><th style="text-align:right;font-weight:600;padding:0 6px 4px">${tr('offen/gesamt','open/total')}</th><th style="text-align:right;font-weight:600;padding:0 6px 4px">${tr('erledigt 8 Wo.','done 8 wk')}</th><th style="text-align:right;font-weight:600;padding:0 0 4px 6px">${tr('Sprints','sprints')}</th></tr></thead><tbody>${rows}</tbody></table>`;
+  const lg=document.querySelector('#opsCard .lgd'); if(!lg){const d=document.createElement('div');d.className='lgd';d.innerHTML=`<span><i class="dot" style="background:${C.green}"></i>${tr('erledigt','done')}</span><span><i class="dot" style="background:${C.red}"></i>${tr('neu angelegt','created')}</span>`;t.parentNode.insertBefore(d,t);}
+}
 
 // Umschalter Team-Sicht ↔ persönliche Übersicht. Die RAWDATA-Zeilen tragen aus
 // Datenschutzgründen (Betriebsrat) KEINEN Assignee — persönliche Sichten rechnen
@@ -2258,7 +2456,7 @@ if(USER&&USER.name&&!PEOPLE.some(p=>p[0]===USER.name))USER=null; /* fremde Insta
    Der Portal-Name (Registrierungsname bzw. Username, z.B. "alexq") wird gegen die Jira-Namensliste PEOPLE
    gematcht — exakter Name, sonst eindeutiger Vorname — sonst finden PDATA/RAW die Person nicht. */
 try{ var _va=JSON.parse(sessionStorage.getItem('vsAuth')||'null');
-  if(_va){ var _coach = _va.role==='super' || /coach/i.test(_va.regRole||'') || /coach/i.test(_va.role||'') || !!(_va.teams&&_va.teams.length); /* teams-Array = ATC-Coach */
+  if(_va){ var _coach = _va.role==='super' || /coach/i.test(_va.regRole||'') || /coach/i.test(_va.role||'') || !!_va.coach; /* coach-Flag = ATC-Coach; teams traegt seit 08.09.2026 auch Mehrfach-Mitgliedschaften */
     var _nn=function(s){return String(s||'').toLowerCase().replace(/ä/g,'ae').replace(/ö/g,'oe').replace(/ü/g,'ue').replace(/ß/g,'ss').normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z ]/g,'').replace(/\s+/g,' ').trim();};
     var _hit=null;
     [_va.name,_va.u].filter(Boolean).some(function(cand){
@@ -2498,10 +2696,12 @@ function renderFlow(view){
 
   const S=(id,q)=>document.getElementById(id).textContent=q;
   S('jql-cfd',j);S('jql-wip',j+' AND statusCategory = "In Progress"');
-  S('jql-done',j+' AND statusCategory = Done AND resolutiondate >= -12w');
-  S('jql-done2',j+' AND statusCategory = Done AND resolutiondate >= -12w');
-  S('jql-through',j+' AND statusCategory = Done');S('jql-cvr',j);
-  S('jql-aging',j+' AND statusCategory = "In Progress"');S('jql-floweff',j+' AND statusCategory = Done');
+  /* Erledigt = Resolution gesetzt ODER ohne Resolution in Done angekommen (statusCategoryChangedDate) —
+     so zieht es auch der Sync (pullIssues), sonst fehlten z. B. Heisenbergs fertige Tickets komplett. */
+  S('jql-done',j+' AND statusCategory = Done AND (resolutiondate >= -12w OR (resolution is EMPTY AND statusCategoryChangedDate >= -12w))');
+  S('jql-done2',j+' AND statusCategory = Done AND (resolutiondate >= -12w OR (resolution is EMPTY AND statusCategoryChangedDate >= -12w))');
+  S('jql-through',j+' AND statusCategory = Done AND (resolutiondate >= -12w OR (resolution is EMPTY AND statusCategoryChangedDate >= -12w))');S('jql-cvr',j);
+  S('jql-aging',j+' AND statusCategory = "In Progress"');S('jql-floweff',j+' AND statusCategory = Done AND (resolutiondate >= -12w OR (resolution is EMPTY AND statusCategoryChangedDate >= -12w))');
   S('jql-due',j+' AND due is not EMPTY');S('jql-cos',j);S('jql-type',j);
 
   // CFD stacked area
@@ -2558,6 +2758,7 @@ function renderFlow(view){
   } else { renderCas(view); }
   const liveIds = R ? ['wipcol','scatter','hist','aging','through','cvr','type','cos','due','reso','mc','casSplit','casFR','casRT'] : [];
   if(R&&R.cfd)liveIds.push('cfd');
+  if(R&&RAWDATA&&RAWDATA.ops)liveIds.push('ops');
   if(R&&R.fe!=null)liveIds.push('floweff');
   document.querySelectorAll('#flowview .card').forEach(card=>{const cv=card.querySelector('.cv')||card.querySelector('#mc');const h=card.querySelector('h3');if(!h)return;
     h.querySelectorAll('.chip,.amp,.prev,.hlp,.rate,.hmeta,.hmore').forEach(e=>e.remove());
@@ -2587,6 +2788,7 @@ function renderFlow(view){
       if(A.why){
         const zu=(A.s==='green'||A.s==='grey');
         const inhalt=`<div><strong>${tr('Warum','Why')}:</strong> ${A.why}</div>`+(A.tip?`<div class="tip">💡 <strong>${tr('Nächster Schritt','Next step')}:</strong> ${A.tip}</div>`:'')
+          +flowImpuls(cv.id,A.s,ttl)
           +(A.s==='red'?`<div class="tip">📅 <span class="cta-mini" onclick="talkToCoach('${escA(ttl)}')">${tr('Coaching-Termin vereinbaren','Book a coaching session')}</span></div>`:'');
         html+= zu
           ? `<details class="assess assess-${A.s}"><summary>${tr('Warum '+(A.s==='green'?'grün':'grau')+'?','Why '+(A.s==='green'?'green':'grey')+'?')}</summary>${inhalt}</details>`
@@ -2595,6 +2797,7 @@ function renderFlow(view){
       if(A.ex)html+=`<details class="explain"><summary>ℹ️ ${tr('Was bedeutet diese Kachel?','What does this tile mean?')}</summary><div>${A.ex}</div></details>`;
       cv.insertAdjacentHTML('afterend',html);}
   });
+  kargAnwenden(R);
   applyChartGate(AS,kpiBlkS);
 }
 
@@ -2686,6 +2889,17 @@ function applyChartGate(AS,blkS){
   }
 }
 
+/* Flow-Impuls je Kachel (pb-flowwissen.js): ein Gedanke aus dem geclusterten Flow-Wissen,
+   passend zu Kachel und Ampel, wechselt täglich. Fehlt die Datei (Starter), bleibt es still. */
+function flowImpuls(id,s,ttl){
+  if(!window.pbFlowWissen)return '';
+  const e=pbFlowWissen.forChart(id,s,LANG); if(!e)return '';
+  const ask=tr('Wie setzen wir den Impuls „'+e.title+'" bei „'+ttl+'" um?','How do we apply the impulse "'+e.title+'" to "'+ttl+'"?');
+  const talk=(window.pbFlow&&(!window.pbAssistantVisible||window.pbAssistantVisible()))
+    ?` <span class="cta-mini" onclick="pbFlow.open('${escA(ask)}')">${tr('Mit '+BUDDY()+' vertiefen','Go deeper with '+BUDDY())}</span>`:'';
+  return `<div class="tip">📚 <strong>${tr('Impuls','Impulse')}: ${esc(e.title)}</strong> — ${esc(e.short)}${talk}</div>`;
+}
+
 /* Schnittstelle für John (pb-ui.js): Diagramme aus dem Gespräch heraus freigeben.
    „Aus einem Kontext mit John heraus" heißt: John kennt die gesperrten Themen samt
    Ampel, kann sie einzeln oder komplett öffnen und nennt dabei den Flow Coach. */
@@ -2739,6 +2953,7 @@ function buildChartRail(){
   }
   const casHidden=(document.getElementById('casPanel')||{}).style&&document.getElementById('casPanel').style.display==='none';
   const AS=window.__lastAS||{};
+  let hk='';   /* Karten ohne Aussage stehen in der Leiste unten, wie im Raster */
   const lockTip=tr('Nicht in der Startansicht — Klick gibt es frei. Bei Fragen zur Deutung einen Flow Coach dazuholen. Dauerhaft frei: ab persönlicher Stufe „'+pLvlName(3)+'“ (XP sammeln) oder wenn die Kern-Kennzahlen grün sind.',
     'Not in the start view — click unlocks it. Bring in a flow coach if you are unsure how to read it. Permanently unlocked from personal level “'+pLvlName(3)+'” (collect XP) or when the key metrics are green.');
   document.querySelectorAll((prog?'#progview':'#flowview')+' .card').forEach(card=>{
@@ -2750,10 +2965,16 @@ function buildChartRail(){
     const locked=card.classList.contains('gate-hidden');
     /* Gesperrtes mit roter Ampel bleibt als 🔴 sichtbar — die Startansicht darf kein Signal verschlucken. */
     const red=locked&&AS[id]&&AS[id].s==='red';
-    h+='<div class="rl-i'+(locked?' lock':'')+(red?' red':'')+'" onclick="railGo(\''+id+'\')" title="'+(locked?lockTip:name)+'">'
-      +'<span class="ic">'+(locked?(red?'🔴':'🔒'):(RAIL_IC[id]||'📊'))+'</span><span>'+name
-      +(locked?' <span style="color:var(--sub);font-size:10px">('+(red?tr('Handlungsbedarf','needs action'):tr('gesperrt','locked'))+')</span>':'')+'</span></div>';
+    /* Karten ohne Aussage: dezentes Zeichen, Grund im Tooltip, Platz am Ende der Leiste. */
+    const karg=card.classList.contains('karg');
+    const kw=karg?card.querySelector('.kargwhy'):null;
+    const zeile='<div class="rl-i'+(locked?' lock':'')+(red?' red':'')+(karg?' karg':'')+'" onclick="railGo(\''+id+'\')" title="'+(locked?lockTip:(kw?esc(kw.textContent.replace(/^\u2139\ufe0f\s*/,'')):name))+'">'
+      +'<span class="ic">'+(locked?(red?'🔴':'🔒'):(karg?'·':(RAIL_IC[id]||'📊')))+'</span><span>'+name
+      +(locked?' <span style="color:var(--sub);font-size:10px">('+(red?tr('Handlungsbedarf','needs action'):tr('gesperrt','locked'))+')</span>'
+             :(karg?' <span style="color:var(--sub);font-size:10px">('+tr('ohne Aussage','nothing to show')+')</span>':''))+'</span></div>';
+    if(karg)hk+=zeile; else h+=zeile;
   });
+  h+=hk;
   if(!prog)h+='<div style="font-size:10.5px;color:var(--sub);margin-top:8px;line-height:1.5">🔒 = '+tr('nicht in der Startansicht: Klick gibt einzeln frei; alle dauerhaft ab Stufe „'+pLvlName(3)+'“ oder bei grünen Kern-Kennzahlen.','not in the start view: click unlocks one; all permanently from “'+pLvlName(3)+'” or with green key metrics.')+'</div>';
   rail.innerHTML=h;
 }
@@ -3087,42 +3308,129 @@ function renderCas(view){
   {el.style.display='none';return;}
   el.style.display='block';
   set('casSplit',donut([{v:SUPDATA.ciaActive,c:C.blue},{v:SUPDATA.casActive,c:C.teal}],'','',['PRJ','SUP'],[SUPDATA.ciaActive,SUPDATA.casActive]));
-  set('casFR',donut([{v:SUPDATA.frMet,c:C.green},{v:SUPDATA.frBreach,c:C.red}],Math.round(SUPDATA.frMet/(SUPDATA.frMet+SUPDATA.frBreach)*100)+' %','im Ziel'));
-  set('casRT',donut([{v:SUPDATA.rtMet,c:C.green},{v:SUPDATA.rtBreach,c:C.red}],Math.round(SUPDATA.rtMet/(SUPDATA.rtMet+SUPDATA.rtBreach)*100)+' %','im Ziel'));
+  /* Die Beschreibungen rechnen mit — bis 08.09.2026 stand hier fest „232 Vorgänge" und
+     „nur 29 % im Ziel", während der Donut daneben längst den stündlichen Sync zeigte. */
+  const frN=SUPDATA.frMet+SUPDATA.frBreach, rtN=SUPDATA.rtMet+SUPDATA.rtBreach;
+  const frP=frN?Math.round(SUPDATA.frMet/frN*100):0, rtP=rtN?Math.round(SUPDATA.rtMet/rtN*100):0;
+  set('casFR',donut([{v:SUPDATA.frMet,c:C.green},{v:SUPDATA.frBreach,c:C.red}],frP+' %','im Ziel'));
+  set('casRT',donut([{v:SUPDATA.rtMet,c:C.green},{v:SUPDATA.rtBreach,c:C.red}],rtP+' %','im Ziel'));
+  const setD=(id,t)=>{const e=document.getElementById(id); if(e) e.textContent=t;};
+  setD('casFRD',tr(`SUP gesamt (${frN} Vorgänge): ${frP} % im Ziel, ${SUPDATA.frBreach} gerissen.`,
+    `SUP total (${frN} items): ${frP} % within target, ${SUPDATA.frBreach} breached.`));
+  setD('casRTD',tr(`${rtP} % im Ziel — ${SUPDATA.rtBreach} von ${rtN} gerissen.`,
+    `${rtP} % within target — ${SUPDATA.rtBreach} of ${rtN} breached.`));
+}
+/* Programm-Panel — bis zum 08.09.2026 stand hier eine eingefrorene Momentaufnahme des
+   Analytics-Teams vom Juli: fest verdrahtetes Miniboard, fest verdrahtete 22/4 im
+   WSJF-Donut, fest verdrahtete Balken — in JEDEM Team-Cockpit dieselbe, und jede Karte
+   mit ● LIVE gestempelt. Team 42 las damit Analytics' Features als die eigenen.
+   Jetzt kommt alles aus dem geteilten Bestand (pb-data.js) fuer das Team DIESER Seite:
+   die SAFe-Spalte aus dem Planungsstand des Programm Boards, Abschluss und WSJF aus der
+   Jira-Historie (pbFeatStatus / pbFeatWsjf). Der Platzhalter 99 zaehlt nicht als Score. */
+function progTeamObj(){
+  const file=(location.pathname.split('/').pop()||'cockpit.html').toLowerCase();
+  return TEAMS.find(t=>(t.cockpit||'').toLowerCase()===file)
+    || TEAMS.find(t=>t.id===((typeof vsCurrentTeamId==='function')?vsCurrentTeamId():'analytics'))
+    || TEAMS[0];
 }
 function renderProg(){renderFL();return;}
 function renderProgOld(){
-  set('progkpis',[['Features PI 2026.25','14','flat',tr('Analytics-Team','Analytics team')],['Implementing','7 / 7','flat',tr('WIP-Limit erreicht','WIP limit reached')],
-    ['Committed','3 / 3','flat',tr('WIP-Limit erreicht','WIP limit reached')],['PI-Backlog','2 / 2','flat',tr('WIP-Limit erreicht','WIP limit reached')],
-    ['Done (PI 2026.25)','2','up','FEAT-868 · FEAT-853'],[tr('PI 2026.37 in Vorb.','PI 2026.37 in prep.'),'2','flat','FEAT-921 · FEAT-857']]
-    .map(x=>`<div class="kpi"><div class="lbl">${x[0]} <span class="chip live">● LIVE</span></div><div class="val">${x[1]}</div>
+  const en=LANG==='en';
+  const t=progTeamObj(), fk=teamFeatures(t.id), s=teamStats(t.id), by=s.by;
+  /* Welches PI zeigt dieses Board? NICHT das kalendarisch laufende, sondern das, fuer das
+     der Miro-Frame geplant wurde — sonst traegt eine alte Planung das Etikett von heute.
+     Beides wird gezeigt, wenn es auseinanderlaeuft; genau dann ist das Board umzustellen. */
+  const pi=kadFenster('pi',0), laufPi='PI '+kadIso(pi.von);
+  const planPi=(function(){ try{ for(const b of Object.values(BOARDS)){
+    const m=/PI\s*Planning\s*([\d.]+)/i.exec(b.title||''); if(m) return 'PI '+m[1]; } }catch(e){} return null; })();
+  const nextPi=(function(){ try{ const m=/PI\s*([\d.]+)/i.exec(COLS[COLS.length-1]||''); if(m) return 'PI '+m[1]; }catch(e){}
+    return 'PI '+kadIso(kadFenster('pi',-1).von); })();
+  const piN=planPi||laufPi, nextN=nextPi;
+  const spanne=kadDatum(pi.von)+'–'+kadDatum(new Date(+pi.bis-D1));
+  const live=!!(window.PIHIST&&window.PIHIST._idx);
+  const stand=live?(window.PIHIST.generatedAt||'').slice(0,10).split('-').reverse().join('.'):'';
+  const inArbeit=by.I+by.F;
+
+  /* Kopfzeilen: welches Team, welches PI, woher die Zahlen. */
+  const setT=(id,html)=>{const e=document.getElementById(id); if(e) e.innerHTML=html;};
+  setT('progTitle',tr('Programm Board — ','Program board — ')+t.n+' · '+piN);
+  setT('progFlowT',tr('Feature-Flow — ','Feature flow — ')+piN);
+  setT('progFlowD',tr(`Spalte aus dem Planungsstand des Programm Boards (Miro), Abschluss aus Jira. Zahl je Karte = WSJF-Score; der Platzhalter 99 wird als „—" gezeigt, weil er nichts bewertet.`,
+    `Column from the program board planning state (Miro), completion from Jira. Number per card = WSJF score; the placeholder 99 is shown as "—" because it assesses nothing.`));
+  setT('progNext',s.nextPI.length
+    ? `<strong>${nextN} ${tr('in Vorbereitung','in preparation')}:</strong> ${s.nextPI.length} ${tr('Features','features')} (${s.nextPI.slice(0,4).join(' · ')}${s.nextPI.length>4?' …':''})`
+    : `<strong>${nextN}:</strong> ${tr('noch keine Features vorgemerkt','no features earmarked yet')}`);
+  setT('progFlowSrc',`project = FEAT AND "Team(s)[Checkboxes]" in (${t.n}) ORDER BY status
+-- Spalte: Programm-Board-Frame (Miro, Lane „${t.lane}") · Abschluss + WSJF: data/pihistory.json`);
+  setT('progWsjfD',tr('Features mit gerechnetem Score, mit Platzhalter 99 und ganz ohne Score.',
+    'Features with a calculated score, with the placeholder 99, and without any score.'));
+  setT('progPiD',tr('Eingeplant vs. erledigt je Program Increment.','Planned vs. done per program increment.'));
+  setT('progDistT',tr('WSJF-Verteilung — ','WSJF distribution — ')+piN);
+  const altesBoard=(planPi&&planPi!==laufPi)
+    ? ` · <b>${tr('Achtung','Note')}:</b> ${tr('das laufende PI ist','the running PI is')} ${laufPi} (${spanne}) — ${tr('der Programm-Board-Frame steht noch auf','the program board frame still shows')} ${planPi}.`
+    : '';
+  setT('progStand',live
+    ? `<span class="chip live">● LIVE</span> ${tr('Jira-Stand','Jira as of')} ${stand}${s.nachzug?' · '+s.nachzug+' '+tr('Karten im Miro-Board noch nicht nachgezogen','cards not yet updated on the Miro board'):''}${altesBoard}`
+    : `<span class="chip plan">○ ${tr('PLANUNGSSTAND','PLANNING STATE')}</span> ${tr('Jira-Historie nicht geladen — die Spalten zeigen den Miro-Abzug.','Jira history not loaded — the columns show the Miro extract.')}${altesBoard}`);
+
+  /* KPI-Zeile. */
+  const doneK=fk.filter(k=>pbFeatStatus(k)==='D');
+  set('progkpis',[
+    [tr('Features auf der Lane','Features on the lane'),String(fk.length),'flat',t.lane],
+    [tr('In Arbeit','In progress'),String(inArbeit),inArbeit>5?'down':'flat',inArbeit>5?tr('mehr als 5 parallel','more than 5 in parallel'):tr('Fokus gehalten','focus kept')],
+    ['Committed',String(by.C),'flat',tr('zugesagt, noch nicht begonnen','committed, not started')],
+    ['PI-Backlog',String(by.B),'flat',tr('eingeplant','planned')],
+    ['Done ('+piN+')',String(by.D),by.D?'up':'flat',doneK.slice(0,3).join(' · ')||tr('noch keins','none yet')],
+    [nextN+tr(' in Vorb.',' in prep.'),String(s.nextPI.length),'flat',s.nextPI.slice(0,2).join(' · ')||'—']]
+    .map(x=>`<div class="kpi"><div class="lbl">${x[0]}</div><div class="val">${x[1]}</div>
       <div class="trend ${x[2]}">${x[2]==='up'?'▲':x[2]==='down'?'▼':'—'} ${x[3]}</div></div>`).join(''));
-  // Reale Momentaufnahme PI 2026.25 (sprint 29538), Analytics-Team. [key, Kurztitel, WSJF]
-  const board=[['Backlog','',[]],['Prep. WSJF','',[]],['In WSJF','',[]],
-    ['PI-Backlog','2/2',[['FEAT-851','Observability ausbauen','4'],['FEAT-847','Dashboards veroeffentlichen','3']]],
-    ['Committed','3/3',[['FEAT-855','Datenqualitaet Tracking','8'],['FEAT-852','Datenprodukt-Struktur','99'],['FEAT-846','Metadaten-Katalog','9']]],
-    ['Implementing','7/7',[['FEAT-918','BI-Tool-Entscheidung','99'],['FEAT-884','Tracking-Container Rollout','10.5'],['FEAT-864','App-Daten-Integration','1.4'],['FEAT-850','Externer Datenzugriff','99'],['FEAT-794','BI-Migration','99'],['FEAT-758','Sales-Funnel-Analyse','8.3'],['FEAT-640','MVP Self-Service-Dashboard','7']]],
-    ['Monitoring','',[]],['Done','2',[['FEAT-868','Haendler-Reporting',''],['FEAT-853','Alt-BI-Abschaltung','']]]];
-  set('miniboard',board.map(col=>{const parts=col[1].split('/');const over=col[1].includes('/')&&parts[0]===parts[1];
-    return `<div class="col ${over?'over':''}"><div class="ct"><span>${col[0]}</span>${col[1]?`<span class="lim">${col[1]}</span>`:''}</div>
-    ${col[2].map(t=>`<div class="tk"><div class="k">${t[0]}${t[2]?`<span class="wsjf">WSJF ${t[2]}</span>`:''}</div>${t[1]}</div>`).join('')}</div>`;}).join(''));
-  const wsjfFilled=22,wsjfMissing=4,wsjfPct=Math.round(wsjfFilled/(wsjfFilled+wsjfMissing)*100);
-  set('wsjf',donut([{v:wsjfFilled,c:C.green},{v:wsjfMissing,c:C.red}],wsjfPct+' %','WSJF gepflegt'));
-  set('pi',grouped(['PI 2026.25','PI 2026.37'],[[14,2],[2,0]],[C.blue2,C.green]));
-  // WSJF-Scores der 12 aktiven PI-2026.25-Features, gruppiert
-  set('wsjfdist',bars(['0–5','5–10','>10'],[3,4,5],C.purple));
-  // Datengetriebene Programm-Ampeln aus der Board-Momentaufnahme
-  const full=board.filter(c=>{if(!c[1].includes('/'))return false;const p=c[1].split('/');return p[0]===p[1];}).map(c=>c[0]+' ('+c[1]+')');
-  const exOf=id=>LANG==='en'?EX_EN[id]:ASSESS[id].ex;
+
+  /* Miniboard: eine Spalte je SAFe-Zustand, Karten mit Ticket, Titel und WSJF. */
+  const spalten=[['B',tr('PI-Backlog','PI backlog')],['C','Committed'],['I',tr('In Arbeit','In progress')],['D','Done']];
+  const inSpalte=c=>fk.filter(k=>{const st=pbFeatStatus(k); return c==='I'?(st==='I'||st==='F'):st===c;});
+  set('miniboard',spalten.map(c=>{
+    const keys=inSpalte(c[0]);
+    const voll=c[0]==='I'&&keys.length>5;
+    return `<div class="col ${voll?'over':''}"><div class="ct"><span>${c[1]}</span><span class="lim">${keys.length}</span></div>
+    ${keys.map(k=>{const w=pbFeatWsjf(k), platz=pbWsjfPlaceholder(w);
+      const nach=FEAT[k]&&pbFeatStatus(k)!==FEAT[k][1];
+      const wl=w==null?'':platz?'<span class="wsjf" title="'+tr('Platzhalter 99 — kein gerechneter Score','placeholder 99 — not a calculated score')+'" style="opacity:.55">WSJF —</span>'
+        :'<span class="wsjf">WSJF '+(Math.round(w*10)/10)+'</span>';
+      return `<div class="tk"><div class="k">${k}${wl}${nach?' <span title="'+tr('Jira weiter als die Karte im Miro-Board','Jira ahead of the card on the Miro board')+'">↻</span>':''}</div>${esc(FEAT[k]?FEAT[k][0]:'')}</div>`;}).join('')}</div>`;}).join(''));
+
+  /* WSJF-Abdeckung: drei Zustaende statt zwei — der Platzhalter ist weder noch. */
+  const scored=fk.filter(k=>pbWsjfScore(pbFeatWsjf(k))!=null).length;
+  const platz=fk.filter(k=>pbWsjfPlaceholder(pbFeatWsjf(k))).length;
+  const ohne=fk.length-scored-platz;
+  const wsjfPct=fk.length?Math.round(scored/fk.length*100):0;
+  set('wsjf',donut([{v:scored,c:C.green},{v:platz,c:'#ff8b00'},{v:ohne,c:C.red}],
+    wsjfPct+' %',tr('WSJF gepflegt','WSJF maintained'),
+    [tr('Score','Score'),tr('Platzhalter 99','Placeholder 99'),tr('kein Score','no score')],[scored,platz,ohne]));
+
+  /* PI-Fortschritt und Verteilung — beides aus denselben Features. */
+  set('pi',grouped([piN,nextN],[[s.inPI.length,s.nextPI.length],[by.D,0]],[C.blue2,C.green]));
+  const sc=fk.map(k=>pbWsjfScore(pbFeatWsjf(k))).filter(v=>v!=null);
+  set('wsjfdist',bars(['0–5','5–10','>10'],
+    [sc.filter(v=>v<5).length,sc.filter(v=>v>=5&&v<10).length,sc.filter(v=>v>=10).length],C.purple));
+
+  /* Ampeln — jede Schwelle steht im Text, damit niemand raten muss. */
+  const exOf=id=>LANG==='en'?EX_EN[id]:(ASSESS[id]||{}).ex;
+  const platzSatz=platz?tr(` ${platz} Feature${platz>1?'s tragen':' trägt'} den Platzhalter 99 — das Feld sieht gefüllt aus, bewertet aber nichts.`,
+    ` ${platz} feature${platz>1?'s carry':' carries'} the placeholder 99 — the field looks filled but assesses nothing.`):'';
   const PAS=Object.assign({},ASSESS,{
-    miniboard:full.length?{s:'red',why:tr(`Spalte${full.length>1?'n':''} ${full.join(', ')} am WIP-Limit — es kann nichts Neues gezogen werden, bis etwas fertig wird.`,
-        `Column${full.length>1?'s':''} ${full.join(', ')} at the WIP limit — nothing new can be pulled until something finishes.`),
-      tip:tr('Fokus auf Abschluss der laufenden Features statt Neustart; Blocker in den vollen Spalten zuerst lösen.','Focus on finishing running features instead of starting; resolve blockers in the full columns first.'),ex:exOf('miniboard')}
-    :{s:'green',why:tr('Keine Spalte am WIP-Limit — das Board hat Zugkapazität.','No column at its WIP limit — the board has pull capacity.'),ex:exOf('miniboard')},
-    wsjf:wsjfMissing===0?{s:'green',why:tr('Alle Features haben einen WSJF-Score — Priorisierung vollständig.','All features have a WSJF score — prioritisation complete.'),ex:exOf('wsjf')}
-    :{s:wsjfPct>=70?'yellow':'red',why:tr(`${wsjfMissing} von ${wsjfFilled+wsjfMissing} Features ohne WSJF-Score (${wsjfPct} % gepflegt; grün = 100 %).`,
-        `${wsjfMissing} of ${wsjfFilled+wsjfMissing} features without a WSJF score (${wsjfPct}% maintained; green = 100%).`),
-      tip:tr('Fehlende WSJF (FEAT-903, -860, -844, -760) vor der nächsten Priorisierung nachtragen.','Add the missing WSJF scores (FEAT-903, -860, -844, -760) before the next prioritisation.'),ex:exOf('wsjf')}
+    miniboard:inArbeit>8?{s:'red',why:tr(`${inArbeit} Features gleichzeitig in Arbeit. Little's Law: mehr parallel heißt alles später fertig.`,
+        `${inArbeit} features in progress at the same time. Little's Law: more in parallel means everything finishes later.`),
+      tip:tr('Erst fertig machen, dann neu ziehen — Blocker in der vollsten Spalte zuerst.','Finish before pulling new work — blockers in the fullest column first.'),ex:exOf('miniboard')}
+    :inArbeit>5?{s:'yellow',why:tr(`${inArbeit} Features parallel in Arbeit (grün bis 5).`,`${inArbeit} features in progress in parallel (green up to 5).`),
+      tip:tr('Vor dem nächsten Ziehen eines abschließen.','Finish one before pulling the next.'),ex:exOf('miniboard')}
+    :{s:'green',why:tr(`${inArbeit} Features parallel in Arbeit — der Fokus stimmt (grün bis 5).`,`${inArbeit} features in progress in parallel — focus is right (green up to 5).`),ex:exOf('miniboard')},
+    wsjf:fk.length===0?{s:'grey',why:tr('Keine Features dieses Teams auf dem Programm Board.','No features of this team on the program board.'),ex:exOf('wsjf')}
+    :wsjfPct>=90?{s:'green',why:tr(`${scored} von ${fk.length} Features haben einen gerechneten WSJF-Score (${wsjfPct} %).`,
+        `${scored} of ${fk.length} features have a calculated WSJF score (${wsjfPct} %).`)+platzSatz,ex:exOf('wsjf')}
+    :{s:wsjfPct>=70?'yellow':'red',why:tr(`${fk.length-scored} von ${fk.length} Features ohne gerechneten WSJF-Score (${wsjfPct} % gepflegt; grün ab 90 %).`,
+        `${fk.length-scored} of ${fk.length} features without a calculated WSJF score (${wsjfPct} % maintained; green from 90 %).`)+platzSatz,
+      tip:tr('Business Value, Time Criticality, Risk/Opportunity und Job Size am Feature pflegen — daraus rechnet Jira den Score.',
+        'Maintain business value, time criticality, risk/opportunity and job size on the feature — Jira calculates the score from those.'),ex:exOf('wsjf')}
   });
   if(LANG==='en'){['pi','wsjfdist'].forEach(id=>{PAS[id]=Object.assign({},PAS[id],{ex:EX_EN[id]});});}
   document.querySelectorAll('#progview .card').forEach(card=>{const cv=card.querySelector('.cv, .miniboard');const h=card.querySelector('h3');if(!h)return;
@@ -3131,7 +3439,13 @@ function renderProgOld(){
     const A=cv?PAS[cv.id]:null;
     const ttl=h.textContent.trim().replace(/'/g,'');
     if(A) h.insertAdjacentHTML('beforeend',` <span class="amp amp-${A.s}" title="${AMP[A.s]}">${AMP[A.s].split(' ')[0]}</span>`);
-    h.insertAdjacentHTML('beforeend',' <span class="chip live">● LIVE</span>');
+    /* Kein pauschales ● LIVE mehr. Miniboard und PI-Fortschritt sind gemischt (Spalte aus
+       dem Miro-Plan, Abschluss aus Jira), WSJF-Abdeckung und -Verteilung sind ganz aus Jira.
+       Das steht an der Karte, nicht nur im Kleingedruckten. */
+    const mix={miniboard:1,pi:1};
+    h.insertAdjacentHTML('beforeend', !live ? ' <span class="chip plan">○ PLAN</span>'
+      : (cv&&mix[cv.id]) ? ' <span class="chip plan">◑ PLAN + JIRA</span>'
+      : ' <span class="chip live">● LIVE</span>');
     if(A&&cv){let html='';
       if(A.why)html+=`<div class="assess assess-${A.s}"><div><strong>${tr('Warum','Why')}:</strong> ${A.why}</div>`+(A.tip?`<div class="tip">💡 <strong>${tr('Nächster Schritt','Next step')}:</strong> ${A.tip}</div>`:'')
         +(A.s==='red'?`<div class="tip">📅 <span class="cta-mini" onclick="talkToCoach('${escA(ttl)}')">${tr('Coaching-Termin vereinbaren','Book a coaching session')}</span></div>`:'')+`</div>`;
@@ -3152,7 +3466,7 @@ function buildTabs(){
     if(v==='programm'){document.getElementById('flowview').style.display='none';
       document.getElementById('progview').style.display='block';renderProg();}
     else{document.getElementById('progview').style.display='none';
-      document.getElementById('flowview').style.display='block';renderFlow(v);}
+      document.getElementById('flowview').style.display='block';renderFlow(v);runMC();}
     if(typeof buildRails==='function')buildRails();
   }));
 }
@@ -3172,7 +3486,7 @@ function fixImportNote(){try{
 applyStatic();
 if(!RAWDATA.meta.demo){var vkib=document.getElementById('importBadge');if(vkib)vkib.textContent=tr('Datenstand: ','Data as of: ')+RAWDATA.meta.importDate;
   }
-
+boardLinks(); /* nach der Note-Ersetzung, damit der Board-Zusatz stehen bleibt */
 if(RAW.length){ const _sf=spanneFenster(spanneStart()); if(_sf){ FROM=_sf.von; TO=_sf.laeuft?kadStand():_sf.bis; } recomputeAll(); }
 else{document.getElementById('dFrom').disabled=true;document.getElementById('dTo').disabled=true;}
 applyRangeUI();
@@ -3186,7 +3500,7 @@ if(!USER)setTimeout(function(){if(window.vaApp)vaApp.loginShow();else whoShow();
    damit KMM-Reife-Indikator + FL1-Coaching einmal nachgerendert werden. */
 /* pb-ui.js kommt nach diesem Skript — erst danach gibt es John (window.pbFlow).
    Ein Render nach 'load' zieht die Startansichts-Leiste mit dem John-Link nach. */
-window.addEventListener('load',function(){ try{ if(typeof renderActive==='function')renderActive(); }catch(e){} });
+window.addEventListener('load',function(){ try{ if(typeof renderActive==='function')renderActive(); if(typeof renderOps==='function')renderOps(); }catch(e){} });
 /* Sobald pb-buddy montiert ist, steht der Persona-Name fest — alles, was ihn zeigt, einmal nachziehen. */
 window.addEventListener('pbbuddy:ready',function(){ try{ if(typeof runMC==='function')runMC(); if(typeof renderActive==='function')renderActive(); }catch(e){} });
 window.pbKmmReady=function(){ if(window.pbKmm && typeof renderActive==='function'){ try{ renderActive(); }catch(e){ console.error('KMM-remount:',e); } } if(typeof runMC==='function'){ try{ runMC(); }catch(e){} } };
@@ -3290,11 +3604,15 @@ function wizNext(){
   localStorage.setItem('fcConfig_va',JSON.stringify(cfg));
   location.reload();}
 </script>
+<script>/* Jira-Historie vor dem ersten Zeichnen laden: erst damit zeigen Programm-Panel,
+  Reifegrad und die Willkommens-Kennzahlen den heutigen Stand statt des Miro-Abzugs.
+  Ohne die Datei bleibt es beim Planungsstand — das Panel sagt es dann auch. */
+  try{ if(typeof pbHistLoadSync==='function') pbHistLoadSync(); }catch(e){}</script>
 <script src="pb-meet.js?v=04d284cc"></script>
 
 <script src="va-fl.js?v=0818b"></script>
-<script src="va-app.js?v=0910b"></script>
-<script src="pb-buddy.js?v=c181c88f"></script>
-<script src="pb-ui.js?v=a98b119f"></script>
+<script src="va-app.js?v=0831a"></script>
+<script src="pb-buddy.js?v=08a8ed46"></script>
+<script src="pb-ui.js?v=8cf8fb54"></script>
 </body>
 </html>

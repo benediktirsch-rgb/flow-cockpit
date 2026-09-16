@@ -136,7 +136,7 @@ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>{
   if(v==='programm'){document.getElementById('flowview').style.display='none';
     document.getElementById('progview').style.display='block';renderProg();}
   else{document.getElementById('progview').style.display='none';
-    document.getElementById('flowview').style.display='block';renderFlow(v);}
+    document.getElementById('flowview').style.display='block';renderFlow(v);runMC();}
   if(typeof buildRails==='function')buildRails();
 }));
 '@ @'
@@ -152,7 +152,7 @@ function buildTabs(){
     if(v==='programm'){document.getElementById('flowview').style.display='none';
       document.getElementById('progview').style.display='block';renderProg();}
     else{document.getElementById('progview').style.display='none';
-      document.getElementById('flowview').style.display='block';renderFlow(v);}
+      document.getElementById('flowview').style.display='block';renderFlow(v);runMC();}
     if(typeof buildRails==='function')buildRails();
   }));
 }

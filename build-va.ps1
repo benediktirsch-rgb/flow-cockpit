@@ -222,14 +222,15 @@ New-Item -ItemType Directory -Force "$base\site\va" | Out-Null
 
 # 9b) GETEILTE BAUSTEINE aus der Porsche-Quelle uebernehmen (seit 23.08.2026).
 #     pb-buddy.js = Assistenten-Verhalten (Avatar, Ruhe-Modus, die eine Frage nach dem
-#     3. Anmelden), pb-meet.js = Meeting-Masken FL1/FL2/FL3. Beide sind marken- und
+#     3. Anmelden), pb-meet.js = Meeting-Masken FL1/FL2/FL3, pb-flowwissen.js = geclustertes
+#     Flow-Wissen (Chat-Fallback + Impuls je Kachel, seit 16.09.2026; Tag steht im Kopf). Beide sind marken- und
 #     personenfrei; WER der Assistent ist, steht im mount()-Aufruf in site/va/pb-ui.js.
 #     Damit wandert ein Feature aus dem Porsche-Cockpit beim naechsten Build von selbst
 #     hierher — kein Nachbauen im VA-Fork mehr. Der Cache-Stempel ist der Inhalts-Hash:
 #     aendert sich die Datei, aendert sich der Stempel, ohne dass jemand daran denkt.
 $shared = Join-Path (Split-Path -Parent $base) 'cs-carsales-flow-cockpit'
 $stamps = @{}
-foreach ($f in @('pb-buddy.js','pb-meet.js')) {
+foreach ($f in @('pb-buddy.js','pb-meet.js','pb-flowwissen.js')) {
   $q = Join-Path $shared $f
   if (-not (Test-Path $q)) { throw "GETEILTE DATEI FEHLT: $q — Porsche-Repo neben diesem Repo auschecken." }
   $txt = [IO.File]::ReadAllText($q).Replace("`r`n","`n")

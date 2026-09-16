@@ -21,6 +21,8 @@
 
    Aufruf:
      pbBuddy.mount({ id:'john', name:'John', accent:'#D5001C',
+                     face1:'#5b636e', face2:'#20252b', stripe:'#D5001C',   // Aussehen
+                     fabBg:'radial-gradient(…)', fabRing:'#D5001C',             // Knopf
                      mood:()=>'ok'|'warn'|'alert', question:()=>({t,s})|null,
                      open:(seed)=>…, isOpen:()=>…, close:()=>… });
    ═══════════════════════════════════════════════════════════════════════════ */
@@ -31,26 +33,43 @@
 
   /* ---------- Avatar ----------
      Zustände: 'ok' | 'warn' | 'alert' | 'sleep'. Das Ampelgehäuse unten rechts ersetzt
-     den früheren zweiten Knopf: wo dieser Avatar steht, braucht es keine eigene Ampel. */
+     den früheren zweiten Knopf: wo dieser Avatar steht, braucht es keine eigene Ampel.
+
+     Freundlich in JEDER Stimmung (08.09.2026, Bene: „er sieht sehr grimmig aus"). Die
+     Warnung steht in der Ampel, nicht im Gesicht — ein Assistent, den man ungern anschaut,
+     wird nicht gefragt. Konkret: Brauen fallen nie nach innen ab (das las sich als Wut),
+     bei 'alert' sind die Innenenden hoch (Sorge) und der Mund ein kleines offenes „oh",
+     die Augen haben einen Glanzpunkt, die Wangen einen Hauch Akzentfarbe.
+
+     Instanz-Haut über opt: accent/accentDim/eye wie bisher, dazu face1/face2 (Kopffarbe)
+     und stripe (Streifen über der Stirn — Porsche gibt John einen roten, Ziff bleibt ohne). */
   let N = 0;
   function avatar(px, mood, opt){
     const s = px || 44, m = mood || 'ok', id = 'pbb' + (++N), sleep = (m === 'sleep');
     const o = opt || {};
     const AC = sleep ? (o.accentDim || '#7d3038') : (o.accent || '#D5001C');
-    const EYE = o.eye || '#dbe6ff', off = '#333a43';
+    const EYE = o.eye || '#e6eefb', off = '#333a43';
+    const F1 = o.face1 || '#59616c', F2 = o.face2 || '#20252b';
+    const glint = x => `<circle cx="${x}" cy="22.1" r="1.05" fill="#fff" opacity=".9"/>`;
     const eyes = sleep
       ? `<path d="M15.4 24.4q2.4 2.2 4.8 0M27.8 24.4q2.4 2.2 4.8 0" fill="none" stroke="${EYE}" stroke-width="1.8" stroke-linecap="round"/>`
-      : `<rect class="pbb-eye" x="15.6" y="20.8" width="4.6" height="6.4" rx="2.3" fill="${EYE}"/>`
-        + `<rect class="pbb-eye" x="27.8" y="20.8" width="4.6" height="6.4" rx="2.3" fill="${EYE}" style="animation-delay:.09s"/>`;
+      : `<rect class="pbb-eye" x="15.6" y="20.6" width="4.6" height="6.8" rx="2.3" fill="${EYE}"/>`
+        + `<rect class="pbb-eye" x="27.8" y="20.6" width="4.6" height="6.8" rx="2.3" fill="${EYE}" style="animation-delay:.09s"/>`
+        + glint(18.9) + glint(31.1);
     const brows = m === 'alert'
-      ? `<path d="M14.8 17.2 20.6 18.9M33.2 17.2 27.4 18.9" fill="none" stroke="${EYE}" stroke-width="1.7" stroke-linecap="round" opacity=".85"/>`
+      ? `<path d="M14.9 18.9 20.5 17.1M33.1 18.9 27.5 17.1" fill="none" stroke="${EYE}" stroke-width="1.7" stroke-linecap="round" opacity=".9"/>`
       : m === 'warn'
-      ? `<path d="M15.2 17.8h5.2M27.6 17.8h5.2" fill="none" stroke="${EYE}" stroke-width="1.7" stroke-linecap="round" opacity=".6"/>`
+      ? `<path d="M15.1 18.3q2.6-1.6 5.2-.3M32.9 18.3q-2.6-1.6-5.2-.3" fill="none" stroke="${EYE}" stroke-width="1.6" stroke-linecap="round" opacity=".6"/>`
       : '';
-    const mouth = sleep ? `<path d="M21 31.4h6" fill="none" stroke="${EYE}" stroke-width="1.8" stroke-linecap="round" opacity=".7"/>`
-      : m === 'alert' ? `<path d="M19.4 32.6q4.6-3.6 9.2 0" fill="none" stroke="${EYE}" stroke-width="1.9" stroke-linecap="round"/>`
-      : m === 'warn'  ? `<path d="M19.8 31.6h8.4" fill="none" stroke="${EYE}" stroke-width="1.9" stroke-linecap="round"/>`
-      : `<path d="M19.4 30.4q4.6 4.2 9.2 0" fill="none" stroke="${EYE}" stroke-width="1.9" stroke-linecap="round"/>`;
+    const mouth = sleep ? `<path d="M21 31.2q3 1.9 6 0" fill="none" stroke="${EYE}" stroke-width="1.8" stroke-linecap="round" opacity=".75"/>`
+      : m === 'alert' ? `<ellipse cx="24" cy="31.9" rx="2.6" ry="2.1" fill="none" stroke="${EYE}" stroke-width="1.8"/>`
+      : m === 'warn'  ? `<path d="M20.4 30.9q3.6 2.6 7.2 0" fill="none" stroke="${EYE}" stroke-width="1.9" stroke-linecap="round"/>`
+      : `<path d="M19.4 30.2q4.6 4.4 9.2 0" fill="none" stroke="${EYE}" stroke-width="1.9" stroke-linecap="round"/>`;
+    const blush = sleep ? ''
+      : `<ellipse cx="14.6" cy="29.6" rx="2.3" ry="1.3" fill="${AC}" opacity=".42"/>`
+        + `<ellipse cx="33.4" cy="29.6" rx="2.3" ry="1.3" fill="${AC}" opacity=".42"/>`;
+    /* Streifen über der Stirn: zitiert die Bildsprache des Rennsports, kopiert keine Marke. */
+    const stripe = (o.stripe && !sleep) ? `<path d="M22.7 9.3h2.6v6h-2.6z" fill="${o.stripe}" opacity=".9"/>` : '';
     const zzz = sleep ? `<text class="pbb-z" x="39.5" y="13" font-size="11" font-weight="800" fill="${EYE}" opacity=".8">z</text>` : '';
     const lamp = `<rect x="34" y="29" width="9" height="16.5" rx="4.5" fill="#14171b" stroke="rgba(255,255,255,.12)" stroke-width=".8"/>`
       + `<circle cx="38.5" cy="32.7" r="2.4" fill="${m==='alert'?'#ff5630':off}"/>`
@@ -58,12 +77,14 @@
       + `<circle cx="38.5" cy="41.7" r="2.4" fill="${m==='ok'?'#36b37e':off}"/>`;
     return `<svg class="pbb-av" width="${s}" height="${s}" viewBox="0 0 48 48" aria-hidden="true">`
       + `<defs><linearGradient id="${id}h" x1="0" y1="0" x2="0" y2="1">`
-      + `<stop offset="0" stop-color="#474f59"/><stop offset="1" stop-color="#1a1e23"/></linearGradient></defs>`
+      + `<stop offset="0" stop-color="${F1}"/><stop offset="1" stop-color="${F2}"/></linearGradient></defs>`
       + `<path d="M7 26a17 17 0 0 1 34 0" fill="none" stroke="${AC}" stroke-width="2.6" stroke-linecap="round"/>`
       + `<rect x="4.4" y="21.6" width="5.8" height="9.4" rx="2.9" fill="${AC}"/>`
       + `<rect x="37.8" y="21.6" width="5.8" height="9.4" rx="2.9" fill="${AC}"/>`
-      + `<rect x="10" y="9" width="28" height="28" rx="10" fill="url(#${id}h)" stroke="rgba(255,255,255,.18)"/>`
-      + brows + eyes + mouth + zzz + lamp
+      + `<rect x="10" y="9" width="28" height="28" rx="10" fill="url(#${id}h)" stroke="rgba(255,255,255,.2)"/>`
+      + stripe
+      + `<ellipse cx="18.4" cy="14.6" rx="6.2" ry="3.2" fill="#fff" opacity=".08"/>`
+      + brows + eyes + blush + mouth + zzz + lamp
       + `</svg>`;
   }
 
@@ -190,9 +211,9 @@
   const css = document.createElement('style');
   css.textContent = `
   .pbb-fab{position:fixed;right:22px;bottom:22px;width:56px;height:56px;border-radius:50%;z-index:80;
-    background:radial-gradient(120% 120% at 32% 22%,#3c434c 0%,#20242a 58%,#13161a 100%);
+    background:var(--pbb-fab-bg,radial-gradient(120% 120% at 32% 22%,#3c434c 0%,#20242a 58%,#13161a 100%));
     color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;
-    box-shadow:0 6px 20px rgba(15,16,16,.34);user-select:none;border:2px solid rgba(255,255,255,.14);
+    box-shadow:0 6px 20px rgba(15,16,16,.34);user-select:none;border:2px solid var(--pbb-fab-ring,rgba(255,255,255,.14));
     transition:transform .16s,box-shadow .16s;font-family:inherit}
   .pbb-fab:hover{transform:scale(1.07);box-shadow:0 10px 26px rgba(15,16,16,.42)}
   .pbb-fab .pbb-av{display:block;transition:transform .22s}
@@ -235,6 +256,11 @@
       mood:()=>'ok', question:()=>null, open:()=>{}, isOpen:()=>false, close:()=>{} }, cfg||{});
     if (fab) fab.remove();
     fab = document.createElement('div'); fab.className = 'pbb-fab';
+    /* Haut der Instanz: Porsche gibt John einen hellen Knopf mit rotem Rand — ein dunkler
+       Kopf in einem schwarzen Kreis war der halbe Grund, warum er grimmig wirkte. Wer nichts
+       mitgibt, behält die dunkle Voreinstellung. */
+    if (CFG.fabBg) fab.style.setProperty('--pbb-fab-bg', CFG.fabBg);
+    if (CFG.fabRing) fab.style.setProperty('--pbb-fab-ring', CFG.fabRing);
     fab.addEventListener('click', e => {
       if (e.target.closest('.pbb-pause')){ menu(); return; }
       bubbleClose(); menuClose();

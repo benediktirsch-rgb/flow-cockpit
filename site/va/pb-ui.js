@@ -642,6 +642,8 @@
     .fm .cta{display:block;margin:8px 0 0;background:#edf9f1;border-left:3px solid #36b37e;border-radius:8px;padding:8px 10px;font-size:12px;color:#1c3d2b;font-weight:400;cursor:auto}
     .fm .cta a{color:#006644;font-weight:700;text-decoration:none}
     .fm .crit{margin-top:8px;font-size:12.5px;color:#0f2ec2;font-weight:600}
+    .fm details.fw{margin-top:8px;border-left:3px solid #f2b705;background:#fffaf0;border-radius:8px;padding:6px 10px;font-size:12px}
+    .fm details.fw summary{cursor:pointer;font-weight:600;color:#6b4e00}
     .fm .chips{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;background:#fff;border-top:1px solid #eef}
     .fm .chip{border:1px solid #d8d8db;border-radius:14px;padding:5px 11px;font-size:11.5px;cursor:pointer;background:#f7f9fe;color:#0f2ec2;font-weight:600}
     .fm .chip:hover{border-color:#1a44ea}
@@ -718,17 +720,32 @@
         c:true, q:F('Kennt ihr eure 85-%-Durchlaufzeit — oder schätzt ihr noch?','Do you know your 85% lead time — or are you still estimating?')}
     ];
     const FALLBACK={
-      a:F(`Gute Frage — und als Mentor gebe ich dir keine fertige Antwort, sondern die passende Rückfrage. Zu <b>Flight Levels, WIP, Abhängigkeiten, OKRs, Reifegrad, Kadenzen und Vorhersagbarkeit</b> kann ich sofort sparren; sag <b>„Challenge“</b>, wenn du dein Wissen testen willst.`,
-           `Good question — and as a mentor I won't hand you a ready answer but the right question back. On <b>flight levels, WIP, dependencies, OKRs, maturity, cadences and predictability</b> I can spar right away; say <b>"challenge"</b> to test your knowledge.`),
+      a:F(`Gute Frage — und als Mentor gebe ich dir keine fertige Antwort, sondern die passende Rückfrage. Zu <b>Flight Levels, WIP, Abhängigkeiten, OKRs, Reifegrad, Kadenzen und Vorhersagbarkeit</b> kann ich sofort sparren; sag <b>„Challenge“</b>, wenn du dein Wissen testen willst, oder <b>„Flow-Impuls“</b> für einen Gedanken zu eurer auffälligsten Kachel.`,
+           `Good question — and as a mentor I won't hand you a ready answer but the right question back. On <b>flight levels, WIP, dependencies, OKRs, maturity, cadences and predictability</b> I can spar right away; say <b>"challenge"</b> to test your knowledge, or <b>"flow impulse"</b> for a thought on your most striking chart.`),
       c:true, q:F('Was davon brennt bei euch gerade am meisten?','Which of those is most burning for you right now?')};
 
+    /* Flow-Wissen (pb-flowwissen.js, geteilt aus der Porsche-Quelle über build-va.ps1):
+       trifft die KB, hängt es als Vertiefung dran; sonst antwortet es vor dem FALLBACK. */
+    const FW=()=>window.pbFlowWissen||null;
+    const FWL=()=>EN()?'en':'de';
     function match(text){
       const t=(text||'').toLowerCase();
-      for(const e of KB){ if(e.k.some(kw=>t.includes(kw))) return e; }
-      return FALLBACK;
+      const fw=FW()?FW().match(t,FWL()):null;
+      for(const e of KB){ if(e.k.some(kw=>t.includes(kw))) return fw?Object.assign({},e,{more:fw}):e; }
+      return fw||FALLBACK;
+    }
+    function impuls(){
+      const e=FW().situation(window.__lastAS||{},FWL());
+      if(!e){ push(botMsg(FALLBACK)); return; }
+      const AMP={red:'🔴',yellow:'🟡',green:'🟢',grey:'⚪'};
+      let lead='';
+      if(e.chart){ let nm=e.chart; try{ const x=(window.fcChartGate?fcChartGate.list():[]).find(c=>c.id===e.chart); if(x)nm=x.name; }catch(_){}
+        lead=`<div style="font-size:11.5px;color:#6b6d70;margin-bottom:4px">${AMP[e.ampel]||''} ${F('Passend zu eurer Kachel','Matching your chart')} <b>${nm}</b></div>`; }
+      push(botMsg(Object.assign({},e,{a:lead+e.a})));
     }
     function botMsg(entry){
       let html=`<div class="msg bot">${entry.a}`;
+      if(entry.more) html+=`<details class="fw"><summary>📚 ${F('Vertiefung','Go deeper')}: ${entry.more.title}</summary>${entry.more.a}<div class="crit">↳ ${entry.more.q}</div></details>`;
       if(entry.c) html+=`<div class="cta">${nextCta()}</div>`;
       if(entry.q) html+=`<div class="crit">↳ ${entry.q}</div>`;
       html+=`</div>`;
@@ -739,6 +756,7 @@
       push(`<div class="msg me">${text.replace(/</g,'&lt;')}</div>`);
       // Reifegrad-Selbst-Check: Stufen-Fragen kommen deterministisch aus pbKmm.CHECKS
       if(/selbst.?check|self.?check|reifegrad.?check|maturity.?check|stufen.?check|assessment/i.test(text)){ setTimeout(quiz,180); return; }
+      if(FW()&&/impuls|inspiration|flow.?tipp|tipp des tages|impulse|flow tip/i.test(text)){ setTimeout(impuls,180); return; }
       if(/challenge|wissen.?test|quiz|frag mich ab|teste mich|test me|herausford/i.test(text)){ setTimeout(challenge,180); return; }
       // Diagramm-Freigabe: rein lokal (das Cockpit meldet sich über window.fcChartGate an)
       if(/frei ?schalt|freigeb|entsperr|unlock|aufklappen|zugeklappt|alle diagramme/i.test(text)){ setTimeout(chartCard,180); return; }
@@ -883,6 +901,7 @@
       F('🧪 Reifegrad-Selbst-Check','🧪 Maturity self-check'),
       F('Was sind Flight Levels?','What are flight levels?'),
       F('Warum WIP begrenzen?','Why limit WIP?'),
+      F('💡 Flow-Impuls','💡 Flow impulse'),
       F('Wie werden wir vorhersagbarer?','How do we become more predictable?'),
       F('Output vs. Outcome?','Output vs. outcome?'),
       F('Wie kommen wir aufs nächste Reife-Level?','How do we reach the next maturity level?')
