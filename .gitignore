@@ -29,6 +29,8 @@ site/va/gate-secret.php
 instanzen/
 # Hash-Stand der FTPS-Uploads je Subdomain (publish-cockpit.ps1)
 site/.publish-state/
+# Staging-Builds (16.09.2026): Arbeitsstand mit Live-Daten und eigener Tuer — nie ins Repo
+site/staging/
 publish-cockpit.log
 
 # memanto (12.09.2026, Bene): Gedächtnis über Sessions. Hooks und settings.json reisen mit,

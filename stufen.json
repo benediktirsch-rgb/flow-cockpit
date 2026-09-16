@@ -1,0 +1,25 @@
+{
+  "_hinweis": "Stufen des Flow Cockpit (seit 16.09.2026). Gelesen von publish-cockpit.ps1. Architektur fuer alle Produkte: flow-compass/docs/umgebungen.md. Hier stehen nur Namen und Regeln, nie Schluessel.",
+  "stufen": {
+    "lokal": {
+      "beschreibung": "Der Rechner: Vorschau-Server aus C:/dev/.claude/launch.json (va-site-b 18779). Kein Deploy.",
+      "kennzeichnen": false
+    },
+    "staging": {
+      "beschreibung": "Arbeitsstand, auch uncommittet. site/staging/va → staging-va.vishnuartists.com (eigene Tuer, eigenes Geheimnis, va-data.json als Kopie des Live-Stands von va.), site/staging/cockpit → staging-demo.vishnuartists.com/cockpit/. Gekennzeichnet ueber flow-compass/build-stufe.ps1.",
+      "subdomain": "staging-{sub}.vishnuartists.com",
+      "kasOrdner": "/staging-{sub}.vishnuartists.com",
+      "quelle": "arbeitskopie",
+      "kennzeichnen": true,
+      "ziele": ["va", "cockpit"]
+    },
+    "prod": {
+      "beschreibung": "Der freigegebene Stand: va.vishnuartists.com und demo.vishnuartists.com/cockpit/.",
+      "subdomain": "{sub}.vishnuartists.com",
+      "kasOrdner": "/{sub}.vishnuartists.com",
+      "kennzeichnen": false,
+      "freigabe": "commit",
+      "_freigabe": "commit = Code geht nur aus einer Arbeitskopie ohne uncommittete Aenderungen an getrackten Dateien nach Prod (Benes Entscheidung E2, 15.09.2026, fuer alle Produkte). va-data.json ist Daten und geht immer. -Erzwingen uebersteuert einmalig. sofort = jeder Lauf laedt den Arbeitsstand."
+    }
+  }
+}

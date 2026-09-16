@@ -10,8 +10,17 @@
 #   Nur Dateien, deren Hash sich seit dem letzten Upload geaendert hat (site\.publish-state\<sub>.json, gitignored).
 #   Zugang ausschliesslich aus User-Umgebungsvariablen: VA_FTP_HOST, VA_FTP_USER, VA_FTP_PASS (nie in Dateien).
 #
-#   powershell -NoProfile -ExecutionPolicy Bypass -File publish-cockpit.ps1   [-NurVa] [-NurStarter]
-param([switch]$NurVa, [switch]$NurStarter)
+#   Stufen (seit 16.09.2026, Regeln in stufen.json, Architektur in flow-compass/docs/umgebungen.md):
+#     staging  = der Arbeitsstand, auch uncommittet → site\staging\va\ → staging-va.vishnuartists.com und
+#                site\staging\cockpit\ → staging-demo.vishnuartists.com/cockpit/, gekennzeichnet
+#                (flow-compass\build-stufe.ps1), va-data.json als Kopie des Live-Stands von va.
+#     prod     = mit prod.freigabe = "commit" nur aus einer Arbeitskopie ohne uncommittete Aenderungen an
+#                getrackten Dateien. Ausnahme: va-data.json (Daten, keine Freigabe) geht immer, damit der
+#                stuendliche Datenlauf (_tools\va-datenlauf.ps1 → -NurVa) nie an einer offenen Datei haengt.
+#
+#   powershell -NoProfile -ExecutionPolicy Bypass -File publish-cockpit.ps1   [-NurVa] [-NurStarter] [-Stufe alle|staging|prod] [-Erzwingen]
+param([switch]$NurVa, [switch]$NurStarter,
+      [ValidateSet('alle', 'staging', 'prod')][string]$Stufe = 'alle', [switch]$Erzwingen)
 $ErrorActionPreference = 'Stop'
 $repo = Split-Path -Parent $MyInvocation.MyCommand.Path
 $log  = Join-Path $repo 'publish-cockpit.log'
@@ -78,7 +87,8 @@ $stateDir = Join-Path $repo 'site\.publish-state'
 if (-not (Test-Path $stateDir)) { New-Item -ItemType Directory -Force $stateDir | Out-Null }
 
 # $ohne: Unterordner (relativ, mit Schraegstrich) die NICHT mit sollen — site\va geht als eigenes Ziel.
-function Lade-Ordner($zugang, [string]$lokal, [string]$fernBasis, [string]$stateName, [string]$was, [string[]]$ohne = @()) {
+# $nur: wenn gesetzt, gehen ausschliesslich diese Pfade hoch (16.09.2026: Prod ohne Freigabe laedt nur Daten).
+function Lade-Ordner($zugang, [string]$lokal, [string]$fernBasis, [string]$stateName, [string]$was, [string[]]$ohne = @(), [string[]]$nur = @()) {
   if (-not (Test-Path $lokal)) { Log ("WARNUNG: {0} — {1} fehlt, nichts hochzuladen." -f $was, $lokal); return }
   $stateDatei = Join-Path $stateDir "$stateName.json"
   $state = @{}
@@ -91,6 +101,7 @@ function Lade-Ordner($zugang, [string]$lokal, [string]$fernBasis, [string]$state
   foreach ($f in $dateien) {
     $rel = $f.FullName.Substring($lokal.Length).TrimStart('\').Replace('\', '/')
     $raus = $false; foreach ($o in $ohne) { if ($rel.StartsWith($o)) { $raus = $true } }; if ($raus) { continue }
+    if ($nur.Count -and -not ($nur -contains $rel)) { continue }
     $h = Hash $f.FullName
     if ($state.ContainsKey($rel) -and $state[$rel] -eq $h) { continue }
     try {
@@ -156,10 +167,83 @@ function Sichere-Tuer([string]$ordner) {
   }
 }
 
+# ---------- Stufen (16.09.2026) ----------
+$stagingZiele = @(); $prodFreigabe = 'sofort'; $stagingMuster = '/staging-{sub}.vishnuartists.com'
+try {
+  $STUFEN = (Get-Content -LiteralPath (Join-Path $repo 'stufen.json') -Raw -Encoding UTF8) | ConvertFrom-Json
+  $stagingZiele = @($STUFEN.stufen.staging.ziele | Where-Object { $_ })
+  if ($STUFEN.stufen.prod.freigabe)     { $prodFreigabe = [string]$STUFEN.stufen.prod.freigabe }
+  if ($STUFEN.stufen.staging.kasOrdner) { $stagingMuster = [string]$STUFEN.stufen.staging.kasOrdner }
+} catch { Log "WARNUNG: stufen.json nicht lesbar ($($_.Exception.Message)) — nur Prod wie bisher." }
+if ($Stufe -eq 'prod') { $stagingZiele = @() }
+if ($NurVa)      { $stagingZiele = @($stagingZiele | Where-Object { $_ -eq 'va' }) }
+if ($NurStarter) { $stagingZiele = @($stagingZiele | Where-Object { $_ -eq 'cockpit' }) }
+$stufeWerkzeug = 'C:\dev\persoenliches-dashboard\build-stufe.ps1'   # eine Kennzeichnung fuer alle Produkte
+
+# Staging zuerst: Arbeitsstand, gekennzeichnet, eigene Tuer. Fehler halten Prod nie auf.
+foreach ($z in $stagingZiele) {
+  try {
+    $w = Join-Path $repo "site\staging\$z"
+    if (-not (Test-Path $w)) { New-Item -ItemType Directory -Force $w | Out-Null }
+    $stand = Get-Date -Format 'dd.MM.yyyy HH:mm'
+    switch ($z) {
+      'va' {
+        # Code aus site\va, ohne Daten und ohne Tuergeheimnis (Staging bekommt ein eigenes).
+        foreach ($f in Get-ChildItem -LiteralPath (Join-Path $repo 'site\va') -File -Force) {
+          if ($f.Name -in @('va-data.json', 'gate-secret.php')) { continue }
+          Copy-Item -LiteralPath $f.FullName -Destination (Join-Path $w $f.Name) -Force
+        }
+        Sichere-Tuer $w
+        # Daten: der Live-Stand von va. — Staging zeigt echte Tickets, schreibt aber nie zurueck.
+        try {
+          $fern = Hole-FtpText $zugang '/va.vishnuartists.com/va-data.json'
+          [IO.File]::WriteAllText((Join-Path $w 'va-data.json'), $fern, (New-Object Text.UTF8Encoding($false)))
+        } catch { Log "  Staging va: Live-Daten nicht lesbar ($($_.Exception.Message)) — alter Stand bleibt." }
+        $fernBasis = $stagingMuster.Replace('{sub}', 'va'); $prodUrl = 'https://va.vishnuartists.com/'; $stateName = 'staging-va'
+      }
+      'cockpit' {
+        foreach ($f in Get-ChildItem -LiteralPath (Join-Path $repo 'site') -File -Force) {
+          if ($f.Name -like '.*') { continue }
+          Copy-Item -LiteralPath $f.FullName -Destination (Join-Path $w $f.Name) -Force
+        }
+        $fernBasis = $stagingMuster.Replace('{sub}', 'demo') + '/cockpit'; $prodUrl = 'https://demo.vishnuartists.com/cockpit/flow-cockpit-starter.html'; $stateName = 'staging-demo-cockpit'
+      }
+      default { throw "unbekanntes Staging-Ziel '$z' (stufen.json kennt va und cockpit)" }
+    }
+    if (Test-Path $stufeWerkzeug) {
+      & powershell -NoProfile -ExecutionPolicy Bypass -File $stufeWerkzeug -Ordner $w -Stufe staging -Prod $prodUrl -Stand $stand | Out-Null
+      if ($LASTEXITCODE -ne 0) { throw 'build-stufe.ps1 fehlgeschlagen' }
+    } else { Log "WARNUNG: $stufeWerkzeug fehlt — Staging $z geht ungekennzeichnet hoch." }
+    # Der Ordner der Subdomain entsteht vorab; ohne Subdomain im KAS ist er von aussen nicht erreichbar.
+    $teile = $fernBasis.Trim('/').Split('/'); $pfad = ''
+    foreach ($t in $teile) { $pfad = $pfad + '/' + $t; Sichere-FtpOrdner $zugang $pfad }
+    Lade-Ordner $zugang $w $fernBasis $stateName ("Staging " + $z)
+  } catch { Log ("WARNUNG: Staging {0} nicht ausgerollt: {1}" -f $z, $_.Exception.Message) }
+}
+if ($Stufe -eq 'staging') { Log 'Nur Staging angefordert — Prod unberuehrt.'; return }
+
+# Freigabe-Regel fuer Prod: bei "commit" nur aus einer Arbeitskopie ohne offene getrackte Aenderungen.
+$prodFrei = $true
+if ($prodFreigabe -eq 'commit' -and -not $Erzwingen) {
+  $alt = $ErrorActionPreference; $ErrorActionPreference = 'Continue'
+  $offen = ((& git.exe -C $repo status --porcelain --untracked-files=no 2>&1) | ForEach-Object { "$_" }) -join "`n"
+  $ErrorActionPreference = $alt
+  if ($offen.Trim()) {
+    $prodFrei = $false
+    Log ("Prod wartet auf Freigabe (Commit auf main), Staging traegt den Stand; -Erzwingen uebersteuert einmalig. Offen:`n" + $offen.Trim())
+  }
+}
+
 if (-not $NurStarter) {
   Sichere-Tuer (Join-Path $repo 'site\va')
   $ohneVa = @()
-  if (-not (Soll-VaDatenHoch $zugang (Join-Path $repo 'site\va\va-data.json'))) { $ohneVa = @('va-data.json') }
-  Lade-Ordner $zugang (Join-Path $repo 'site\va') '/va.vishnuartists.com' 'va' 'Vishnu-Instanz (va.)' $ohneVa
+  $datenHoch = Soll-VaDatenHoch $zugang (Join-Path $repo 'site\va\va-data.json')
+  if (-not $datenHoch) { $ohneVa = @('va-data.json') }
+  if ($prodFrei) {
+    Lade-Ordner $zugang (Join-Path $repo 'site\va') '/va.vishnuartists.com' 'va' 'Vishnu-Instanz (va.)' $ohneVa
+  } elseif ($datenHoch) {
+    # Daten brauchen keine Freigabe — nur va-data.json, sonst nichts.
+    Lade-Ordner $zugang (Join-Path $repo 'site\va') '/va.vishnuartists.com' 'va' 'Vishnu-Instanz (va.), nur Daten' @() @('va-data.json')
+  }
 }
-if (-not $NurVa)      { Lade-Ordner $zugang (Join-Path $repo 'site')    '/demo.vishnuartists.com/cockpit' 'demo-cockpit' 'Starter + Hilfe (demo./cockpit/)' @('va/', '.publish-state/') }
+if (-not $NurVa -and $prodFrei) { Lade-Ordner $zugang (Join-Path $repo 'site')    '/demo.vishnuartists.com/cockpit' 'demo-cockpit' 'Starter + Hilfe (demo./cockpit/)' @('va/', '.publish-state/', 'staging/') }
