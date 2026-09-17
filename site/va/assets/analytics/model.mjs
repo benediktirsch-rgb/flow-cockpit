@@ -13,7 +13,7 @@ export function rowsFor(data,filters){
  const seen=new Set();
  return data.issues.filter(r=>{
   if(!Array.isArray(r)||!r[0]||seen.has(r[0]))return false;seen.add(r[0]);
-  
+
   if(filters.project&&!['all','delivery'].includes(filters.project)&&project(r)!==filters.project)return false;
   if((!filters.type||filters.type==='work')&&r[3]==='E')return false;
   if(filters.type&&!['work','all'].includes(filters.type)&&r[3]!==filters.type)return false;
