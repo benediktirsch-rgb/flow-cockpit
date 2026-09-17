@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hilfe &amp; Methodik — Flow Cockpit</title>
 <script src="pb-flowwissen.js?v=0916b"></script>
-<!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js; Grundfarben vor dem ersten Paint -->
+<!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js?v=20260917-analytics; Grundfarben vor dem ersten Paint -->
 <script>try{if(localStorage.getItem('fcTheme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
 <style>html[data-theme=dark]{background:#0e1013;color-scheme:dark}html[data-theme=dark]:root{--bg:#0e1013;--card:#16191d;--ink:#e8eaed;--sub:#9aa1a9;--line:#262b31}html[data-theme=dark] body{background:#0e1013;color:#e8eaed}</style>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c1013'/%3E%3Cpath d='M12 52L30 52L12 32Z' fill='%2389c527'/%3E%3Ccircle cx='44' cy='16' r='7' fill='%23ff5630'/%3E%3Ccircle cx='44' cy='33' r='7' fill='%23ffab00'/%3E%3Ccircle cx='44' cy='50' r='7' fill='%2336b37e'/%3E%3C/svg%3E">
@@ -67,7 +67,7 @@
 function hilfeBack(ev){
   try{
     var a=JSON.parse(sessionStorage.getItem('vsAuth')||'null');
-    var C={formular1:'cockpit-formular1.html',pawpatrol:'cockpit-pawpatrol.html',heisenberg:'cockpit-heisenberg.html',team42:'cockpit-team42.html',loansharks:'cockpit-loansharks.html',planetexpress:'cockpit-planetexpress.html',firstorder:'cockpit-firstorder.html',dreamers:'cockpit-dreamers.html',analytics:'cockpit.html'};
+    var C={formular1:'cockpit-formular1.html',pawpatrol:'cockpit-pawpatrol.html',heisenberg:'cockpit-heisenberg.html',team42:'cockpit-team42.html',loansharks:'cockpit-loansharks.html',planetexpress:'cockpit-planetexpress.html',firstorder:'cockpit-firstorder.html',dreamers:'cockpit-dreamers.html',dap:'cockpit-dap.html',psr:'cockpit-psr.html',wae:'cockpit-wae.html',analytics:'cockpit.html'};
     var ref=document.referrer||'', same=ref&&ref.indexOf(location.origin)===0&&!/hilfe\.html/.test(ref);
     if(same&&history.length>1){ ev.preventDefault(); history.back(); return false; }
     if(a&&a.team&&C[a.team]){ ev.preventDefault(); location.href=C[a.team]; return false; }

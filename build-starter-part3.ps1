@@ -224,7 +224,9 @@ RepX '\n<script src="pb-fl2\.js[^"]*"></script>' '' 'pb-fl2-Einbindung droppen'
 # Verkaufsversion; alle pbLang/pbHr-Aufrufe der Seiten sind geguardet, setLang() faellt
 # auf DE⇄EN zurueck. pb-sync/pb-store/pb-bio (SharePoint-State, Login) sind seit 26.08.
 # im <head> der Quelle; einziger Aufruf im Inline-Script (window.pbSendEvent) ist geguardet.
-RepX '\n<!-- Sprache: pbLang[^\n]*-->\n<script src="pb-i18n\.js[^"]*"></script>' '' 'pb-i18n-Einbindung droppen'
+$script:s = [regex]::Replace($script:s, '\n<!-- Sprache: pbLang[^\n]*-->', '')
+$script:s = [regex]::Replace($script:s, '\n<script src="pb-i18n\.js[^"]*"></script>', '')
+$script:s = [regex]::Replace($script:s, '<script src="(?:pb-session\.js|assets/analytics/entry\.js)[^"]*"></script>', '')
 RepX '\n<script src="pb-sync\.js[^"]*"></script>' '' 'pb-sync-Einbindung droppen'
 RepX '\n<script src="pb-store\.js[^"]*"></script>' '' 'pb-store-Einbindung droppen'
 RepX '\n<script src="pb-bio\.js[^"]*"></script>' '' 'pb-bio-Einbindung droppen'

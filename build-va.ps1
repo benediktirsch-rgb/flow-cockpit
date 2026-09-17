@@ -257,3 +257,6 @@ Rep "window.__liveDataUrl=null;" "window.__liveDataUrl='va-data.json';" 'Quest-D
 [IO.File]::WriteAllText("$base\site\va\index.html", $script:s, (New-Object Text.UTF8Encoding($false)))
 Write-Output ("VA-Instanz geschrieben: {0} KB" -f [math]::Round((Get-Item "$base\site\va\index.html").Length/1KB))
 
+# Shared product dashboard; never copy customer data or identity infrastructure.
+& node "$base\build-dashboard.mjs"
+if ($LASTEXITCODE -ne 0) { throw 'Dashboard-Build fehlgeschlagen' }

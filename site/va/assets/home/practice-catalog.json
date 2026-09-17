@@ -1,0 +1,1497 @@
+{
+  "savedAt": "2026-09-17",
+  "coverage": "All practice entries in the supplied ML0–ML3 map, plus all practice summaries in the existing cockpit ML0–ML6 learning page. The complete official ML4–ML6 practice map was not available in these sources.",
+  "levels": [
+    {
+      "level": 0,
+      "name": "Oblivious",
+      "summary": "Work relies on individuals; the need for a shared process is not yet recognized.",
+      "readingUrl": "https://demo.vishnuartists.com/cockpit/kmm.html#ml0",
+      "summarySource": "Paraphrase of supplied Module 2 maturity diagram"
+    },
+    {
+      "level": 1,
+      "name": "Team-focused",
+      "summary": "Team collaboration and an emerging process; outcomes can remain inconsistent.",
+      "readingUrl": "https://demo.vishnuartists.com/cockpit/kmm.html#ml1",
+      "summarySource": "Paraphrase of supplied Module 2 maturity diagram"
+    },
+    {
+      "level": 2,
+      "name": "Customer-Driven",
+      "summary": "A consistent process and customer awareness; outcomes can still be inconsistent.",
+      "readingUrl": "https://demo.vishnuartists.com/cockpit/kmm.html#ml2",
+      "summarySource": "Paraphrase of supplied Module 2 maturity diagram"
+    },
+    {
+      "level": 3,
+      "name": "Fit-for-Purpose",
+      "summary": "Consistent outcomes that meet customer expectations.",
+      "readingUrl": "https://demo.vishnuartists.com/cockpit/kmm.html#ml3",
+      "summarySource": "Paraphrase of supplied Module 2 maturity diagram"
+    },
+    {
+      "level": 4,
+      "name": "Risk-Hedged",
+      "summary": "Anticipate risk and improve the robustness of business economics.",
+      "readingUrl": "https://demo.vishnuartists.com/cockpit/kmm.html#ml4",
+      "summarySource": "Paraphrase of supplied Module 2 maturity diagram"
+    },
+    {
+      "level": 5,
+      "name": "Market Leader",
+      "summary": "Organizational agility and delivery capability across the business.",
+      "readingUrl": "https://demo.vishnuartists.com/cockpit/kmm.html#ml5",
+      "summarySource": "Paraphrase of supplied Module 2 maturity diagram"
+    },
+    {
+      "level": 6,
+      "name": "Built for Survival",
+      "summary": "Reinvention and resilience support long-term survival.",
+      "readingUrl": "https://demo.vishnuartists.com/cockpit/kmm.html#ml6",
+      "summarySource": "Paraphrase of supplied Module 2 maturity diagram"
+    }
+  ],
+  "practices": [
+    {
+      "id": "map-0-Visualize-1",
+      "level": 0,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "0.1",
+      "title": "Visualize individual work on a personal Kanban board",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-0-Visualize-2",
+      "level": 0,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "0.2",
+      "title": "Visualize basic work-item information on a ticket",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-0-Limit WIP-1",
+      "level": 0,
+      "phase": "consolidation",
+      "family": "Limit WIP",
+      "reference": "0.1",
+      "title": "Establish personal WIP limits",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-0-Manage flow-1",
+      "level": 0,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "0.1",
+      "title": "Categorize tasks by nature of work, urgency, importance and impact",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-0-Make policies explicit-1",
+      "level": 0,
+      "phase": "consolidation",
+      "family": "Make policies explicit",
+      "reference": "0.1",
+      "title": "Make the rules for personal Kanban explicit",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-0-Feedback loops-1",
+      "level": 0,
+      "phase": "consolidation",
+      "family": "Feedback loops",
+      "reference": "0.1",
+      "title": "Make personal reflection",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Visualize-1",
+      "level": 1,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "1.1",
+      "title": "Visualize several individuals’ work on an aggregated personal Kanban board",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Visualize-2",
+      "level": 1,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "1.2",
+      "title": "Visualize discovered initial policies",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Visualize-3",
+      "level": 1,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "1.3",
+      "title": "Use avatars to visualize individuals’ workload",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Visualize-4",
+      "level": 1,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "1.4",
+      "title": "Visualize team work on a team Kanban board",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Visualize-5",
+      "level": 1,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "1.5",
+      "title": "Visualize basic policies",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Limit WIP-1",
+      "level": 1,
+      "phase": "transition",
+      "family": "Limit WIP",
+      "reference": "1.1",
+      "title": "Establish per-person WIP limits",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Limit WIP-2",
+      "level": 1,
+      "phase": "consolidation",
+      "family": "Limit WIP",
+      "reference": "1.2",
+      "title": "Establish team WIP limits",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Make policies explicit-1",
+      "level": 1,
+      "phase": "transition",
+      "family": "Make policies explicit",
+      "reference": "1.1",
+      "title": "Discover initial policies",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Make policies explicit-2",
+      "level": 1,
+      "phase": "consolidation",
+      "family": "Make policies explicit",
+      "reference": "1.2",
+      "title": "Define basic policies",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Feedback loops-1",
+      "level": 1,
+      "phase": "transition",
+      "family": "Feedback loops",
+      "reference": "1.1",
+      "title": "Conduct team Kanban meeting",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Feedback loops-2",
+      "level": 1,
+      "phase": "consolidation",
+      "family": "Feedback loops",
+      "reference": "1.2",
+      "title": "Make team retrospective",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-1-Feedback loops-3",
+      "level": 1,
+      "phase": "consolidation",
+      "family": "Feedback loops",
+      "reference": "1.3",
+      "title": "Conduct team replenishment meeting",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-1",
+      "level": 2,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "2.1",
+      "title": "Visualize progress using a horizontal-position emergent workflow Kanban board",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-2",
+      "level": 2,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "2.2",
+      "title": "Visualize work types using card colors or board rows",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-3",
+      "level": 2,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "2.3",
+      "title": "Visualize blocked work items, defects and rework",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-4",
+      "level": 2,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "2.4",
+      "title": "Visualize work-item aging",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-5",
+      "level": 2,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "2.5",
+      "title": "Visualize dependencies on another service or system",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-6",
+      "level": 2,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "2.6",
+      "title": "Visualize basic service policies",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-7",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "2.7",
+      "title": "Visualize constant WIP (CONWIP) on an emergent workflow delivery Kanban board",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-8",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "2.8",
+      "title": "Visualize concurrent or unordered activities with checkboxes on the ticket",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-9",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "2.9",
+      "title": "Visualize unordered optional activities using two columns of checkboxes on the ticket",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-10",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "2.10",
+      "title": "Visualize optional multiple unordered specialized teams using partial rows within a column",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-11",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "2.11",
+      "title": "Visualize defined workflow using a Kanban board",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Visualize-12",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "2.12",
+      "title": "Visualize multiple services using an aggregated service delivery overview board",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Limit WIP-1",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Limit WIP",
+      "reference": "2.1",
+      "title": "Establish CONWIP limits on emergent workflow",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Limit WIP-2",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Limit WIP",
+      "reference": "2.2",
+      "title": "Establish WIP limits on the aggregated service delivery overview board",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Manage flow-1",
+      "level": 2,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "2.1",
+      "title": "Define work types based on customer requests",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Manage flow-2",
+      "level": 2,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "2.2",
+      "title": "Define basic services",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Manage flow-3",
+      "level": 2,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "2.3",
+      "title": "Map upstream and downstream flow",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Manage flow-4",
+      "level": 2,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "2.4",
+      "title": "Collect flow-related data",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Manage flow-5",
+      "level": 2,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "2.5",
+      "title": "Capture the desired delivery date",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Manage flow-6",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "2.6",
+      "title": "Manage blocking issues",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Manage flow-7",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "2.7",
+      "title": "Manage defects and other rework types",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Manage flow-8",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "2.8",
+      "title": "Manage aging WIP",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Manage flow-9",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "2.9",
+      "title": "Implement Flow Manager role",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Make policies explicit-1",
+      "level": 2,
+      "phase": "transition",
+      "family": "Make policies explicit",
+      "reference": "2.1",
+      "title": "Define flow-related metrics",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Make policies explicit-2",
+      "level": 2,
+      "phase": "transition",
+      "family": "Make policies explicit",
+      "reference": "2.2",
+      "title": "Define basic service policies",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Make policies explicit-3",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Make policies explicit",
+      "reference": "2.3",
+      "title": "Define policies for managing aging WIP",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Make policies explicit-4",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Make policies explicit",
+      "reference": "2.4",
+      "title": "Define policies for managing blocking issues",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Make policies explicit-5",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Make policies explicit",
+      "reference": "2.5",
+      "title": "Define policies for managing defects and other rework types",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Make policies explicit-6",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Make policies explicit",
+      "reference": "2.6",
+      "title": "Define basic policies for dependency management",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Feedback loops-1",
+      "level": 2,
+      "phase": "transition",
+      "family": "Feedback loops",
+      "reference": "2.1",
+      "title": "Conduct workflow replenishment meeting",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Feedback loops-2",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Feedback loops",
+      "reference": "2.2",
+      "title": "Conduct workflow Kanban meeting",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Feedback loops-3",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Feedback loops",
+      "reference": "2.3",
+      "title": "Conduct blocker clustering",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Feedback loops-4",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Feedback loops",
+      "reference": "2.4",
+      "title": "Conduct flow review",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Improve collaboratively, evolve experimentally-1",
+      "level": 2,
+      "phase": "transition",
+      "family": "Improve collaboratively, evolve experimentally",
+      "reference": "2.1",
+      "title": "Identify sources of dissatisfaction",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Improve collaboratively, evolve experimentally-2",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Improve collaboratively, evolve experimentally",
+      "reference": "2.2",
+      "title": "Identify sources of delay",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Improve collaboratively, evolve experimentally-3",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Improve collaboratively, evolve experimentally",
+      "reference": "2.3",
+      "title": "Revise problematic policies",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-2-Improve collaboratively, evolve experimentally-4",
+      "level": 2,
+      "phase": "consolidation",
+      "family": "Improve collaboratively, evolve experimentally",
+      "reference": "2.4",
+      "title": "Define actions to develop basic understanding of the process and improve flow",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-1",
+      "level": 3,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "3.1",
+      "title": "Visualize ready-to-commit status, also known as ready to pull",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-2",
+      "level": 3,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "3.2",
+      "title": "Visualize request acceptance criteria, also known as entry criteria",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-3",
+      "level": 3,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "3.3",
+      "title": "Visualize workflow and teamwork with an aggregated team Kanban board",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-4",
+      "level": 3,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "3.4",
+      "title": "Visualize ideas development with an upstream discovery Kanban board",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-5",
+      "level": 3,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "3.5",
+      "title": "Visualize discarded options on an upstream Kanban board",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-6",
+      "level": 3,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "3.6",
+      "title": "Visualize aborted work",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-7",
+      "level": 3,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "3.7",
+      "title": "Visualize class of service using ticket colors, board rows or ticket decorators",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-8",
+      "level": 3,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "3.8",
+      "title": "Visualize parent-child and peer-peer dependencies",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-9",
+      "level": 3,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "3.9",
+      "title": "Use a parking lot to visualize requests dependent on another service or system, currently waiting or blocked",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-10",
+      "level": 3,
+      "phase": "transition",
+      "family": "Visualize",
+      "reference": "3.10",
+      "title": "Visualize pull signals",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-11",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "3.11",
+      "title": "Visualize replenishment signals",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-12",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "3.12",
+      "title": "Visualize pull criteria, including pull policies, definition of done or exit criteria",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-13",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "3.13",
+      "title": "Visualize pullable work",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-14",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "3.14",
+      "title": "Visualize available capacity",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-15",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "3.15",
+      "title": "Visualize failure demand versus value demand",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Visualize-16",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Visualize",
+      "reference": "3.16",
+      "title": "Visualize target date or SLA",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Limit WIP-1",
+      "level": 3,
+      "phase": "transition",
+      "family": "Limit WIP",
+      "reference": "3.1",
+      "title": "Establish activity-based WIP limits",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Limit WIP-2",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Limit WIP",
+      "reference": "3.2",
+      "title": "Use an order-point minimum limit for upstream replenishment",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Limit WIP-3",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Limit WIP",
+      "reference": "3.3",
+      "title": "Use a maximum limit to constrain upstream capacity",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Limit WIP-4",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Limit WIP",
+      "reference": "3.4",
+      "title": "Bracket WIP limits across sub-states",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Limit WIP-5",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Limit WIP",
+      "reference": "3.5",
+      "title": "Bracket WIP limits across activities",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Limit WIP-6",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Limit WIP",
+      "reference": "3.6",
+      "title": "Create a full Kanban system",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-1",
+      "level": 3,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "3.1",
+      "title": "Organize around the knowledge discovery process",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-2",
+      "level": 3,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "3.2",
+      "title": "Defer commitment to the last responsible moment",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-3",
+      "level": 3,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "3.3",
+      "title": "Measure and analyze service fitness-for-purpose",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-4",
+      "level": 3,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "3.4",
+      "title": "Use a cumulative flow diagram to monitor WIP",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-5",
+      "level": 3,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "3.5",
+      "title": "Use Little’s Law",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-6",
+      "level": 3,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "3.6",
+      "title": "Report rudimentary flow efficiency",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-7",
+      "level": 3,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "3.7",
+      "title": "Gradually eliminate infinite buffers",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-8",
+      "level": 3,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "3.8",
+      "title": "Actively close upstream requests that meet abandonment criteria",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-9",
+      "level": 3,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "3.9",
+      "title": "Analyze and report aborted work",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-10",
+      "level": 3,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "3.10",
+      "title": "Use classes of service to affect selection",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-11",
+      "level": 3,
+      "phase": "transition",
+      "family": "Manage flow",
+      "reference": "3.11",
+      "title": "Analyze and report failure demand",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-12",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "3.12",
+      "title": "Develop triage discipline",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-13",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "3.13",
+      "title": "Manage peer-to-peer or parent-child dependencies",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-14",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "3.14",
+      "title": "Use two-phase commit for delivery commitment",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-15",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "3.15",
+      "title": "Establish service-level agreement (SLA)",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-16",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "3.16",
+      "title": "Determine the due date",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-17",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "3.17",
+      "title": "Forecast delivery",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-18",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "3.18",
+      "title": "Apply qualitative Real Options Thinking",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-19",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "3.19",
+      "title": "Implement Service Delivery Manager role",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Manage flow-20",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Manage flow",
+      "reference": "3.20",
+      "title": "Implement Service Request Manager role",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Make policies explicit-1",
+      "level": 3,
+      "phase": "transition",
+      "family": "Make policies explicit",
+      "reference": "3.1",
+      "title": "Define fitness-for-purpose related metrics",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Make policies explicit-2",
+      "level": 3,
+      "phase": "transition",
+      "family": "Make policies explicit",
+      "reference": "3.2",
+      "title": "Explicitly define request acceptance criteria",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Make policies explicit-3",
+      "level": 3,
+      "phase": "transition",
+      "family": "Make policies explicit",
+      "reference": "3.3",
+      "title": "Define upstream request abandonment policies",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Make policies explicit-4",
+      "level": 3,
+      "phase": "transition",
+      "family": "Make policies explicit",
+      "reference": "3.4",
+      "title": "Define the meaning of abandoned for committed work",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Make policies explicit-5",
+      "level": 3,
+      "phase": "transition",
+      "family": "Make policies explicit",
+      "reference": "3.5",
+      "title": "Define basic classes of service based on qualitative cost of delay",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Make policies explicit-6",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Make policies explicit",
+      "reference": "3.6",
+      "title": "Establish a replenishment commitment point",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Make policies explicit-7",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Make policies explicit",
+      "reference": "3.7",
+      "title": "Explicitly define pull criteria",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Make policies explicit-8",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Make policies explicit",
+      "reference": "3.8",
+      "title": "Establish a delivery commitment point",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Make policies explicit-9",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Make policies explicit",
+      "reference": "3.9",
+      "title": "Establish customer expectations for each work item or class of work items",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Make policies explicit-10",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Make policies explicit",
+      "reference": "3.10",
+      "title": "Explicitly define fitness-for-purpose and manage it based on metrics",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Feedback loops-1",
+      "level": 3,
+      "phase": "transition",
+      "family": "Feedback loops",
+      "reference": "3.1",
+      "title": "Conduct improvement suggestions review",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Feedback loops-2",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Feedback loops",
+      "reference": "3.2",
+      "title": "Conduct replenishment meeting",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Feedback loops-3",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Feedback loops",
+      "reference": "3.3",
+      "title": "Conduct delivery planning meeting",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Feedback loops-4",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Feedback loops",
+      "reference": "3.4",
+      "title": "Conduct service delivery review downstream",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Feedback loops-5",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Feedback loops",
+      "reference": "3.5",
+      "title": "Conduct service request review upstream",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Feedback loops-6",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Feedback loops",
+      "reference": "3.6",
+      "title": "Conduct service risk review",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Improve collaboratively, evolve experimentally-1",
+      "level": 3,
+      "phase": "transition",
+      "family": "Improve collaboratively, evolve experimentally",
+      "reference": "3.1",
+      "title": "Solicit change and improvement suggestions",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Improve collaboratively, evolve experimentally-2",
+      "level": 3,
+      "phase": "transition",
+      "family": "Improve collaboratively, evolve experimentally",
+      "reference": "3.2",
+      "title": "Identify transaction and coordination costs",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Improve collaboratively, evolve experimentally-3",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Improve collaboratively, evolve experimentally",
+      "reference": "3.3",
+      "title": "Analyze blocker likelihood and impact",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Improve collaboratively, evolve experimentally-4",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Improve collaboratively, evolve experimentally",
+      "reference": "3.4",
+      "title": "Analyze lead-time tail risk",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "map-3-Improve collaboratively, evolve experimentally-5",
+      "level": 3,
+      "phase": "consolidation",
+      "family": "Improve collaboratively, evolve experimentally",
+      "reference": "3.5",
+      "title": "After meetings discuss a problem spontaneously and bring it to the service delivery review",
+      "source": "Supplied KMM Module 2, page 1, Access Practice Adoption diagram (2023 workshop material)",
+      "kind": "Training practice map; title paraphrased"
+    },
+    {
+      "id": "cockpit-0-1",
+      "level": 0,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Personal kanban: make your own work visible (a 3-column board is enough).",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml0",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-0-2",
+      "level": 0,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Distinguish work by type, urgency and importance — not everything is “ASAP”.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml0",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-0-3",
+      "level": 0,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Try a personal WIP limit and watch the effect.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml0",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-0-4",
+      "level": 0,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Personal reflection: what did I actually finish this week?",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml0",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-1-1",
+      "level": 1,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "An aggregated team board: several people’s work on one surface.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml1",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-1-2",
+      "level": 1,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Make basic policies visible: what does “in progress” mean here, what does “done” mean?",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml1",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-1-3",
+      "level": 1,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "A team WIP limit as the first experiment — and endure what it makes visible.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml1",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-1-4",
+      "level": 1,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Establish a team kanban meeting and a retrospective.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml1",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-2-1",
+      "level": 2,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "CONWIP or per-column WIP on the delivery board — consistently pulled, never pushed.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml2",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-2-2",
+      "level": 2,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Policies for aging items and blockers: when do we escalate? Who takes care?",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml2",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-2-3",
+      "level": 2,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Establish a flow-manager role or a clear notion of service.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml2",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-2-4",
+      "level": 2,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Define flow metrics and set up a review cadence where decisions are actually made.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml2",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-3-1",
+      "level": 3,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Make fit-for-purpose metrics and acceptance criteria explicit.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml3",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-3-2",
+      "level": 3,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Replenishment signals and pull criteria: “done” really means done.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml3",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-3-3",
+      "level": 3,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Establish Service Level Expectations, report them — and discuss deviations.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml3",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-3-4",
+      "level": 3,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Risk reviews: regularly analyse blocker likelihood and impact.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml3",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-4-1",
+      "level": 4,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "WIP limits on dependency parking lots; make split-and-merge workflows visible.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml4",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-4-2",
+      "level": 4,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Forecasts with reference classes, Monte Carlo simulations and statistical methods.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml4",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-4-3",
+      "level": 4,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Demand shaping: actively shape demand instead of just processing it.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml4",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-4-4",
+      "level": 4,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Establish SLAs on dependent services; run organisational risk reviews.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml4",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-5-1",
+      "level": 5,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Values and practices are defined in Enterprise Service Planning — company-wide.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml5",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-5-2",
+      "level": 5,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Qualitative root-cause analysis for process variance at every level.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml5",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-5-3",
+      "level": 5,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Balancing the business-line portfolios as a continuous exercise.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml5",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-6-1",
+      "level": 6,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Congruence of values, strategy and practices at every level.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml6",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-6-2",
+      "level": 6,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Experimental evolution of the business model as a permanent task.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml6",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    },
+    {
+      "id": "cockpit-6-3",
+      "level": 6,
+      "phase": "guidance",
+      "family": "Existing cockpit guidance",
+      "reference": null,
+      "title": "Deliberate investment in resilience — even when the quarter wants something else.",
+      "source": "https://demo.vishnuartists.com/cockpit/kmm.html#ml6",
+      "kind": "Local cockpit guidance, not an official KMM practice-map entry"
+    }
+  ]
+}
