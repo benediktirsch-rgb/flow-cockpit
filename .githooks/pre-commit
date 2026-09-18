@@ -21,9 +21,12 @@ if [ -z "$ALLOW_FREMD" ] && [ -d "$LEASES" ]; then
   for _l in "$LEASES"/*.json; do
     [ -f "$_l" ] || continue
     grep -q "\"repo\":[[:space:]]*\"$_repo\"" "$_l" || continue
-    _sit=$(sed -n 's/.*"sitzung\":[[:space:]]*\"\([^\"]*\)\".*/\1/p' "$_l" | head -1)
+    # [^"] statt [^\"]: im Klammerausdruck ist \ ein Zeichen wie jedes andere. Mit [^\"] brach
+    # der Treffer am ersten Backslash ab — jedes Ziel mit Windows-Pfad (C:\dev\…) fiel still auf
+    # leer zurueck und die Meldung zeigte nur „Ziel: —“ (18.09.2026).
+    _sit=$(sed -n 's/.*"sitzung":[[:space:]]*"\([^"]*\)".*/\1/p' "$_l" | head -1)
     [ "$_sit" = "${GIT_FLOW_SESSION:-}" ] && continue
-    _ziel=$(sed -n 's/.*"ziel\":[[:space:]]*\"\([^\"]*\)\".*/\1/p' "$_l" | head -1)
+    _ziel=$(sed -n 's/.*"ziel":[[:space:]]*"\([^"]*\)".*/\1/p' "$_l" | head -1 | sed 's/\\\\/\\/g')
     _pfade=$(sed -n 's/.*"pfadeflach":[[:space:]]*"\([^"]*\)".*/\1/p' "$_l" | head -1 | tr "|" " ")
     _kollision=''
     for _p in $_pfade; do
