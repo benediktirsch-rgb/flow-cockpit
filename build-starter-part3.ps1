@@ -342,5 +342,6 @@ $h = $h.Replace("fill='%23010205'", "fill='%230c1013'").Replace("fill='%231a44ea
 $h = $h.Replace('© 2026 <a href="https://www.porsche.digital" target="_blank" rel="noopener">Porsche Digital GmbH</a>', '© 2026 <a href="https://vishnuartists.com" target="_blank" rel="noopener">vishnuartists.com</a>')
 if ($h -match 'porsche|Car Sales') { throw 'HILFE: Porsche-Branding oder Kundenname nicht entfernt' }
 $h = Kopfangaben $h 'Flow Cockpit - Anleitung' 'Die Anleitung zum Flow Cockpit: Setup-Wizard, Board-Mapping, Kennzahlen und Ampeln.' 'https://vishnuartists.com/flow-cockpit.html'
+$h = Set-CorporateAssets $h
 [IO.File]::WriteAllText("$base\site\flow-cockpit-hilfe.html", $h, (New-Object Text.UTF8Encoding($false)))
 Write-Output "Hilfe geschrieben. BUILD KOMPLETT."

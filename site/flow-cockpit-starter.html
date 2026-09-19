@@ -100,9 +100,9 @@ function wizNext(){
 </script>
 
 <script src="pb-flowwissen.js?v=2dab041f"></script>
-<!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js?v=20260917-analytics; Grundfarben vor dem ersten Paint -->
+<!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js?v=20260917-vishnu-night Grundfarben vor dem ersten Paint -->
 <script>try{if(localStorage.getItem('fcTheme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
-<style>html[data-theme=dark]{background:#0e1013;color-scheme:dark}html[data-theme=dark]:root{--bg:#0e1013;--card:#16191d;--ink:#e8eaed;--sub:#9aa1a9;--line:#262b31}html[data-theme=dark] body{background:#0e1013;color:#e8eaed}  .wiz-ov{position:fixed;inset:0;background:rgba(15,16,16,.55);z-index:100;display:none;align-items:center;justify-content:center}
+<style>html[data-theme=dark]{background:#0e1013;color-scheme:dark}html[data-theme=dark]:root{}html[data-theme=dark] body{background:#0e1013;color:#e8eaed}  .wiz-ov{position:fixed;inset:0;background:rgba(15,16,16,.55);z-index:100;display:none;align-items:center;justify-content:center}
   .wiz{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:620px;width:94%;padding:26px 30px;border-top:5px solid var(--brand);max-height:92vh;overflow:auto}
   .wiz h2{margin:0 0 6px} .wiz h3{margin:0 0 8px;font-size:14px;color:var(--sub)}
   .wiz label{display:block;font-size:12.5px;font-weight:600;color:var(--sub);margin:10px 0}
@@ -117,13 +117,72 @@ function wizNext(){
 </style>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c1013'/%3E%3Cpath d='M12 52L30 52L12 32Z' fill='%2389c527'/%3E%3Ccircle cx='44' cy='16' r='7' fill='%23ff5630'/%3E%3Ccircle cx='44' cy='33' r='7' fill='%23ffab00'/%3E%3Ccircle cx='44' cy='50' r='7' fill='%2336b37e'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="/fonts.css">
+<style data-flow-palette="vishnu">/* Shared, deliberate UI palette. Charts retain their distinct data-series colors. */
+:root:root{--bg:#f4f4f5;--card:#ffffff;--ink:#17181c;--sub:#53545a;--line:#a5a7ae;--accent:#17181c;--brand:#89c527;--brand2:#397014;--brand-dark:#35630e;--blue:#397014;--blue2:#2870ba;--green:#126743;--yellow:#805800;--red:#b32130;--purple:#68489b;--teal:#006978;--grey:#53545a;--radius:12px;--shadow:none;--surface-soft:#ebedf1;--info-bg:#edf2ff;--success-bg:#e7f4ed;--warning-bg:#fff3d6;--danger-bg:#ffeded;--focus:#397014;--font-ui:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color-scheme:light}
+:root:root[data-theme=dark]{--bg:#101114;--card:#1b1c20;--ink:#f5f5f7;--sub:#b9bbc1;--line:#686b75;--accent:#f5f5f7;--brand:#b5df81;--brand2:#b5df81;--brand-dark:#cae5a9;--blue:#b5df81;--blue2:#91c5ff;--green:#79dfad;--yellow:#ffd278;--red:#ff9ba7;--purple:#ceb4ff;--teal:#83dce8;--grey:#b9bbc1;--surface-soft:#272a32;--info-bg:#202d49;--success-bg:#17382a;--warning-bg:#382d17;--danger-bg:#3b2128;--focus:#b5df81;color-scheme:dark}
+html{background:var(--bg);color:var(--ink)}body{background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+  .wiz-ov{position:fixed;inset:0;background:rgba(15,16,16,.55);z-index:100;display:none;align-items:center;justify-content:center}
+  .wiz{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:620px;width:94%;padding:26px 30px;border-top:5px solid var(--brand);max-height:92vh;overflow:auto}
+  .wiz h2{margin:0 0 6px} .wiz h3{margin:0 0 8px;font-size:14px;color:var(--sub)}
+  .wiz label{display:block;font-size:12.5px;font-weight:600;color:var(--sub);margin:10px 0}
+  .wiz input,.wiz textarea,.wiz select{display:block;width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13px}
+  .wiz textarea{font-family:Consolas,monospace;font-size:11.5px}
+  .wiz .wnav{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+  .wiz code{background:#f4f5f7;padding:1px 5px;border-radius:4px}
+  .wiz .srcopt{display:flex;gap:8px;align-items:flex-start;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .wiz .srcopt input[type=radio]{width:auto;margin-top:3px}
+  .wiz .mini{font-size:11.5px;color:var(--sub)}
+  .wiz .ok{color:var(--brand-dark);font-weight:700}
+</style>
+<style>/* Shared surfaces and navigation, following the FL2 / Analytics workspace. */
+.carsales-corporate body>header{background:var(--card)!important;color:var(--ink)!important;border-color:var(--line)!important}
+.carsales-corporate .corporate-signature,.carsales-corporate .corporate-signature strong,.carsales-corporate header>.logo,.carsales-corporate header>.brand{color:var(--ink)!important}
+.carsales-corporate .corporate-signature small,.carsales-corporate header>.sub{color:var(--sub)!important}
+.carsales-corporate .corporate-signature strong span{color:var(--red)}
+.carsales-corporate :is(.card,.panel,.coach,.okr,.okrkpi,.note,.practice-card,.journey-card){background:var(--card);color:var(--ink);border-color:var(--line);border-radius:var(--radius);box-shadow:none}
+.carsales-corporate :is(.ctrl,.pinav,.col,.workspace-scope){background:var(--card);color:var(--ink);border-color:var(--line)}
+.carsales-corporate :is(input,select,textarea){font-family:var(--font-ui);background:var(--card);color:var(--ink);border-color:var(--line);max-width:100%}
+.carsales-corporate :is(a,button,select,input,textarea,summary):focus-visible{outline:3px solid var(--focus)!important;outline-offset:3px}
+.carsales-corporate :is(.hint,.dim,.meta,.lbl){color:var(--sub)}
+.carsales-corporate :is(.qbtn,.lbtn){min-height:40px;display:inline-flex;align-items:center;justify-content:center}
+.carsales-corporate .amp-green,.carsales-corporate .chip.live{background:var(--success-bg);color:var(--green)}
+.carsales-corporate .amp-yellow,.carsales-corporate .chip.est{background:var(--warning-bg);color:var(--yellow)}
+.carsales-corporate .amp-red{background:var(--danger-bg);color:var(--red)}
+.carsales-corporate .amp-grey,.carsales-corporate .chip.mock{background:var(--surface-soft);color:var(--sub)}
+.carsales-corporate .pbmenu .mi.here{color:var(--ink);border-bottom:2px solid var(--ink)}
+.flight-orientation{max-width:1384px;margin:16px auto;padding:0 24px;color:var(--ink);font:14px/1.5 var(--font-ui)}
+.flight-orientation nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.flight-orientation nav a{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:12px 16px;color:var(--ink);text-decoration:none;min-width:0}.flight-orientation nav b{font-size:12px;border:1px solid var(--line);border-radius:5px;padding:6px}.flight-orientation nav span{font-weight:600}.flight-orientation nav small{display:block;font-size:12px;color:var(--sub);font-weight:400}.flight-orientation a[aria-current=page]{border:2px solid var(--blue);padding:11px 15px}.flight-orientation em{font-size:11px;font-style:normal;margin-left:auto;color:var(--blue)}.flight-orientation summary{min-height:40px;padding:10px 0;cursor:pointer;color:var(--sub)}.flight-explainer{display:grid;grid-template-columns:minmax(0,1fr) 1fr;gap:24px;padding:24px;background:var(--card);border:1px solid var(--line);border-radius:8px}.flight-explainer img{width:100%;height:auto;border-radius:6px}.flight-explainer p{align-self:center;line-height:1.7}
+@media(max-width:700px){.flight-orientation{padding:0 16px}.flight-orientation nav{grid-template-columns:1fr}.flight-orientation nav a{padding:10px 12px}.flight-orientation a[aria-current=page]{padding:9px 11px}.flight-explainer{grid-template-columns:1fr;padding:16px}.carsales-corporate .wrap{padding:16px}.carsales-corporate :is(.okr-grid,.home-grid,.insight-grid){grid-template-columns:minmax(0,1fr)}.carsales-corporate .ctrl{padding:10px 16px}.carsales-corporate main{min-width:0}.carsales-corporate .corporate-signature{min-width:0}.carsales-corporate .kpitab{display:block;max-width:100%;overflow-x:auto}.carsales-corporate .okrkpis{flex-wrap:wrap}.carsales-corporate body>header{gap:12px!important;padding:16px!important}.carsales-corporate nav.pbmenu{flex-wrap:wrap}.carsales-corporate .card{padding:18px}}
+
+/* Explicit state pairs must also win over the legacy runtime theme adapter. */
+html[data-theme=dark].carsales-corporate #demoBanner,html[data-theme=dark].carsales-corporate #demoBanner a{background:var(--warning-bg)!important;color:var(--yellow)!important}
+html[data-theme=dark].carsales-corporate .subtab.active{background:var(--ink)!important;color:var(--card)!important;border-color:var(--ink)!important}
+html[data-theme=dark].carsales-corporate #fbBtn{background:var(--card)!important;color:var(--ink)!important;border:1px solid var(--line)}
+
+html[data-theme=dark].carsales-corporate button[data-review-level][aria-pressed=true]{background:var(--ink)!important;color:var(--card)!important}
+  .wiz-ov{position:fixed;inset:0;background:rgba(15,16,16,.55);z-index:100;display:none;align-items:center;justify-content:center}
+  .wiz{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:620px;width:94%;padding:26px 30px;border-top:5px solid var(--brand);max-height:92vh;overflow:auto}
+  .wiz h2{margin:0 0 6px} .wiz h3{margin:0 0 8px;font-size:14px;color:var(--sub)}
+  .wiz label{display:block;font-size:12.5px;font-weight:600;color:var(--sub);margin:10px 0}
+  .wiz input,.wiz textarea,.wiz select{display:block;width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13px}
+  .wiz textarea{font-family:Consolas,monospace;font-size:11.5px}
+  .wiz .wnav{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+  .wiz code{background:#f4f5f7;padding:1px 5px;border-radius:4px}
+  .wiz .srcopt{display:flex;gap:8px;align-items:flex-start;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .wiz .srcopt input[type=radio]{width:auto;margin-top:3px}
+  .wiz .mini{font-size:11.5px;color:var(--sub)}
+  .wiz .ok{color:var(--brand-dark);font-weight:700}
+</style>
+<script>/* Runs in the head before first paint; retains the agreed 20:00–07:00 schedule. */
+(function(){let mode='auto';try{mode=localStorage.getItem('fcThemeMode')||'auto'}catch(e){}const h=new Date().getHours();document.documentElement.dataset.theme=mode==='dark'||mode==='light'?mode:h>=20||h<7?'dark':'light';})();
+</script>
 <style>
   :root{
-    --bg:#f0f0f0; --card:#ffffff; --ink:#0f1010; --sub:#5f6668; --line:#e2e4e5;
-    --accent:#0c1013; --brand:#89c527; --brand2:#74b62e; --brand-dark:#5c9220;
-    --blue:#74b62e; --blue2:#4c9aff; --green:#36b37e; --yellow:#ffab00;
-    --red:#ff5630; --purple:#6554c0; --teal:#00b8d9; --grey:#97a0af;
-    --radius:12px; --shadow:0 1px 3px rgba(15,16,16,.07),0 0 1px rgba(15,16,16,.14);
+
+
+
+
+
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
@@ -338,7 +397,7 @@ function wizNext(){
   @media(max-width:900px){.span6,.span4,.span8{grid-column:span 12}.miniboard{grid-template-columns:repeat(2,1fr)}}
 
   /* ——— UI-Refresh 08/2026: ruhige, moderne Fläche (additive Overrides — Tokens oben bleiben Build-Anker) ——— */
-  :root{--radius:14px;--shadow:0 1px 2px rgba(15,16,16,.04),0 10px 30px -18px rgba(15,16,16,.18)}
+  :root{}
   body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   .wrap{padding-top:26px}
   .card,.kpi,.coach,.note{border-color:rgba(16,18,20,.07)}
@@ -799,7 +858,7 @@ let LANG=(window.pbLang?pbLang():'de');
    erscheint der englische — nie der deutsche. Begruendung im Kopf von pb-i18n.js. */
 const tr=(d,e)=>LANG==='hr'?(window.pbHr?pbHr(d,e):e):(LANG==='de'?d:e);
 /* Name des Assistenten NIE hart eintippen. Er steht an genau einer Stelle — pbBuddy.mount({name:…})
-   in pb-ui.js?v=20260917-analytics — und wird von dort geholt. Grund: bei der Umbenennung Ziff → John blieb genau hier
+   in pb-ui.js?v=20260917-vishnu-night — und wird von dort geholt. Grund: bei der Umbenennung Ziff → John blieb genau hier
    der alte Name in vier Knöpfen stehen, bis Tarik ihn am 24.08.2026 im Monte-Carlo-Knopf fand.
    Fallback ist absichtlich eine Umschreibung, kein zweiter Name (wie BUDDY() in pb-meet.js). */
 const BUDDY=()=>{try{return (window.pbBuddy&&pbBuddy.name&&pbBuddy.name())||tr('dem Assistenten','the assistant');}catch(e){return tr('dem Assistenten','the assistant');}};
@@ -2044,7 +2103,7 @@ function renderPersonal(name){
    also unverändert Betriebsrat-tauglich. Fehlt pb-data.js?v=20260917-analytics (Starter-Build wirft es
    heraus), erscheinen die Karten schlicht nicht. */
 /* Reihenfolge mit Absicht: erst der offene Tab, dann das Team DIESES Cockpits, erst
-   zuletzt vsCurrentTeamId() aus pb-ui.js?v=20260917-analytics. Andersherum stand im Team-42-Cockpit
+   zuletzt vsCurrentTeamId() aus pb-ui.js?v=20260917-vishnu-night Andersherum stand im Team-42-Cockpit
    „Analytics“, weil vsCurrentTeamId() ohne Anmeldung genau darauf zurückfällt. */
 function flTeamId(){
   const bekannt=id=>!!(id&&typeof TEAMS!=='undefined'&&TEAMS.some(t=>t.id===id));
@@ -2974,7 +3033,7 @@ function flowImpuls(id,s,ttl){
   return `<div class="tip">📚 <strong>${tr('Impuls','Impulse')}: ${esc(e.title)}</strong> — ${esc(e.short)}${talk}</div>`;
 }
 
-/* Schnittstelle für John (pb-ui.js?v=20260917-analytics): Diagramme aus dem Gespräch heraus freigeben.
+/* Schnittstelle für John (pb-ui.js?v=20260917-vishnu-night Diagramme aus dem Gespräch heraus freigeben.
    „Aus einem Kontext mit John heraus" heißt: John kennt die gesperrten Themen samt
    Ampel, kann sie einzeln oder komplett öffnen und nennt dabei den Flow Coach. */
 window.fcChartGate={
@@ -3569,9 +3628,9 @@ applyLean();
 runMC();
 tilesInit();
 if(!USER&&!(typeof wizShow==='function'&&!localStorage.getItem('fcConfig')))setTimeout(whoShow,300);
-/* pb-ui.js?v=20260917-analytics (window.pbKmm) lädt nach diesem Script — Hook, den pb-ui am Ende aufruft,
+/* pb-ui.js?v=20260917-vishnu-night (window.pbKmm) lädt nach diesem Script — Hook, den pb-ui am Ende aufruft,
    damit KMM-Reife-Indikator + FL1-Coaching einmal nachgerendert werden. */
-/* pb-ui.js?v=20260917-analytics kommt nach diesem Skript — erst danach gibt es John (window.pbFlow).
+/* pb-ui.js?v=20260917-vishnu-night kommt nach diesem Skript — erst danach gibt es John (window.pbFlow).
    Ein Render nach 'load' zieht die Startansichts-Leiste mit dem John-Link nach. */
 window.addEventListener('load',function(){ try{ if(typeof renderActive==='function')renderActive(); if(typeof renderOps==='function')renderOps(); }catch(e){} });
 /* Sobald pb-buddy montiert ist, steht der Persona-Name fest — alles, was ihn zeigt, einmal nachziehen. */
@@ -3584,5 +3643,5 @@ window.pbKmmReady=function(){ if(window.pbKmm && typeof renderActive==='function
   try{ if(typeof pbHistLoadSync==='function') pbHistLoadSync(); }catch(e){}</script>
 <script src="pb-meet.js?v=04d284cc"></script>
 
-</body>
+<script src="https://vishnuartists.com/avatare-loader.js"></script></body>
 </html>
