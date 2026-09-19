@@ -254,6 +254,9 @@ if ($script:s -notmatch '<script src="pb-buddy\.js') { throw 'ANKER FEHLT: pb-bu
 
 # Zombie-Jagd-Refresh: VA laedt va-data.json nach
 Rep "window.__liveDataUrl=null;" "window.__liveDataUrl='va-data.json';" 'Quest-DataUrl'
+# Shared avatar entry; persists across regeneration.
+Copy-Item -LiteralPath "$base\avatar-loader.js" -Destination "$base\site\va\avatar-loader.js" -Force
+Rep '</body>' ('<script src="avatar-loader.js"></script>' + "`n" + '</body>') 'Avatar-Zugang'
 [IO.File]::WriteAllText("$base\site\va\index.html", $script:s, (New-Object Text.UTF8Encoding($false)))
 Write-Output ("VA-Instanz geschrieben: {0} KB" -f [math]::Round((Get-Item "$base\site\va\index.html").Length/1KB))
 
