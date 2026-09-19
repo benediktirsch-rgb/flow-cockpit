@@ -3,9 +3,10 @@
 # Quelle ist das Porsche-Repo (Schwester-Checkout cs-carsales-flow-cockpit) —
 # Porsche-Inhalte leben nur noch dort, nicht mehr in diesem Repo.
 # Aufruf:  powershell -NoProfile -File build-starter.ps1   (oder & .\build-starter.ps1)
+param([string]$Source = '')
 $ErrorActionPreference = 'Stop'
 $base = Split-Path -Parent $MyInvocation.MyCommand.Path
-$script:src = Join-Path (Split-Path -Parent $base) 'cs-carsales-flow-cockpit'
+$script:src = if ($Source) { $Source } else { Join-Path (Split-Path -Parent $base) 'cs-carsales-flow-cockpit' }
 if (-not (Test-Path "$script:src\cockpit.html")) { throw "Quelle fehlt: $script:src\cockpit.html — Porsche-Repo neben diesem Repo auschecken." }
 $script:s = [IO.File]::ReadAllText("$script:src\cockpit.html").Replace("`r`n","`n")
 

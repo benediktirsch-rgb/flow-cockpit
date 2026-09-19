@@ -1,5 +1,6 @@
 ﻿# Baut die VA-Instanz (site/va/index.html) aus der Starter-Variante.
 # NACH build-starter.ps1 ausfuehren. Daten kommen zur Laufzeit aus va-data.json (stuendliche Action).
+param([string]$Source = '')
 $ErrorActionPreference = 'Stop'
 $base = Split-Path -Parent $MyInvocation.MyCommand.Path
 $script:s = [IO.File]::ReadAllText("$base\site\flow-cockpit-starter.html")
@@ -228,7 +229,7 @@ New-Item -ItemType Directory -Force "$base\site\va" | Out-Null
 #     Damit wandert ein Feature aus dem Porsche-Cockpit beim naechsten Build von selbst
 #     hierher — kein Nachbauen im VA-Fork mehr. Der Cache-Stempel ist der Inhalts-Hash:
 #     aendert sich die Datei, aendert sich der Stempel, ohne dass jemand daran denkt.
-$shared = Join-Path (Split-Path -Parent $base) 'cs-carsales-flow-cockpit'
+$shared = if ($Source) { $Source } else { Join-Path (Split-Path -Parent $base) 'cs-carsales-flow-cockpit' }
 $stamps = @{}
 foreach ($f in @('pb-buddy.js','pb-meet.js','pb-flowwissen.js')) {
   $q = Join-Path $shared $f
@@ -254,9 +255,6 @@ if ($script:s -notmatch '<script src="pb-buddy\.js') { throw 'ANKER FEHLT: pb-bu
 
 # Zombie-Jagd-Refresh: VA laedt va-data.json nach
 Rep "window.__liveDataUrl=null;" "window.__liveDataUrl='va-data.json';" 'Quest-DataUrl'
-# Shared avatar entry; persists across regeneration.
-Copy-Item -LiteralPath "$base\avatar-loader.js" -Destination "$base\site\va\avatar-loader.js" -Force
-Rep '</body>' ('<script src="avatar-loader.js"></script>' + "`n" + '</body>') 'Avatar-Zugang'
 [IO.File]::WriteAllText("$base\site\va\index.html", $script:s, (New-Object Text.UTF8Encoding($false)))
 Write-Output ("VA-Instanz geschrieben: {0} KB" -f [math]::Round((Get-Item "$base\site\va\index.html").Length/1KB))
 

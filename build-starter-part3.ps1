@@ -296,7 +296,6 @@ function Kopfangaben([string]$html, [string]$titel, [string]$beschreibung, [stri
 }
 
 $script:s = Kopfangaben $script:s 'Flow Cockpit - Demo mit Beispieldaten' 'Das vollstaendige Flow Cockpit mit Beispieldaten: CFD, Lead-Time-Streuung, WIP- und Aging-Ampeln. Ohne Anmeldung.' 'https://vishnuartists.com/flow-cockpit.html'
-$script:s = $script:s.Replace('</body>', '<script src="https://vishnuartists.com/avatare-loader.js"></script></body>')
 [IO.File]::WriteAllText("$base\site\flow-cockpit-starter.html", $script:s, (New-Object Text.UTF8Encoding($false)))
 Write-Output ("Starter geschrieben: {0} KB" -f [math]::Round((Get-Item "$base\site\flow-cockpit-starter.html").Length/1KB))
 
