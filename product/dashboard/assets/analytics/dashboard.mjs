@@ -26,7 +26,7 @@ function labels(){
  options($('sort'),[['age','Älteste zuerst','Oldest first'],['key','Ticket','Issue'],['state','Workflow','Workflow']],$('sort').value||'age');
  $('questions').innerHTML=Object.entries(questions).map(([id,pair])=>`<button type="button" data-question="${id}" aria-pressed="${id===question}">${T(...pair)}</button>`).join('');
  $('teamLinks').innerHTML='';
- $('title').textContent=views[team].name;document.title=views[team].name+' · Flow Cockpit';
+ $('title').textContent=views[team].name;document.title=views[team].name+' · Vishnu Cockpit';
  $('intro').textContent=T('Vollständige Coach-Sicht: Flow verstehen und gemeinsam verbessern.','Full coach view: understand flow and improve together.');
  $('boardLink').hidden=!!views[team].pending;
  if(views[team].board)$('boardLink').href=`${instance.jiraBase}/jira/software/c/projects/${views[team].project}/boards/${views[team].board}`;

@@ -75,14 +75,8 @@ Alex Muster; Coach; gesamt</textarea></div>
 '@ 'Wizard-HTML'
 
 # ── 11. Wizard-JS ──────────────────────────────────────────────────────────────
-# Ziel ist das ENDE des grossen Inline-Scripts — verankert am pb-data.js-Include, der in
-# der Quelle direkt dahinter steht (Lookahead; der Include selbst bleibt und wird in
-# Schritt 13 gedroppt). Bis 27.08. stand hier RepX '</script>' (erstes Vorkommen) — seit
-# die Quelle am 24.08. pb-i18n.js & Co. im <head> laedt, war das erste </script> ein
-# src-Include und der Wizard landete als toter Inhalt darin (⚙️ Setup und im VA-Build
-# der FL2+3-Tab: ReferenceError). Faellt der pb-data-Include je aus der Quelle, bricht
-# der Build hier laut ab — dann neuen Anker fuers Script-Ende suchen.
-RepX '</script>(?=\n<script src="pb-data\.js)' @'
+# Der PI-Include folgt dem Hauptskript. Head-Includes sind kein sicherer Anker.
+RepX '</script>(?=\n<script src="pb-pi\.js)' @'
 
 // ——— Setup-Wizard v2 ———
 let wizStep=0;const WIZN=5;
@@ -296,7 +290,6 @@ function Kopfangaben([string]$html, [string]$titel, [string]$beschreibung, [stri
 }
 
 $script:s = Kopfangaben $script:s 'Flow Cockpit - Demo mit Beispieldaten' 'Das vollstaendige Flow Cockpit mit Beispieldaten: CFD, Lead-Time-Streuung, WIP- und Aging-Ampeln. Ohne Anmeldung.' 'https://vishnuartists.com/flow-cockpit.html'
-$script:s = $script:s.Replace('</body>', '<script src="https://vishnuartists.com/avatare-loader.js"></script></body>')
 [IO.File]::WriteAllText("$base\site\flow-cockpit-starter.html", $script:s, (New-Object Text.UTF8Encoding($false)))
 Write-Output ("Starter geschrieben: {0} KB" -f [math]::Round((Get-Item "$base\site\flow-cockpit-starter.html").Length/1KB))
 
@@ -342,5 +335,6 @@ $h = $h.Replace("fill='%23010205'", "fill='%230c1013'").Replace("fill='%231a44ea
 $h = $h.Replace('© 2026 <a href="https://www.porsche.digital" target="_blank" rel="noopener">Porsche Digital GmbH</a>', '© 2026 <a href="https://vishnuartists.com" target="_blank" rel="noopener">vishnuartists.com</a>')
 if ($h -match 'porsche|Car Sales') { throw 'HILFE: Porsche-Branding oder Kundenname nicht entfernt' }
 $h = Kopfangaben $h 'Flow Cockpit - Anleitung' 'Die Anleitung zum Flow Cockpit: Setup-Wizard, Board-Mapping, Kennzahlen und Ampeln.' 'https://vishnuartists.com/flow-cockpit.html'
+$h = Set-CorporateAssets $h
 [IO.File]::WriteAllText("$base\site\flow-cockpit-hilfe.html", $h, (New-Object Text.UTF8Encoding($false)))
 Write-Output "Hilfe geschrieben. BUILD KOMPLETT."

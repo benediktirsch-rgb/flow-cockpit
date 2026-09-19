@@ -3,9 +3,10 @@
 # Quelle ist das Porsche-Repo (Schwester-Checkout cs-carsales-flow-cockpit) —
 # Porsche-Inhalte leben nur noch dort, nicht mehr in diesem Repo.
 # Aufruf:  powershell -NoProfile -File build-starter.ps1   (oder & .\build-starter.ps1)
+param([string]$Source = '')
 $ErrorActionPreference = 'Stop'
 $base = Split-Path -Parent $MyInvocation.MyCommand.Path
-$script:src = Join-Path (Split-Path -Parent $base) 'cs-carsales-flow-cockpit'
+$script:src = if ($Source) { $Source } else { Join-Path (Split-Path -Parent $base) 'cs-carsales-flow-cockpit' }
 if (-not (Test-Path "$script:src\cockpit.html")) { throw "Quelle fehlt: $script:src\cockpit.html — Porsche-Repo neben diesem Repo auschecken." }
 $script:s = [IO.File]::ReadAllText("$script:src\cockpit.html").Replace("`r`n","`n")
 
@@ -25,6 +26,8 @@ function RepX([string]$pattern, [string]$new, [string]$name) {
   $script:s = $rx.Replace($script:s, $ev, 1)
 }
 
+# Kunden-Teamnavigation verweist auf Seiten, die das eigenstaendige Produkt nicht mitliefert.
+RepX '<nav aria-label="Analytics views"[^>]*>.*?</nav>' '' 'Kunden-Teamnavigation entfernen'
 # ── 0. Porsche-Branding zurueck auf vishnuartists (Verkaufsversion) ────────────
 # Poppins selbst gehostet (VA-13562, 31.08.2026) — vorher zwei Requests an
 # fonts.googleapis.com, also Besucher-IP an Google ohne Einwilligung.
@@ -34,13 +37,22 @@ function RepX([string]$pattern, [string]$new, [string]$name) {
 # stimmt deshalb fuer beide Seiten.
 Rep '<link rel="stylesheet" href="https://cdn.ui.porsche.com/porsche-design-system/styles/font-face.7076ba0.css">' '<link rel="stylesheet" href="/fonts.css">' 'Brand-Fontlink'
 Rep "font-family:'Porsche Next','Arial Narrow',Arial,'Heiti SC',SimHei,sans-serif;font-size:14px}" 'font-family:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;font-size:14px}' 'Brand-Fontstack'
-Rep '--bg:#fbfcff; --card:#ffffff; --ink:#010205; --sub:#6b6d70; --line:#d8d8db;' '--bg:#f0f0f0; --card:#ffffff; --ink:#0f1010; --sub:#5f6668; --line:#e2e4e5;' 'Brand-Farben1'
-Rep '--accent:#010205; --brand:#1a44ea; --brand2:#2b50e8; --brand-dark:#0f2ec2;' '--accent:#0c1013; --brand:#89c527; --brand2:#74b62e; --brand-dark:#5c9220;' 'Brand-Farben2'
-Rep '--blue:#1a44ea;' '--blue:#74b62e;' 'Brand-Blue'
 $script:s = $script:s.Replace('background:#e9edfc;','background:#eef2e8;').Replace('background:#f7f9fe;','background:#fafbf7;').Replace('background:#f4f6fd;','background:#f7f8f4;')
 Rep "fill='%23010205'" "fill='%230c1013'" 'Brand-FaviconBG'
 Rep "fill='%231a44ea'" "fill='%2389c527'" 'Brand-FaviconMark'
 Rep '© 2026 <a href="https://www.porsche.digital" target="_blank" rel="noopener">Porsche Digital GmbH</a> — Flow Cockpit.' '© 2026 <a href="https://vishnuartists.com" target="_blank" rel="noopener">vishnuartists.com</a> — Flow Cockpit.' 'Brand-Footer'
+
+# Explicit product palette replaces fragile source token-line anchors.
+function Set-CorporateAssets([string]$html) {
+  $palette = [IO.File]::ReadAllText("$base\assets\corporate\tokens-vishnu.css")
+  $layout = [IO.File]::ReadAllText("$script:src\assets\corporate\design.css")
+  $init = [IO.File]::ReadAllText("$script:src\assets\corporate\theme-init.js")
+  $html = [regex]::Replace($html, '<link rel="stylesheet" href="assets/corporate/tokens.css[^"]*">', [System.Text.RegularExpressions.MatchEvaluator]{param($m) '<style data-flow-palette="vishnu">'+$palette+'</style>'})
+  $html = [regex]::Replace($html, '<link rel="stylesheet" href="assets/corporate/design.css[^"]*">', [System.Text.RegularExpressions.MatchEvaluator]{param($m) '<style>'+$layout+'</style>'})
+  $html = [regex]::Replace($html, '<script src="assets/corporate/theme-init.js[^"]*"></script>', [System.Text.RegularExpressions.MatchEvaluator]{param($m) '<script>'+$init+'</script>'})
+  return $html
+}
+$script:s = Set-CorporateAssets $script:s
 
 # ── 1. Hilfe-Verlinkung auf Starter-Hilfe umbiegen ─────────────────────────────
 $script:s = $script:s.Replace('hilfe.html', 'flow-cockpit-hilfe.html')

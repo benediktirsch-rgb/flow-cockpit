@@ -5,14 +5,14 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Hilfe &amp; Methodik — Flow Cockpit</title>
 <script src="pb-flowwissen.js?v=0916b"></script>
-<!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js?v=20260917-analytics; Grundfarben vor dem ersten Paint -->
+<!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js?v=20260917-vishnu-night Grundfarben vor dem ersten Paint -->
 <script>try{if(localStorage.getItem('fcTheme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
-<style>html[data-theme=dark]{background:#0e1013;color-scheme:dark}html[data-theme=dark]:root{--bg:#0e1013;--card:#16191d;--ink:#e8eaed;--sub:#9aa1a9;--line:#262b31}html[data-theme=dark] body{background:#0e1013;color:#e8eaed}</style>
+<style>html[data-theme=dark]{background:#0e1013;color-scheme:dark}html[data-theme=dark]:root{}html[data-theme=dark] body{background:#0e1013;color:#e8eaed}</style>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c1013'/%3E%3Cpath d='M12 52L30 52L12 32Z' fill='%2389c527'/%3E%3Ccircle cx='44' cy='16' r='7' fill='%23ff5630'/%3E%3Ccircle cx='44' cy='33' r='7' fill='%23ffab00'/%3E%3Ccircle cx='44' cy='50' r='7' fill='%2336b37e'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="/fonts.css">
 <style>
-  :root{--bg:#f0f0f0;--card:#fff;--ink:#0f1010;--sub:#5f6668;--line:#e2e4e5;
-    --brand:#89c527;--brand2:#74b62e;--brand-dark:#5c9220;--accent:#0c1013}
+  :root{
+    }
   body{margin:0;background:var(--bg);color:var(--ink);font-family:Poppins,sans-serif;font-size:14.5px;line-height:1.65}
   header{background:var(--accent);color:#fff;padding:14px 28px;display:flex;align-items:center;gap:14px;border-bottom:4px solid var(--brand)}
   header .logo{font-weight:800;font-size:17px}
@@ -47,6 +47,41 @@
   .quick li b{color:var(--brand-dark,#0f2ec2)}
   html[data-theme=dark] .quick li b{color:#9db1ff}
 </style>
+<style data-flow-palette="vishnu">/* Shared, deliberate UI palette. Charts retain their distinct data-series colors. */
+:root:root{--bg:#f4f4f5;--card:#ffffff;--ink:#17181c;--sub:#53545a;--line:#a5a7ae;--accent:#17181c;--brand:#89c527;--brand2:#397014;--brand-dark:#35630e;--blue:#397014;--blue2:#2870ba;--green:#126743;--yellow:#805800;--red:#b32130;--purple:#68489b;--teal:#006978;--grey:#53545a;--radius:12px;--shadow:none;--surface-soft:#ebedf1;--info-bg:#edf2ff;--success-bg:#e7f4ed;--warning-bg:#fff3d6;--danger-bg:#ffeded;--focus:#397014;--font-ui:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color-scheme:light}
+:root:root[data-theme=dark]{--bg:#101114;--card:#1b1c20;--ink:#f5f5f7;--sub:#b9bbc1;--line:#686b75;--accent:#f5f5f7;--brand:#b5df81;--brand2:#b5df81;--brand-dark:#cae5a9;--blue:#b5df81;--blue2:#91c5ff;--green:#79dfad;--yellow:#ffd278;--red:#ff9ba7;--purple:#ceb4ff;--teal:#83dce8;--grey:#b9bbc1;--surface-soft:#272a32;--info-bg:#202d49;--success-bg:#17382a;--warning-bg:#382d17;--danger-bg:#3b2128;--focus:#b5df81;color-scheme:dark}
+html{background:var(--bg);color:var(--ink)}body{background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+</style>
+<style>/* Shared surfaces and navigation, following the FL2 / Analytics workspace. */
+.carsales-corporate body>header{background:var(--card)!important;color:var(--ink)!important;border-color:var(--line)!important}
+.carsales-corporate .corporate-signature,.carsales-corporate .corporate-signature strong,.carsales-corporate header>.logo,.carsales-corporate header>.brand{color:var(--ink)!important}
+.carsales-corporate .corporate-signature small,.carsales-corporate header>.sub{color:var(--sub)!important}
+.carsales-corporate .corporate-signature strong span{color:var(--red)}
+.carsales-corporate :is(.card,.panel,.coach,.okr,.okrkpi,.note,.practice-card,.journey-card){background:var(--card);color:var(--ink);border-color:var(--line);border-radius:var(--radius);box-shadow:none}
+.carsales-corporate :is(.ctrl,.pinav,.col,.workspace-scope){background:var(--card);color:var(--ink);border-color:var(--line)}
+.carsales-corporate :is(input,select,textarea){font-family:var(--font-ui);background:var(--card);color:var(--ink);border-color:var(--line);max-width:100%}
+.carsales-corporate :is(a,button,select,input,textarea,summary):focus-visible{outline:3px solid var(--focus)!important;outline-offset:3px}
+.carsales-corporate :is(.hint,.dim,.meta,.lbl){color:var(--sub)}
+.carsales-corporate :is(.qbtn,.lbtn){min-height:40px;display:inline-flex;align-items:center;justify-content:center}
+.carsales-corporate .amp-green,.carsales-corporate .chip.live{background:var(--success-bg);color:var(--green)}
+.carsales-corporate .amp-yellow,.carsales-corporate .chip.est{background:var(--warning-bg);color:var(--yellow)}
+.carsales-corporate .amp-red{background:var(--danger-bg);color:var(--red)}
+.carsales-corporate .amp-grey,.carsales-corporate .chip.mock{background:var(--surface-soft);color:var(--sub)}
+.carsales-corporate .pbmenu .mi.here{color:var(--ink);border-bottom:2px solid var(--ink)}
+.flight-orientation{max-width:1384px;margin:16px auto;padding:0 24px;color:var(--ink);font:14px/1.5 var(--font-ui)}
+.flight-orientation nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.flight-orientation nav a{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:12px 16px;color:var(--ink);text-decoration:none;min-width:0}.flight-orientation nav b{font-size:12px;border:1px solid var(--line);border-radius:5px;padding:6px}.flight-orientation nav span{font-weight:600}.flight-orientation nav small{display:block;font-size:12px;color:var(--sub);font-weight:400}.flight-orientation a[aria-current=page]{border:2px solid var(--blue);padding:11px 15px}.flight-orientation em{font-size:11px;font-style:normal;margin-left:auto;color:var(--blue)}.flight-orientation summary{min-height:40px;padding:10px 0;cursor:pointer;color:var(--sub)}.flight-explainer{display:grid;grid-template-columns:minmax(0,1fr) 1fr;gap:24px;padding:24px;background:var(--card);border:1px solid var(--line);border-radius:8px}.flight-explainer img{width:100%;height:auto;border-radius:6px}.flight-explainer p{align-self:center;line-height:1.7}
+@media(max-width:700px){.flight-orientation{padding:0 16px}.flight-orientation nav{grid-template-columns:1fr}.flight-orientation nav a{padding:10px 12px}.flight-orientation a[aria-current=page]{padding:9px 11px}.flight-explainer{grid-template-columns:1fr;padding:16px}.carsales-corporate .wrap{padding:16px}.carsales-corporate :is(.okr-grid,.home-grid,.insight-grid){grid-template-columns:minmax(0,1fr)}.carsales-corporate .ctrl{padding:10px 16px}.carsales-corporate main{min-width:0}.carsales-corporate .corporate-signature{min-width:0}.carsales-corporate .kpitab{display:block;max-width:100%;overflow-x:auto}.carsales-corporate .okrkpis{flex-wrap:wrap}.carsales-corporate body>header{gap:12px!important;padding:16px!important}.carsales-corporate nav.pbmenu{flex-wrap:wrap}.carsales-corporate .card{padding:18px}}
+
+/* Explicit state pairs must also win over the legacy runtime theme adapter. */
+html[data-theme=dark].carsales-corporate #demoBanner,html[data-theme=dark].carsales-corporate #demoBanner a{background:var(--warning-bg)!important;color:var(--yellow)!important}
+html[data-theme=dark].carsales-corporate .subtab.active{background:var(--ink)!important;color:var(--card)!important;border-color:var(--ink)!important}
+html[data-theme=dark].carsales-corporate #fbBtn{background:var(--card)!important;color:var(--ink)!important;border:1px solid var(--line)}
+
+html[data-theme=dark].carsales-corporate button[data-review-level][aria-pressed=true]{background:var(--ink)!important;color:var(--card)!important}
+</style>
+<script>/* Runs in the head before first paint; retains the agreed 20:00–07:00 schedule. */
+(function(){let mode='auto';try{mode=localStorage.getItem('fcThemeMode')||'auto'}catch(e){}const h=new Date().getHours();document.documentElement.dataset.theme=mode==='dark'||mode==='light'?mode:h>=20||h<7?'dark':'light';})();
+</script>
 <link rel="canonical" href="https://vishnuartists.com/flow-cockpit.html">
 <meta name="robots" content="noindex,follow">
 <meta property="og:type" content="website">

@@ -3,113 +3,12 @@
 <head><!-- shared-dashboard-entry --><script>(function(){const q=new URLSearchParams(location.search);if(!q.has('legacy')&&!q.has('go')&&!q.has('compass')&&!location.hash&&window.self===window.top)location.replace('home-v2.html'+location.search);})();</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg">
-<title>Vishnu Cockpit — Analytics (Demo Org)</title>
-<script src="pb-i18n.js?v=0824b">
-// ——— Flight Level 2+3 (Board STA) — Rendering in va-fl.js (window.vaFL) ———
-function renderFL(){
-  const pv=document.getElementById('progview');
-  if(window.vaFL){vaFL.render();return;}
-  pv.innerHTML='<div style="margin:20px 0;color:var(--sub);font-size:13px">ℹ️ '+tr('Flight-Level-Ansicht lädt (va-fl.js) …','Flight level view loading (va-fl.js) …')+'</div>';
-}
-// ——— Setup-Wizard v2 ———
-let wizStep=0;const WIZN=5;
-function wizShow(){document.getElementById('wizard').style.display='flex';
-  if(!document.querySelector('.wTeam')){Object.keys(CONFIG.teams).forEach(k=>wizAddTeam(CONFIG.teams[k]));}
-  document.getElementById('wOrg').value=CONFIG.org;wizGo(0);}
-function wizGo(n){wizStep=n;
-  document.querySelectorAll('.wstep').forEach((e,i)=>e.style.display=i===n?'block':'none');
-  document.getElementById('wizStepInfo').textContent=tr('Schritt ','Step ')+(n+1)+' / '+WIZN;
-  document.getElementById('wizPrev').style.visibility=n===0?'hidden':'visible';
-  document.getElementById('wizNextBtn').textContent=n===WIZN-1?tr('✔ Fertig — Cockpit starten','✔ Done — launch cockpit'):tr('Weiter →','Next →');}
-function wizPrev(){if(wizStep>0)wizGo(wizStep-1);}
-function wizAddTeam(label){const c=document.getElementById('wTeams');const idx=c.children.length+1;
-  const row=document.createElement('div');
-  row.innerHTML='<label>Team t'+idx+'<input class="wTeam" value="'+String(label||'').replace(/"/g,'')+'" placeholder="Team-Name"></label>';
-  c.appendChild(row);}
-function wizTeams(){return [...document.querySelectorAll('.wTeam')].map((e,i)=>['t'+(i+1),e.value.trim()]).filter(t=>t[1]);}
-function wizUpload(ev){
-  const f=ev.target.files[0];if(!f)return;
-  const rd=new FileReader();
-  rd.onload=()=>{try{const d=JSON.parse(rd.result);
-    if(!d.issues||!d.issues.length||!d.meta)throw new Error('format');
-    localStorage.setItem('fcData',rd.result);
-    document.getElementById('wUpInfo').innerHTML='<span class="ok">✔ '+d.issues.length+' '+tr('Tickets geladen — Import vom ','tickets loaded — import of ')+d.meta.importDate+'</span>';
-    document.querySelector('input[name=wSrc][value=upload]').checked=true;
-  }catch(e){document.getElementById('wUpInfo').textContent=tr('✖ Ungültige Datei — bitte flow-cockpit-data.json aus dem Import-Skript verwenden.','✖ Invalid file — please use flow-cockpit-data.json from the import script.');}};
-  rd.readAsText(f);}
-function wizScanNames(){
-  let data=null;try{data=JSON.parse(localStorage.getItem('fcData')||'null');}catch(e){}
-  const issues=(data&&data.issues&&data.issues.length)?data.issues:RAW;
-  const teams=wizTeams();
-  const cnt={};issues.forEach(i=>{const n=i[8];if(!n)return;cnt[n]=cnt[n]||{};cnt[n][i[1]]=(cnt[n][i[1]]||0)+1;});
-  const lines=Object.keys(cnt).sort().map(n=>{
-    const best=Object.keys(cnt[n]).sort((a,b)=>cnt[n][b]-cnt[n][a])[0];
-    const key=teams.some(t=>t[0]===best)?best:(teams[0]?teams[0][0]:'t1');
-    const lbl=(teams.find(t=>t[0]===key)||['',''])[1];
-    const role=/eng|dev|tech|platt|platform/i.test(lbl)?'Engineer':'Analyst';
-    return n+'; '+role+'; '+key;});
-  if(lines.length)document.getElementById('wPeople').value=lines.join('\n');
-  document.getElementById('wScanInfo').textContent=lines.length+' '+tr('Namen aus den Tickets übernommen — Rollen/Teams bitte prüfen.','names taken from the tickets — please review roles/teams.');}
-function buildImportScript(){
-  const jira=(document.getElementById('wJira2').value||'https://firma.atlassian.net').replace(/\/+$/,'');
-  const projs=(document.getElementById('wProjects').value||'PROJ').split(',').map(x=>x.trim()).filter(Boolean);
-  const board=(document.getElementById('wBoard').value||'123').trim();
-  const teams=wizTeams();
-  const tmap=teams.map(t=>'["'+String(t[1]).toLowerCase().replace(/"/g,'').slice(0,8)+'","'+t[0]+'"]').join(',');
-  const defT=teams[0]?teams[0][0]:'t1';
-  const L=[];
-  L.push('// Flow Cockpit Import — auf einem '+jira+'-Tab in der Browser-Konsole (F12) ausfuehren');
-  L.push('(async()=>{');
-  L.push('const PROJECTS='+JSON.stringify(projs)+';const BOARD="'+board+'";');
-  L.push('// Team-Zuordnung: ["suchbegriff in component/label","team-key"] — bitte anpassen!');
-  L.push('const TEAMMAP=['+tmap+'];const DEFTEAM="'+defT+'";');
-  L.push('const cfg=await fetch("/rest/agile/1.0/board/"+BOARD+"/configuration").then(r=>r.json());');
-  L.push('const cols={};cfg.columnConfig.columns.forEach((c,i,a)=>{const idx=i===0?0:(i===a.length-1?5:Math.max(1,Math.min(4,i+6-a.length)));c.statuses.forEach(st=>cols[st.id]=idx);});');
-  L.push('const jql="project in ("+PROJECTS.join(",")+") AND issuetype not in subTaskIssueTypes() AND (statusCategory != Done OR resolved >= -26w)";');
-  L.push('let issues=[],token=null;');
-  L.push('for(let p=0;p<60;p++){const u=new URL("/rest/api/3/search/jql",location.origin);u.searchParams.set("jql",jql);u.searchParams.set("maxResults","100");u.searchParams.set("fields","status,assignee,created,resolutiondate,issuetype,labels,duedate,components,project");if(token)u.searchParams.set("nextPageToken",token);const j=await fetch(u).then(r=>r.json());issues=issues.concat(j.issues||[]);if(!j.nextPageToken)break;token=j.nextPageToken;}');
-  L.push('console.log("Tickets: "+issues.length+" — lade Status-Historien (dauert etwas)...");');
-  L.push('const cl={};const q=issues.slice();');
-  L.push('await Promise.all(Array.from({length:10},async()=>{let it;while((it=q.shift())){let h=[],sa=0;for(let p=0;p<6;p++){const r=await fetch("/rest/api/3/issue/"+it.key+"/changelog?maxResults=100&startAt="+sa);if(!r.ok)break;const j=await r.json();j.values.forEach(v=>v.items.forEach(x=>{if(x.fieldId==="status")h.push([v.created.slice(0,10),x.from,x.to]);}));if(j.isLast||!j.values.length)break;sa+=j.values.length;}cl[it.key]=h;}}));');
-  L.push('const ty=n=>/story/i.test(n)?"S":/epic/i.test(n)?"E":/tech/i.test(n)?"X":/^task|^aufgabe/i.test(n)?"T":"O";');
-  L.push('const team=f=>{const txt=((f.components||[]).map(c=>c.name).join(" ")+" "+(f.labels||[]).join(" ")).toLowerCase();for(const m of TEAMMAP){if(m[0]&&txt.indexOf(m[0])>=0)return m[1];}return DEFTEAM;};');
-  L.push('const out=issues.map(i=>{const f=i.fields;const h=(cl[i.key]||[]).sort((a,b)=>a[0]<b[0]?-1:1);');
-  L.push(' const ic=h.length?cols[h[0][1]]:cols[f.status.id];const trn=[[f.created.slice(0,10),ic==null?0:ic]];');
-  L.push(' h.forEach(x=>{const c=cols[x[2]];if(c!=null&&c!==trn[trn.length-1][1])trn.push([x[0],c]);});');
-  L.push(' const lb=(f.labels||[]).map(l=>l.toLowerCase());');
-  L.push(' return [i.key,team(f),"C",ty(f.issuetype.name),f.created.slice(0,10),f.resolutiondate?f.resolutiondate.slice(0,10):"",f.duedate||"",0,f.assignee?f.assignee.displayName:"",(lb.indexOf("refinement_needed")>=0?1:0)+(lb.indexOf("refinement_done")>=0?2:0),trn];});');
-  L.push('const today=new Date().toISOString().slice(0,10);const start=new Date(Date.now()-182*86400000).toISOString().slice(0,10);');
-  L.push('const blob=new Blob([JSON.stringify({meta:{importDate:today,doneWindowStart:start},issues:out})],{type:"application/json"});');
-  L.push('const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="flow-cockpit-data.json";document.body.appendChild(a);a.click();a.remove();');
-  L.push('console.log("Fertig — flow-cockpit-data.json wurde heruntergeladen. Jetzt im Cockpit-Wizard hochladen.");');
-  L.push('})();');
-  document.getElementById('wScript').value=L.join('\n');
-  document.querySelector('input[name=wSrc][value=script]').checked=true;}
-function wizNext(){
-  if(wizStep<WIZN-1){wizGo(wizStep+1);return;}
-  const src=(document.querySelector('input[name=wSrc]:checked')||{}).value||'demo';
-  if(src==='demo')localStorage.removeItem('fcData');
-  const teams={};wizTeams().forEach(t=>teams[t[0]]=t[1]);
-  if(!Object.keys(teams).length){teams.t1='Team 1';}
-  const people=document.getElementById('wPeople').value.split('\n').map(l=>l.split(';').map(x=>x.trim())).filter(l=>l.length===3&&l[0]);
-  const cName=document.getElementById('wCName').value||CONFIG.coach.name;
-  const cfg={org:document.getElementById('wOrg').value||CONFIG.org,
-    teams:teams,
-    people:people.length?people:CONFIG.people,
-    coach:{name:cName,first:cName.split(' ')[0],
-      mail:document.getElementById('wCMail').value||CONFIG.coach.mail,
-      role:document.getElementById('wCRole').value||'Agile Coach',
-      quali:document.getElementById('wCQuali').value||CONFIG.coach.quali},
-    jiraBase:(document.getElementById('wJira2').value||CONFIG.jiraBase).replace(/\/+$/,'')};
-  localStorage.setItem('fcConfig_va',JSON.stringify(cfg));
-  location.reload();}
-</script>
+<title>Flow Cockpit — Analytics (Demo Org)</title>
 
 <script src="pb-flowwissen.js?v=2dab041f"></script>
-<!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js?v=20260917-analytics; Grundfarben vor dem ersten Paint -->
+<!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js?v=20260917-vishnu-night Grundfarben vor dem ersten Paint -->
 <script>try{if(localStorage.getItem('fcTheme')==='dark')document.documentElement.setAttribute('data-theme','dark')}catch(e){}</script>
-<style>html[data-theme=dark]{background:#0e1013;color-scheme:dark}html[data-theme=dark]:root{--bg:#0e1013;--card:#16191d;--ink:#e8eaed;--sub:#9aa1a9;--line:#262b31}html[data-theme=dark] body{background:#0e1013;color:#e8eaed}  .wiz-ov{position:fixed;inset:0;background:rgba(15,16,16,.55);z-index:100;display:none;align-items:center;justify-content:center}
+<style>html[data-theme=dark]{background:#0e1013;color-scheme:dark}html[data-theme=dark]:root{}html[data-theme=dark] body{background:#0e1013;color:#e8eaed}  .wiz-ov{position:fixed;inset:0;background:rgba(15,16,16,.55);z-index:100;display:none;align-items:center;justify-content:center}
   .wiz{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:620px;width:94%;padding:26px 30px;border-top:5px solid var(--brand);max-height:92vh;overflow:auto}
   .wiz h2{margin:0 0 6px} .wiz h3{margin:0 0 8px;font-size:14px;color:var(--sub)}
   .wiz label{display:block;font-size:12.5px;font-weight:600;color:var(--sub);margin:10px 0}
@@ -124,13 +23,72 @@ function wizNext(){
 </style>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c1013'/%3E%3Cpath d='M12 52L30 52L12 32Z' fill='%2389c527'/%3E%3Ccircle cx='44' cy='16' r='7' fill='%23ff5630'/%3E%3Ccircle cx='44' cy='33' r='7' fill='%23ffab00'/%3E%3Ccircle cx='44' cy='50' r='7' fill='%2336b37e'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="/fonts.css">
+<style data-flow-palette="vishnu">/* Shared, deliberate UI palette. Charts retain their distinct data-series colors. */
+:root:root{--bg:#f4f4f5;--card:#ffffff;--ink:#17181c;--sub:#53545a;--line:#a5a7ae;--accent:#17181c;--brand:#89c527;--brand2:#397014;--brand-dark:#35630e;--blue:#397014;--blue2:#2870ba;--green:#126743;--yellow:#805800;--red:#b32130;--purple:#68489b;--teal:#006978;--grey:#53545a;--radius:12px;--shadow:none;--surface-soft:#ebedf1;--info-bg:#edf2ff;--success-bg:#e7f4ed;--warning-bg:#fff3d6;--danger-bg:#ffeded;--focus:#397014;--font-ui:Poppins,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;color-scheme:light}
+:root:root[data-theme=dark]{--bg:#101114;--card:#1b1c20;--ink:#f5f5f7;--sub:#b9bbc1;--line:#686b75;--accent:#f5f5f7;--brand:#b5df81;--brand2:#b5df81;--brand-dark:#cae5a9;--blue:#b5df81;--blue2:#91c5ff;--green:#79dfad;--yellow:#ffd278;--red:#ff9ba7;--purple:#ceb4ff;--teal:#83dce8;--grey:#b9bbc1;--surface-soft:#272a32;--info-bg:#202d49;--success-bg:#17382a;--warning-bg:#382d17;--danger-bg:#3b2128;--focus:#b5df81;color-scheme:dark}
+html{background:var(--bg);color:var(--ink)}body{background:var(--bg);color:var(--ink);font-family:var(--font-ui)}
+  .wiz-ov{position:fixed;inset:0;background:rgba(15,16,16,.55);z-index:100;display:none;align-items:center;justify-content:center}
+  .wiz{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:620px;width:94%;padding:26px 30px;border-top:5px solid var(--brand);max-height:92vh;overflow:auto}
+  .wiz h2{margin:0 0 6px} .wiz h3{margin:0 0 8px;font-size:14px;color:var(--sub)}
+  .wiz label{display:block;font-size:12.5px;font-weight:600;color:var(--sub);margin:10px 0}
+  .wiz input,.wiz textarea,.wiz select{display:block;width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13px}
+  .wiz textarea{font-family:Consolas,monospace;font-size:11.5px}
+  .wiz .wnav{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+  .wiz code{background:#f4f5f7;padding:1px 5px;border-radius:4px}
+  .wiz .srcopt{display:flex;gap:8px;align-items:flex-start;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .wiz .srcopt input[type=radio]{width:auto;margin-top:3px}
+  .wiz .mini{font-size:11.5px;color:var(--sub)}
+  .wiz .ok{color:var(--brand-dark);font-weight:700}
+</style>
+<style>/* Shared surfaces and navigation, following the FL2 / Analytics workspace. */
+.carsales-corporate body>header{background:var(--card)!important;color:var(--ink)!important;border-color:var(--line)!important}
+.carsales-corporate .corporate-signature,.carsales-corporate .corporate-signature strong,.carsales-corporate header>.logo,.carsales-corporate header>.brand{color:var(--ink)!important}
+.carsales-corporate .corporate-signature small,.carsales-corporate header>.sub{color:var(--sub)!important}
+.carsales-corporate .corporate-signature strong span{color:var(--red)}
+.carsales-corporate :is(.card,.panel,.coach,.okr,.okrkpi,.note,.practice-card,.journey-card){background:var(--card);color:var(--ink);border-color:var(--line);border-radius:var(--radius);box-shadow:none}
+.carsales-corporate :is(.ctrl,.pinav,.col,.workspace-scope){background:var(--card);color:var(--ink);border-color:var(--line)}
+.carsales-corporate :is(input,select,textarea){font-family:var(--font-ui);background:var(--card);color:var(--ink);border-color:var(--line);max-width:100%}
+.carsales-corporate :is(a,button,select,input,textarea,summary):focus-visible{outline:3px solid var(--focus)!important;outline-offset:3px}
+.carsales-corporate :is(.hint,.dim,.meta,.lbl){color:var(--sub)}
+.carsales-corporate :is(.qbtn,.lbtn){min-height:40px;display:inline-flex;align-items:center;justify-content:center}
+.carsales-corporate .amp-green,.carsales-corporate .chip.live{background:var(--success-bg);color:var(--green)}
+.carsales-corporate .amp-yellow,.carsales-corporate .chip.est{background:var(--warning-bg);color:var(--yellow)}
+.carsales-corporate .amp-red{background:var(--danger-bg);color:var(--red)}
+.carsales-corporate .amp-grey,.carsales-corporate .chip.mock{background:var(--surface-soft);color:var(--sub)}
+.carsales-corporate .pbmenu .mi.here{color:var(--ink);border-bottom:2px solid var(--ink)}
+.flight-orientation{max-width:1384px;margin:16px auto;padding:0 24px;color:var(--ink);font:14px/1.5 var(--font-ui)}
+.flight-orientation nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}.flight-orientation nav a{display:flex;align-items:center;gap:12px;border:1px solid var(--line);background:var(--card);border-radius:8px;padding:12px 16px;color:var(--ink);text-decoration:none;min-width:0}.flight-orientation nav b{font-size:12px;border:1px solid var(--line);border-radius:5px;padding:6px}.flight-orientation nav span{font-weight:600}.flight-orientation nav small{display:block;font-size:12px;color:var(--sub);font-weight:400}.flight-orientation a[aria-current=page]{border:2px solid var(--blue);padding:11px 15px}.flight-orientation em{font-size:11px;font-style:normal;margin-left:auto;color:var(--blue)}.flight-orientation summary{min-height:40px;padding:10px 0;cursor:pointer;color:var(--sub)}.flight-explainer{display:grid;grid-template-columns:minmax(0,1fr) 1fr;gap:24px;padding:24px;background:var(--card);border:1px solid var(--line);border-radius:8px}.flight-explainer img{width:100%;height:auto;border-radius:6px}.flight-explainer p{align-self:center;line-height:1.7}
+@media(max-width:700px){.flight-orientation{padding:0 16px}.flight-orientation nav{grid-template-columns:1fr}.flight-orientation nav a{padding:10px 12px}.flight-orientation a[aria-current=page]{padding:9px 11px}.flight-explainer{grid-template-columns:1fr;padding:16px}.carsales-corporate .wrap{padding:16px}.carsales-corporate :is(.okr-grid,.home-grid,.insight-grid){grid-template-columns:minmax(0,1fr)}.carsales-corporate .ctrl{padding:10px 16px}.carsales-corporate main{min-width:0}.carsales-corporate .corporate-signature{min-width:0}.carsales-corporate .kpitab{display:block;max-width:100%;overflow-x:auto}.carsales-corporate .okrkpis{flex-wrap:wrap}.carsales-corporate body>header{gap:12px!important;padding:16px!important}.carsales-corporate nav.pbmenu{flex-wrap:wrap}.carsales-corporate .card{padding:18px}}
+
+/* Explicit state pairs must also win over the legacy runtime theme adapter. */
+html[data-theme=dark].carsales-corporate #demoBanner,html[data-theme=dark].carsales-corporate #demoBanner a{background:var(--warning-bg)!important;color:var(--yellow)!important}
+html[data-theme=dark].carsales-corporate .subtab.active{background:var(--ink)!important;color:var(--card)!important;border-color:var(--ink)!important}
+html[data-theme=dark].carsales-corporate #fbBtn{background:var(--card)!important;color:var(--ink)!important;border:1px solid var(--line)}
+
+html[data-theme=dark].carsales-corporate button[data-review-level][aria-pressed=true]{background:var(--ink)!important;color:var(--card)!important}
+  .wiz-ov{position:fixed;inset:0;background:rgba(15,16,16,.55);z-index:100;display:none;align-items:center;justify-content:center}
+  .wiz{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.3);max-width:620px;width:94%;padding:26px 30px;border-top:5px solid var(--brand);max-height:92vh;overflow:auto}
+  .wiz h2{margin:0 0 6px} .wiz h3{margin:0 0 8px;font-size:14px;color:var(--sub)}
+  .wiz label{display:block;font-size:12.5px;font-weight:600;color:var(--sub);margin:10px 0}
+  .wiz input,.wiz textarea,.wiz select{display:block;width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:8px;font-family:inherit;font-size:13px}
+  .wiz textarea{font-family:Consolas,monospace;font-size:11.5px}
+  .wiz .wnav{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+  .wiz code{background:#f4f5f7;padding:1px 5px;border-radius:4px}
+  .wiz .srcopt{display:flex;gap:8px;align-items:flex-start;margin:8px 0;padding:10px;border:1px solid var(--line);border-radius:8px}
+  .wiz .srcopt input[type=radio]{width:auto;margin-top:3px}
+  .wiz .mini{font-size:11.5px;color:var(--sub)}
+  .wiz .ok{color:var(--brand-dark);font-weight:700}
+</style>
+<script>/* Runs in the head before first paint; retains the agreed 20:00–07:00 schedule. */
+(function(){let mode='auto';try{mode=localStorage.getItem('fcThemeMode')||'auto'}catch(e){}const h=new Date().getHours();document.documentElement.dataset.theme=mode==='dark'||mode==='light'?mode:h>=20||h<7?'dark':'light';})();
+</script>
 <style>
   :root{
-    --bg:#f0f0f0; --card:#ffffff; --ink:#0f1010; --sub:#5f6668; --line:#e2e4e5;
-    --accent:#0c1013; --brand:#89c527; --brand2:#74b62e; --brand-dark:#5c9220;
-    --blue:#74b62e; --blue2:#4c9aff; --green:#36b37e; --yellow:#ffab00;
-    --red:#ff5630; --purple:#6554c0; --teal:#00b8d9; --grey:#97a0af;
-    --radius:12px; --shadow:0 1px 3px rgba(15,16,16,.07),0 0 1px rgba(15,16,16,.14);
+
+
+
+
+
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);
@@ -345,7 +303,7 @@ function wizNext(){
   @media(max-width:900px){.span6,.span4,.span8{grid-column:span 12}.miniboard{grid-template-columns:repeat(2,1fr)}}
 
   /* ——— UI-Refresh 08/2026: ruhige, moderne Fläche (additive Overrides — Tokens oben bleiben Build-Anker) ——— */
-  :root{--radius:14px;--shadow:0 1px 2px rgba(15,16,16,.04),0 10px 30px -18px rgba(15,16,16,.18)}
+  :root{}
   body{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
   .wrap{padding-top:26px}
   .card,.kpi,.coach,.note{border-color:rgba(16,18,20,.07)}
@@ -505,9 +463,9 @@ function wizNext(){
 <meta property="og:url" content="https://vishnuartists.com/flow-cockpit.html">
 <meta property="og:image" content="https://vishnuartists.com/img/og-default.jpg">
 <meta name="twitter:card" content="summary_large_image"></head>
-<body><nav aria-label="Analytics views" style="display:flex;flex-wrap:wrap;gap:14px;padding:16px 24px;background:#eef4f7"><strong>Analytics</strong><a href="cockpit.html">Full Analytics</a><a href="cockpit-dap.html">Data + AI Platform</a><a href="cockpit-psr.html">Sales Reporting &amp; Steering</a><a href="cockpit-wae.html">Web Analytics · setup pending</a><a href="https://${CONFIG.jiraBase.replace(/^https?:\/\//,"")}/jira/software/c/projects/PRJ/boards/2416" target="_blank" rel="noopener">Full Analytics Kanban ↗</a></nav>
+<body>
 <header>
-  <span class="logo"><span class="mark"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true" style="vertical-align:-4px"><path d="M6 19C6 10 9.5 6 18 6c0 9-3.5 13-13 13-1.3 0-2-1-2-2z"/></svg></span> VISHNU COCKPIT</span>
+  <span class="logo"><span class="mark">◢</span> VISHNU ARTISTS · FLOW COCKPIT</span>
   <span class="sub" id="orgSub"></span>
   <span class="badge" id="importBadge">Demo-Modus · synthetische Daten</span> <span class="badge" style="cursor:pointer" onclick="wizShow()">⚙️ Setup</span>
   <span class="badge" style="cursor:pointer" onclick="whoShow()" id="whoBadge">👤</span>
@@ -807,7 +765,7 @@ let LANG=(window.pbLang?pbLang():'de');
    erscheint der englische — nie der deutsche. Begruendung im Kopf von pb-i18n.js. */
 const tr=(d,e)=>LANG==='hr'?(window.pbHr?pbHr(d,e):e):(LANG==='de'?d:e);
 /* Name des Assistenten NIE hart eintippen. Er steht an genau einer Stelle — pbBuddy.mount({name:…})
-   in pb-ui.js?v=20260917-analytics — und wird von dort geholt. Grund: bei der Umbenennung Ziff → John blieb genau hier
+   in pb-ui.js?v=20260917-vishnu-night — und wird von dort geholt. Grund: bei der Umbenennung Ziff → John blieb genau hier
    der alte Name in vier Knöpfen stehen, bis Tarik ihn am 24.08.2026 im Monte-Carlo-Knopf fand.
    Fallback ist absichtlich eine Umschreibung, kein zweiter Name (wie BUDDY() in pb-meet.js). */
 const BUDDY=()=>{try{return (window.pbBuddy&&pbBuddy.name&&pbBuddy.name())||tr('dem Assistenten','the assistant');}catch(e){return tr('dem Assistenten','the assistant');}};
@@ -2063,7 +2021,7 @@ function renderPersonal(name){
    also unverändert Betriebsrat-tauglich. Fehlt pb-data.js?v=20260917-analytics (Starter-Build wirft es
    heraus), erscheinen die Karten schlicht nicht. */
 /* Reihenfolge mit Absicht: erst der offene Tab, dann das Team DIESES Cockpits, erst
-   zuletzt vsCurrentTeamId() aus pb-ui.js?v=20260917-analytics. Andersherum stand im Team-42-Cockpit
+   zuletzt vsCurrentTeamId() aus pb-ui.js?v=20260917-vishnu-night Andersherum stand im Team-42-Cockpit
    „Analytics“, weil vsCurrentTeamId() ohne Anmeldung genau darauf zurückfällt. */
 function flTeamId(){
   const bekannt=id=>!!(id&&typeof TEAMS!=='undefined'&&TEAMS.some(t=>t.id===id));
@@ -3002,7 +2960,7 @@ function flowImpuls(id,s,ttl){
   return `<div class="tip">📚 <strong>${tr('Impuls','Impulse')}: ${esc(e.title)}</strong> — ${esc(e.short)}${talk}</div>`;
 }
 
-/* Schnittstelle für John (pb-ui.js?v=20260917-analytics): Diagramme aus dem Gespräch heraus freigeben.
+/* Schnittstelle für John (pb-ui.js?v=20260917-vishnu-night Diagramme aus dem Gespräch heraus freigeben.
    „Aus einem Kontext mit John heraus" heißt: John kennt die gesperrten Themen samt
    Ampel, kann sie einzeln oder komplett öffnen und nennt dabei den Flow Coach. */
 window.fcChartGate={
@@ -3598,14 +3556,113 @@ applyLean();
 runMC();
 tilesInit();
 if(!USER)setTimeout(function(){if(window.vaApp)vaApp.loginShow();else whoShow();},600);
-/* pb-ui.js?v=20260917-analytics (window.pbKmm) lädt nach diesem Script — Hook, den pb-ui am Ende aufruft,
+/* pb-ui.js?v=20260917-vishnu-night (window.pbKmm) lädt nach diesem Script — Hook, den pb-ui am Ende aufruft,
    damit KMM-Reife-Indikator + FL1-Coaching einmal nachgerendert werden. */
-/* pb-ui.js?v=20260917-analytics kommt nach diesem Skript — erst danach gibt es John (window.pbFlow).
+/* pb-ui.js?v=20260917-vishnu-night kommt nach diesem Skript — erst danach gibt es John (window.pbFlow).
    Ein Render nach 'load' zieht die Startansichts-Leiste mit dem John-Link nach. */
 window.addEventListener('load',function(){ try{ if(typeof renderActive==='function')renderActive(); if(typeof renderOps==='function')renderOps(); }catch(e){} });
 /* Sobald pb-buddy montiert ist, steht der Persona-Name fest — alles, was ihn zeigt, einmal nachziehen. */
 window.addEventListener('pbbuddy:ready',function(){ try{ if(typeof runMC==='function')runMC(); if(typeof renderActive==='function')renderActive(); }catch(e){} });
 window.pbKmmReady=function(){ if(window.pbKmm && typeof renderActive==='function'){ try{ renderActive(); }catch(e){ console.error('KMM-remount:',e); } } if(typeof runMC==='function'){ try{ runMC(); }catch(e){} } };
+
+// ——— Flight Level 2+3 (Board STA) — Rendering in va-fl.js (window.vaFL) ———
+function renderFL(){
+  const pv=document.getElementById('progview');
+  if(window.vaFL){vaFL.render();return;}
+  pv.innerHTML='<div style="margin:20px 0;color:var(--sub);font-size:13px">ℹ️ '+tr('Flight-Level-Ansicht lädt (va-fl.js) …','Flight level view loading (va-fl.js) …')+'</div>';
+}
+// ——— Setup-Wizard v2 ———
+let wizStep=0;const WIZN=5;
+function wizShow(){document.getElementById('wizard').style.display='flex';
+  if(!document.querySelector('.wTeam')){Object.keys(CONFIG.teams).forEach(k=>wizAddTeam(CONFIG.teams[k]));}
+  document.getElementById('wOrg').value=CONFIG.org;wizGo(0);}
+function wizGo(n){wizStep=n;
+  document.querySelectorAll('.wstep').forEach((e,i)=>e.style.display=i===n?'block':'none');
+  document.getElementById('wizStepInfo').textContent=tr('Schritt ','Step ')+(n+1)+' / '+WIZN;
+  document.getElementById('wizPrev').style.visibility=n===0?'hidden':'visible';
+  document.getElementById('wizNextBtn').textContent=n===WIZN-1?tr('✔ Fertig — Cockpit starten','✔ Done — launch cockpit'):tr('Weiter →','Next →');}
+function wizPrev(){if(wizStep>0)wizGo(wizStep-1);}
+function wizAddTeam(label){const c=document.getElementById('wTeams');const idx=c.children.length+1;
+  const row=document.createElement('div');
+  row.innerHTML='<label>Team t'+idx+'<input class="wTeam" value="'+String(label||'').replace(/"/g,'')+'" placeholder="Team-Name"></label>';
+  c.appendChild(row);}
+function wizTeams(){return [...document.querySelectorAll('.wTeam')].map((e,i)=>['t'+(i+1),e.value.trim()]).filter(t=>t[1]);}
+function wizUpload(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{try{const d=JSON.parse(rd.result);
+    if(!d.issues||!d.issues.length||!d.meta)throw new Error('format');
+    localStorage.setItem('fcData',rd.result);
+    document.getElementById('wUpInfo').innerHTML='<span class="ok">✔ '+d.issues.length+' '+tr('Tickets geladen — Import vom ','tickets loaded — import of ')+d.meta.importDate+'</span>';
+    document.querySelector('input[name=wSrc][value=upload]').checked=true;
+  }catch(e){document.getElementById('wUpInfo').textContent=tr('✖ Ungültige Datei — bitte flow-cockpit-data.json aus dem Import-Skript verwenden.','✖ Invalid file — please use flow-cockpit-data.json from the import script.');}};
+  rd.readAsText(f);}
+function wizScanNames(){
+  let data=null;try{data=JSON.parse(localStorage.getItem('fcData')||'null');}catch(e){}
+  const issues=(data&&data.issues&&data.issues.length)?data.issues:RAW;
+  const teams=wizTeams();
+  const cnt={};issues.forEach(i=>{const n=i[8];if(!n)return;cnt[n]=cnt[n]||{};cnt[n][i[1]]=(cnt[n][i[1]]||0)+1;});
+  const lines=Object.keys(cnt).sort().map(n=>{
+    const best=Object.keys(cnt[n]).sort((a,b)=>cnt[n][b]-cnt[n][a])[0];
+    const key=teams.some(t=>t[0]===best)?best:(teams[0]?teams[0][0]:'t1');
+    const lbl=(teams.find(t=>t[0]===key)||['',''])[1];
+    const role=/eng|dev|tech|platt|platform/i.test(lbl)?'Engineer':'Analyst';
+    return n+'; '+role+'; '+key;});
+  if(lines.length)document.getElementById('wPeople').value=lines.join('\n');
+  document.getElementById('wScanInfo').textContent=lines.length+' '+tr('Namen aus den Tickets übernommen — Rollen/Teams bitte prüfen.','names taken from the tickets — please review roles/teams.');}
+function buildImportScript(){
+  const jira=(document.getElementById('wJira2').value||'https://firma.atlassian.net').replace(/\/+$/,'');
+  const projs=(document.getElementById('wProjects').value||'PROJ').split(',').map(x=>x.trim()).filter(Boolean);
+  const board=(document.getElementById('wBoard').value||'123').trim();
+  const teams=wizTeams();
+  const tmap=teams.map(t=>'["'+String(t[1]).toLowerCase().replace(/"/g,'').slice(0,8)+'","'+t[0]+'"]').join(',');
+  const defT=teams[0]?teams[0][0]:'t1';
+  const L=[];
+  L.push('// Flow Cockpit Import — auf einem '+jira+'-Tab in der Browser-Konsole (F12) ausfuehren');
+  L.push('(async()=>{');
+  L.push('const PROJECTS='+JSON.stringify(projs)+';const BOARD="'+board+'";');
+  L.push('// Team-Zuordnung: ["suchbegriff in component/label","team-key"] — bitte anpassen!');
+  L.push('const TEAMMAP=['+tmap+'];const DEFTEAM="'+defT+'";');
+  L.push('const cfg=await fetch("/rest/agile/1.0/board/"+BOARD+"/configuration").then(r=>r.json());');
+  L.push('const cols={};cfg.columnConfig.columns.forEach((c,i,a)=>{const idx=i===0?0:(i===a.length-1?5:Math.max(1,Math.min(4,i+6-a.length)));c.statuses.forEach(st=>cols[st.id]=idx);});');
+  L.push('const jql="project in ("+PROJECTS.join(",")+") AND issuetype not in subTaskIssueTypes() AND (statusCategory != Done OR resolved >= -26w)";');
+  L.push('let issues=[],token=null;');
+  L.push('for(let p=0;p<60;p++){const u=new URL("/rest/api/3/search/jql",location.origin);u.searchParams.set("jql",jql);u.searchParams.set("maxResults","100");u.searchParams.set("fields","status,assignee,created,resolutiondate,issuetype,labels,duedate,components,project");if(token)u.searchParams.set("nextPageToken",token);const j=await fetch(u).then(r=>r.json());issues=issues.concat(j.issues||[]);if(!j.nextPageToken)break;token=j.nextPageToken;}');
+  L.push('console.log("Tickets: "+issues.length+" — lade Status-Historien (dauert etwas)...");');
+  L.push('const cl={};const q=issues.slice();');
+  L.push('await Promise.all(Array.from({length:10},async()=>{let it;while((it=q.shift())){let h=[],sa=0;for(let p=0;p<6;p++){const r=await fetch("/rest/api/3/issue/"+it.key+"/changelog?maxResults=100&startAt="+sa);if(!r.ok)break;const j=await r.json();j.values.forEach(v=>v.items.forEach(x=>{if(x.fieldId==="status")h.push([v.created.slice(0,10),x.from,x.to]);}));if(j.isLast||!j.values.length)break;sa+=j.values.length;}cl[it.key]=h;}}));');
+  L.push('const ty=n=>/story/i.test(n)?"S":/epic/i.test(n)?"E":/tech/i.test(n)?"X":/^task|^aufgabe/i.test(n)?"T":"O";');
+  L.push('const team=f=>{const txt=((f.components||[]).map(c=>c.name).join(" ")+" "+(f.labels||[]).join(" ")).toLowerCase();for(const m of TEAMMAP){if(m[0]&&txt.indexOf(m[0])>=0)return m[1];}return DEFTEAM;};');
+  L.push('const out=issues.map(i=>{const f=i.fields;const h=(cl[i.key]||[]).sort((a,b)=>a[0]<b[0]?-1:1);');
+  L.push(' const ic=h.length?cols[h[0][1]]:cols[f.status.id];const trn=[[f.created.slice(0,10),ic==null?0:ic]];');
+  L.push(' h.forEach(x=>{const c=cols[x[2]];if(c!=null&&c!==trn[trn.length-1][1])trn.push([x[0],c]);});');
+  L.push(' const lb=(f.labels||[]).map(l=>l.toLowerCase());');
+  L.push(' return [i.key,team(f),"C",ty(f.issuetype.name),f.created.slice(0,10),f.resolutiondate?f.resolutiondate.slice(0,10):"",f.duedate||"",0,f.assignee?f.assignee.displayName:"",(lb.indexOf("refinement_needed")>=0?1:0)+(lb.indexOf("refinement_done")>=0?2:0),trn];});');
+  L.push('const today=new Date().toISOString().slice(0,10);const start=new Date(Date.now()-182*86400000).toISOString().slice(0,10);');
+  L.push('const blob=new Blob([JSON.stringify({meta:{importDate:today,doneWindowStart:start},issues:out})],{type:"application/json"});');
+  L.push('const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="flow-cockpit-data.json";document.body.appendChild(a);a.click();a.remove();');
+  L.push('console.log("Fertig — flow-cockpit-data.json wurde heruntergeladen. Jetzt im Cockpit-Wizard hochladen.");');
+  L.push('})();');
+  document.getElementById('wScript').value=L.join('\n');
+  document.querySelector('input[name=wSrc][value=script]').checked=true;}
+function wizNext(){
+  if(wizStep<WIZN-1){wizGo(wizStep+1);return;}
+  const src=(document.querySelector('input[name=wSrc]:checked')||{}).value||'demo';
+  if(src==='demo')localStorage.removeItem('fcData');
+  const teams={};wizTeams().forEach(t=>teams[t[0]]=t[1]);
+  if(!Object.keys(teams).length){teams.t1='Team 1';}
+  const people=document.getElementById('wPeople').value.split('\n').map(l=>l.split(';').map(x=>x.trim())).filter(l=>l.length===3&&l[0]);
+  const cName=document.getElementById('wCName').value||CONFIG.coach.name;
+  const cfg={org:document.getElementById('wOrg').value||CONFIG.org,
+    teams:teams,
+    people:people.length?people:CONFIG.people,
+    coach:{name:cName,first:cName.split(' ')[0],
+      mail:document.getElementById('wCMail').value||CONFIG.coach.mail,
+      role:document.getElementById('wCRole').value||'Agile Coach',
+      quali:document.getElementById('wCQuali').value||CONFIG.coach.quali},
+    jiraBase:(document.getElementById('wJira2').value||CONFIG.jiraBase).replace(/\/+$/,'')};
+  localStorage.setItem('fcConfig_va',JSON.stringify(cfg));
+  location.reload();}
 </script>
 <script>/* Jira-Historie vor dem ersten Zeichnen laden: erst damit zeigen Programm-Panel,
   Reifegrad und die Willkommens-Kennzahlen den heutigen Stand statt des Miro-Abzugs.
@@ -3617,6 +3674,5 @@ window.pbKmmReady=function(){ if(window.pbKmm && typeof renderActive==='function
 <script src="va-app.js?v=0831a"></script>
 <script src="pb-buddy.js?v=08a8ed46"></script>
 <script src="pb-ui.js?v=8cf8fb54"></script>
-<script src="avatar-loader.js"></script>
 </body>
 </html>
