@@ -75,14 +75,8 @@ Alex Muster; Coach; gesamt</textarea></div>
 '@ 'Wizard-HTML'
 
 # ── 11. Wizard-JS ──────────────────────────────────────────────────────────────
-# Ziel ist das ENDE des grossen Inline-Scripts — verankert am pb-data.js-Include, der in
-# der Quelle direkt dahinter steht (Lookahead; der Include selbst bleibt und wird in
-# Schritt 13 gedroppt). Bis 27.08. stand hier RepX '</script>' (erstes Vorkommen) — seit
-# die Quelle am 24.08. pb-i18n.js & Co. im <head> laedt, war das erste </script> ein
-# src-Include und der Wizard landete als toter Inhalt darin (⚙️ Setup und im VA-Build
-# der FL2+3-Tab: ReferenceError). Faellt der pb-data-Include je aus der Quelle, bricht
-# der Build hier laut ab — dann neuen Anker fuers Script-Ende suchen.
-RepX '</script>(?=\n<script src="pb-data\.js)' @'
+# Der PI-Include folgt dem Hauptskript. Head-Includes sind kein sicherer Anker.
+RepX '</script>(?=\n<script src="pb-pi\.js)' @'
 
 // ——— Setup-Wizard v2 ———
 let wizStep=0;const WIZN=5;

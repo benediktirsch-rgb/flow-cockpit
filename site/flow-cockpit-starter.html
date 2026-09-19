@@ -4,100 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Flow Cockpit — Analytics (Demo Org)</title>
-<script src="pb-i18n.js?v=0824b">
-// ——— Setup-Wizard v2 ———
-let wizStep=0;const WIZN=5;
-function wizShow(){document.getElementById('wizard').style.display='flex';
-  if(!document.querySelector('.wTeam')){Object.keys(CONFIG.teams).forEach(k=>wizAddTeam(CONFIG.teams[k]));}
-  document.getElementById('wOrg').value=CONFIG.org;wizGo(0);}
-function wizGo(n){wizStep=n;
-  document.querySelectorAll('.wstep').forEach((e,i)=>e.style.display=i===n?'block':'none');
-  document.getElementById('wizStepInfo').textContent=tr('Schritt ','Step ')+(n+1)+' / '+WIZN;
-  document.getElementById('wizPrev').style.visibility=n===0?'hidden':'visible';
-  document.getElementById('wizNextBtn').textContent=n===WIZN-1?tr('✔ Fertig — Cockpit starten','✔ Done — launch cockpit'):tr('Weiter →','Next →');}
-function wizPrev(){if(wizStep>0)wizGo(wizStep-1);}
-function wizAddTeam(label){const c=document.getElementById('wTeams');const idx=c.children.length+1;
-  const row=document.createElement('div');
-  row.innerHTML='<label>Team t'+idx+'<input class="wTeam" value="'+String(label||'').replace(/"/g,'')+'" placeholder="Team-Name"></label>';
-  c.appendChild(row);}
-function wizTeams(){return [...document.querySelectorAll('.wTeam')].map((e,i)=>['t'+(i+1),e.value.trim()]).filter(t=>t[1]);}
-function wizUpload(ev){
-  const f=ev.target.files[0];if(!f)return;
-  const rd=new FileReader();
-  rd.onload=()=>{try{const d=JSON.parse(rd.result);
-    if(!d.issues||!d.issues.length||!d.meta)throw new Error('format');
-    localStorage.setItem('fcData',rd.result);
-    document.getElementById('wUpInfo').innerHTML='<span class="ok">✔ '+d.issues.length+' '+tr('Tickets geladen — Import vom ','tickets loaded — import of ')+d.meta.importDate+'</span>';
-    document.querySelector('input[name=wSrc][value=upload]').checked=true;
-  }catch(e){document.getElementById('wUpInfo').textContent=tr('✖ Ungültige Datei — bitte flow-cockpit-data.json aus dem Import-Skript verwenden.','✖ Invalid file — please use flow-cockpit-data.json from the import script.');}};
-  rd.readAsText(f);}
-function wizScanNames(){
-  let data=null;try{data=JSON.parse(localStorage.getItem('fcData')||'null');}catch(e){}
-  const issues=(data&&data.issues&&data.issues.length)?data.issues:RAW;
-  const teams=wizTeams();
-  const cnt={};issues.forEach(i=>{const n=i[8];if(!n)return;cnt[n]=cnt[n]||{};cnt[n][i[1]]=(cnt[n][i[1]]||0)+1;});
-  const lines=Object.keys(cnt).sort().map(n=>{
-    const best=Object.keys(cnt[n]).sort((a,b)=>cnt[n][b]-cnt[n][a])[0];
-    const key=teams.some(t=>t[0]===best)?best:(teams[0]?teams[0][0]:'t1');
-    const lbl=(teams.find(t=>t[0]===key)||['',''])[1];
-    const role=/eng|dev|tech|platt|platform/i.test(lbl)?'Engineer':'Analyst';
-    return n+'; '+role+'; '+key;});
-  if(lines.length)document.getElementById('wPeople').value=lines.join('\n');
-  document.getElementById('wScanInfo').textContent=lines.length+' '+tr('Namen aus den Tickets übernommen — Rollen/Teams bitte prüfen.','names taken from the tickets — please review roles/teams.');}
-function buildImportScript(){
-  const jira=(document.getElementById('wJira2').value||'https://firma.atlassian.net').replace(/\/+$/,'');
-  const projs=(document.getElementById('wProjects').value||'PROJ').split(',').map(x=>x.trim()).filter(Boolean);
-  const board=(document.getElementById('wBoard').value||'123').trim();
-  const teams=wizTeams();
-  const tmap=teams.map(t=>'["'+String(t[1]).toLowerCase().replace(/"/g,'').slice(0,8)+'","'+t[0]+'"]').join(',');
-  const defT=teams[0]?teams[0][0]:'t1';
-  const L=[];
-  L.push('// Flow Cockpit Import — auf einem '+jira+'-Tab in der Browser-Konsole (F12) ausfuehren');
-  L.push('(async()=>{');
-  L.push('const PROJECTS='+JSON.stringify(projs)+';const BOARD="'+board+'";');
-  L.push('// Team-Zuordnung: ["suchbegriff in component/label","team-key"] — bitte anpassen!');
-  L.push('const TEAMMAP=['+tmap+'];const DEFTEAM="'+defT+'";');
-  L.push('const cfg=await fetch("/rest/agile/1.0/board/"+BOARD+"/configuration").then(r=>r.json());');
-  L.push('const cols={};cfg.columnConfig.columns.forEach((c,i,a)=>{const idx=i===0?0:(i===a.length-1?5:Math.max(1,Math.min(4,i+6-a.length)));c.statuses.forEach(st=>cols[st.id]=idx);});');
-  L.push('const jql="project in ("+PROJECTS.join(",")+") AND issuetype not in subTaskIssueTypes() AND (statusCategory != Done OR resolved >= -26w)";');
-  L.push('let issues=[],token=null;');
-  L.push('for(let p=0;p<60;p++){const u=new URL("/rest/api/3/search/jql",location.origin);u.searchParams.set("jql",jql);u.searchParams.set("maxResults","100");u.searchParams.set("fields","status,assignee,created,resolutiondate,issuetype,labels,duedate,components,project");if(token)u.searchParams.set("nextPageToken",token);const j=await fetch(u).then(r=>r.json());issues=issues.concat(j.issues||[]);if(!j.nextPageToken)break;token=j.nextPageToken;}');
-  L.push('console.log("Tickets: "+issues.length+" — lade Status-Historien (dauert etwas)...");');
-  L.push('const cl={};const q=issues.slice();');
-  L.push('await Promise.all(Array.from({length:10},async()=>{let it;while((it=q.shift())){let h=[],sa=0;for(let p=0;p<6;p++){const r=await fetch("/rest/api/3/issue/"+it.key+"/changelog?maxResults=100&startAt="+sa);if(!r.ok)break;const j=await r.json();j.values.forEach(v=>v.items.forEach(x=>{if(x.fieldId==="status")h.push([v.created.slice(0,10),x.from,x.to]);}));if(j.isLast||!j.values.length)break;sa+=j.values.length;}cl[it.key]=h;}}));');
-  L.push('const ty=n=>/story/i.test(n)?"S":/epic/i.test(n)?"E":/tech/i.test(n)?"X":/^task|^aufgabe/i.test(n)?"T":"O";');
-  L.push('const team=f=>{const txt=((f.components||[]).map(c=>c.name).join(" ")+" "+(f.labels||[]).join(" ")).toLowerCase();for(const m of TEAMMAP){if(m[0]&&txt.indexOf(m[0])>=0)return m[1];}return DEFTEAM;};');
-  L.push('const out=issues.map(i=>{const f=i.fields;const h=(cl[i.key]||[]).sort((a,b)=>a[0]<b[0]?-1:1);');
-  L.push(' const ic=h.length?cols[h[0][1]]:cols[f.status.id];const trn=[[f.created.slice(0,10),ic==null?0:ic]];');
-  L.push(' h.forEach(x=>{const c=cols[x[2]];if(c!=null&&c!==trn[trn.length-1][1])trn.push([x[0],c]);});');
-  L.push(' const lb=(f.labels||[]).map(l=>l.toLowerCase());');
-  L.push(' return [i.key,team(f),"C",ty(f.issuetype.name),f.created.slice(0,10),f.resolutiondate?f.resolutiondate.slice(0,10):"",f.duedate||"",0,f.assignee?f.assignee.displayName:"",(lb.indexOf("refinement_needed")>=0?1:0)+(lb.indexOf("refinement_done")>=0?2:0),trn];});');
-  L.push('const today=new Date().toISOString().slice(0,10);const start=new Date(Date.now()-182*86400000).toISOString().slice(0,10);');
-  L.push('const blob=new Blob([JSON.stringify({meta:{importDate:today,doneWindowStart:start},issues:out})],{type:"application/json"});');
-  L.push('const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="flow-cockpit-data.json";document.body.appendChild(a);a.click();a.remove();');
-  L.push('console.log("Fertig — flow-cockpit-data.json wurde heruntergeladen. Jetzt im Cockpit-Wizard hochladen.");');
-  L.push('})();');
-  document.getElementById('wScript').value=L.join('\n');
-  document.querySelector('input[name=wSrc][value=script]').checked=true;}
-function wizNext(){
-  if(wizStep<WIZN-1){wizGo(wizStep+1);return;}
-  const src=(document.querySelector('input[name=wSrc]:checked')||{}).value||'demo';
-  if(src==='demo')localStorage.removeItem('fcData');
-  const teams={};wizTeams().forEach(t=>teams[t[0]]=t[1]);
-  if(!Object.keys(teams).length){teams.t1='Team 1';}
-  const people=document.getElementById('wPeople').value.split('\n').map(l=>l.split(';').map(x=>x.trim())).filter(l=>l.length===3&&l[0]);
-  const cName=document.getElementById('wCName').value||CONFIG.coach.name;
-  const cfg={org:document.getElementById('wOrg').value||CONFIG.org,
-    teams:teams,
-    people:people.length?people:CONFIG.people,
-    coach:{name:cName,first:cName.split(' ')[0],
-      mail:document.getElementById('wCMail').value||CONFIG.coach.mail,
-      role:document.getElementById('wCRole').value||'Agile Coach',
-      quali:document.getElementById('wCQuali').value||CONFIG.coach.quali},
-    jiraBase:(document.getElementById('wJira2').value||CONFIG.jiraBase).replace(/\/+$/,'')};
-  localStorage.setItem('fcConfig',JSON.stringify(cfg));
-  location.reload();}
-</script>
 
 <script src="pb-flowwissen.js?v=2dab041f"></script>
 <!-- Dark-Flash-Schutz: Theme-Key fcTheme + html[data-theme] exakt wie pbTheme in pb-ui.js?v=20260917-vishnu-night Grundfarben vor dem ersten Paint -->
@@ -556,7 +462,7 @@ html[data-theme=dark].carsales-corporate button[data-review-level][aria-pressed=
 <meta property="og:url" content="https://vishnuartists.com/flow-cockpit.html">
 <meta property="og:image" content="https://vishnuartists.com/img/og-default.jpg">
 <meta name="twitter:card" content="summary_large_image"></head>
-<body><nav aria-label="Analytics views" style="display:flex;flex-wrap:wrap;gap:14px;padding:16px 24px;background:#eef4f7"><strong>Analytics</strong><a href="cockpit.html">Full Analytics</a><a href="cockpit-dap.html">Data + AI Platform</a><a href="cockpit-psr.html">Sales Reporting &amp; Steering</a><a href="cockpit-wae.html">Web Analytics · setup pending</a><a href="https://${CONFIG.jiraBase.replace(/^https?:\/\//,"")}/jira/software/c/projects/PRJ/boards/2416" target="_blank" rel="noopener">Full Analytics Kanban ↗</a></nav>
+<body>
 <header>
   <span class="logo"><span class="mark">◢</span> FLOW COCKPIT</span>
   <span class="sub" id="orgSub"></span>
@@ -3636,6 +3542,99 @@ window.addEventListener('load',function(){ try{ if(typeof renderActive==='functi
 /* Sobald pb-buddy montiert ist, steht der Persona-Name fest — alles, was ihn zeigt, einmal nachziehen. */
 window.addEventListener('pbbuddy:ready',function(){ try{ if(typeof runMC==='function')runMC(); if(typeof renderActive==='function')renderActive(); }catch(e){} });
 window.pbKmmReady=function(){ if(window.pbKmm && typeof renderActive==='function'){ try{ renderActive(); }catch(e){ console.error('KMM-remount:',e); } } if(typeof runMC==='function'){ try{ runMC(); }catch(e){} } };
+
+// ——— Setup-Wizard v2 ———
+let wizStep=0;const WIZN=5;
+function wizShow(){document.getElementById('wizard').style.display='flex';
+  if(!document.querySelector('.wTeam')){Object.keys(CONFIG.teams).forEach(k=>wizAddTeam(CONFIG.teams[k]));}
+  document.getElementById('wOrg').value=CONFIG.org;wizGo(0);}
+function wizGo(n){wizStep=n;
+  document.querySelectorAll('.wstep').forEach((e,i)=>e.style.display=i===n?'block':'none');
+  document.getElementById('wizStepInfo').textContent=tr('Schritt ','Step ')+(n+1)+' / '+WIZN;
+  document.getElementById('wizPrev').style.visibility=n===0?'hidden':'visible';
+  document.getElementById('wizNextBtn').textContent=n===WIZN-1?tr('✔ Fertig — Cockpit starten','✔ Done — launch cockpit'):tr('Weiter →','Next →');}
+function wizPrev(){if(wizStep>0)wizGo(wizStep-1);}
+function wizAddTeam(label){const c=document.getElementById('wTeams');const idx=c.children.length+1;
+  const row=document.createElement('div');
+  row.innerHTML='<label>Team t'+idx+'<input class="wTeam" value="'+String(label||'').replace(/"/g,'')+'" placeholder="Team-Name"></label>';
+  c.appendChild(row);}
+function wizTeams(){return [...document.querySelectorAll('.wTeam')].map((e,i)=>['t'+(i+1),e.value.trim()]).filter(t=>t[1]);}
+function wizUpload(ev){
+  const f=ev.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=()=>{try{const d=JSON.parse(rd.result);
+    if(!d.issues||!d.issues.length||!d.meta)throw new Error('format');
+    localStorage.setItem('fcData',rd.result);
+    document.getElementById('wUpInfo').innerHTML='<span class="ok">✔ '+d.issues.length+' '+tr('Tickets geladen — Import vom ','tickets loaded — import of ')+d.meta.importDate+'</span>';
+    document.querySelector('input[name=wSrc][value=upload]').checked=true;
+  }catch(e){document.getElementById('wUpInfo').textContent=tr('✖ Ungültige Datei — bitte flow-cockpit-data.json aus dem Import-Skript verwenden.','✖ Invalid file — please use flow-cockpit-data.json from the import script.');}};
+  rd.readAsText(f);}
+function wizScanNames(){
+  let data=null;try{data=JSON.parse(localStorage.getItem('fcData')||'null');}catch(e){}
+  const issues=(data&&data.issues&&data.issues.length)?data.issues:RAW;
+  const teams=wizTeams();
+  const cnt={};issues.forEach(i=>{const n=i[8];if(!n)return;cnt[n]=cnt[n]||{};cnt[n][i[1]]=(cnt[n][i[1]]||0)+1;});
+  const lines=Object.keys(cnt).sort().map(n=>{
+    const best=Object.keys(cnt[n]).sort((a,b)=>cnt[n][b]-cnt[n][a])[0];
+    const key=teams.some(t=>t[0]===best)?best:(teams[0]?teams[0][0]:'t1');
+    const lbl=(teams.find(t=>t[0]===key)||['',''])[1];
+    const role=/eng|dev|tech|platt|platform/i.test(lbl)?'Engineer':'Analyst';
+    return n+'; '+role+'; '+key;});
+  if(lines.length)document.getElementById('wPeople').value=lines.join('\n');
+  document.getElementById('wScanInfo').textContent=lines.length+' '+tr('Namen aus den Tickets übernommen — Rollen/Teams bitte prüfen.','names taken from the tickets — please review roles/teams.');}
+function buildImportScript(){
+  const jira=(document.getElementById('wJira2').value||'https://firma.atlassian.net').replace(/\/+$/,'');
+  const projs=(document.getElementById('wProjects').value||'PROJ').split(',').map(x=>x.trim()).filter(Boolean);
+  const board=(document.getElementById('wBoard').value||'123').trim();
+  const teams=wizTeams();
+  const tmap=teams.map(t=>'["'+String(t[1]).toLowerCase().replace(/"/g,'').slice(0,8)+'","'+t[0]+'"]').join(',');
+  const defT=teams[0]?teams[0][0]:'t1';
+  const L=[];
+  L.push('// Flow Cockpit Import — auf einem '+jira+'-Tab in der Browser-Konsole (F12) ausfuehren');
+  L.push('(async()=>{');
+  L.push('const PROJECTS='+JSON.stringify(projs)+';const BOARD="'+board+'";');
+  L.push('// Team-Zuordnung: ["suchbegriff in component/label","team-key"] — bitte anpassen!');
+  L.push('const TEAMMAP=['+tmap+'];const DEFTEAM="'+defT+'";');
+  L.push('const cfg=await fetch("/rest/agile/1.0/board/"+BOARD+"/configuration").then(r=>r.json());');
+  L.push('const cols={};cfg.columnConfig.columns.forEach((c,i,a)=>{const idx=i===0?0:(i===a.length-1?5:Math.max(1,Math.min(4,i+6-a.length)));c.statuses.forEach(st=>cols[st.id]=idx);});');
+  L.push('const jql="project in ("+PROJECTS.join(",")+") AND issuetype not in subTaskIssueTypes() AND (statusCategory != Done OR resolved >= -26w)";');
+  L.push('let issues=[],token=null;');
+  L.push('for(let p=0;p<60;p++){const u=new URL("/rest/api/3/search/jql",location.origin);u.searchParams.set("jql",jql);u.searchParams.set("maxResults","100");u.searchParams.set("fields","status,assignee,created,resolutiondate,issuetype,labels,duedate,components,project");if(token)u.searchParams.set("nextPageToken",token);const j=await fetch(u).then(r=>r.json());issues=issues.concat(j.issues||[]);if(!j.nextPageToken)break;token=j.nextPageToken;}');
+  L.push('console.log("Tickets: "+issues.length+" — lade Status-Historien (dauert etwas)...");');
+  L.push('const cl={};const q=issues.slice();');
+  L.push('await Promise.all(Array.from({length:10},async()=>{let it;while((it=q.shift())){let h=[],sa=0;for(let p=0;p<6;p++){const r=await fetch("/rest/api/3/issue/"+it.key+"/changelog?maxResults=100&startAt="+sa);if(!r.ok)break;const j=await r.json();j.values.forEach(v=>v.items.forEach(x=>{if(x.fieldId==="status")h.push([v.created.slice(0,10),x.from,x.to]);}));if(j.isLast||!j.values.length)break;sa+=j.values.length;}cl[it.key]=h;}}));');
+  L.push('const ty=n=>/story/i.test(n)?"S":/epic/i.test(n)?"E":/tech/i.test(n)?"X":/^task|^aufgabe/i.test(n)?"T":"O";');
+  L.push('const team=f=>{const txt=((f.components||[]).map(c=>c.name).join(" ")+" "+(f.labels||[]).join(" ")).toLowerCase();for(const m of TEAMMAP){if(m[0]&&txt.indexOf(m[0])>=0)return m[1];}return DEFTEAM;};');
+  L.push('const out=issues.map(i=>{const f=i.fields;const h=(cl[i.key]||[]).sort((a,b)=>a[0]<b[0]?-1:1);');
+  L.push(' const ic=h.length?cols[h[0][1]]:cols[f.status.id];const trn=[[f.created.slice(0,10),ic==null?0:ic]];');
+  L.push(' h.forEach(x=>{const c=cols[x[2]];if(c!=null&&c!==trn[trn.length-1][1])trn.push([x[0],c]);});');
+  L.push(' const lb=(f.labels||[]).map(l=>l.toLowerCase());');
+  L.push(' return [i.key,team(f),"C",ty(f.issuetype.name),f.created.slice(0,10),f.resolutiondate?f.resolutiondate.slice(0,10):"",f.duedate||"",0,f.assignee?f.assignee.displayName:"",(lb.indexOf("refinement_needed")>=0?1:0)+(lb.indexOf("refinement_done")>=0?2:0),trn];});');
+  L.push('const today=new Date().toISOString().slice(0,10);const start=new Date(Date.now()-182*86400000).toISOString().slice(0,10);');
+  L.push('const blob=new Blob([JSON.stringify({meta:{importDate:today,doneWindowStart:start},issues:out})],{type:"application/json"});');
+  L.push('const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="flow-cockpit-data.json";document.body.appendChild(a);a.click();a.remove();');
+  L.push('console.log("Fertig — flow-cockpit-data.json wurde heruntergeladen. Jetzt im Cockpit-Wizard hochladen.");');
+  L.push('})();');
+  document.getElementById('wScript').value=L.join('\n');
+  document.querySelector('input[name=wSrc][value=script]').checked=true;}
+function wizNext(){
+  if(wizStep<WIZN-1){wizGo(wizStep+1);return;}
+  const src=(document.querySelector('input[name=wSrc]:checked')||{}).value||'demo';
+  if(src==='demo')localStorage.removeItem('fcData');
+  const teams={};wizTeams().forEach(t=>teams[t[0]]=t[1]);
+  if(!Object.keys(teams).length){teams.t1='Team 1';}
+  const people=document.getElementById('wPeople').value.split('\n').map(l=>l.split(';').map(x=>x.trim())).filter(l=>l.length===3&&l[0]);
+  const cName=document.getElementById('wCName').value||CONFIG.coach.name;
+  const cfg={org:document.getElementById('wOrg').value||CONFIG.org,
+    teams:teams,
+    people:people.length?people:CONFIG.people,
+    coach:{name:cName,first:cName.split(' ')[0],
+      mail:document.getElementById('wCMail').value||CONFIG.coach.mail,
+      role:document.getElementById('wCRole').value||'Agile Coach',
+      quali:document.getElementById('wCQuali').value||CONFIG.coach.quali},
+    jiraBase:(document.getElementById('wJira2').value||CONFIG.jiraBase).replace(/\/+$/,'')};
+  localStorage.setItem('fcConfig',JSON.stringify(cfg));
+  location.reload();}
 </script>
 <script>/* Jira-Historie vor dem ersten Zeichnen laden: erst damit zeigen Programm-Panel,
   Reifegrad und die Willkommens-Kennzahlen den heutigen Stand statt des Miro-Abzugs.

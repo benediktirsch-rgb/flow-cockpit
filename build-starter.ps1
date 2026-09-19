@@ -26,6 +26,8 @@ function RepX([string]$pattern, [string]$new, [string]$name) {
   $script:s = $rx.Replace($script:s, $ev, 1)
 }
 
+# Kunden-Teamnavigation verweist auf Seiten, die das eigenstaendige Produkt nicht mitliefert.
+RepX '<nav aria-label="Analytics views"[^>]*>.*?</nav>' '' 'Kunden-Teamnavigation entfernen'
 # ── 0. Porsche-Branding zurueck auf vishnuartists (Verkaufsversion) ────────────
 # Poppins selbst gehostet (VA-13562, 31.08.2026) — vorher zwei Requests an
 # fonts.googleapis.com, also Besucher-IP an Google ohne Einwilligung.
